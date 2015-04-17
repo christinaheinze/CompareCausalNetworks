@@ -74,7 +74,7 @@ for (iter in 1:niter){
 ####### (using all data pooled for pc/lingam/rfci --
 #######  -- can be changed with option 'onlyObservationalData=TRUE')
 
-methods <- c("hiddenICE", "lingam", "pc", "rfci","regression")
+methods <- c("hiddenICE", "lingam", "pc", "rfci","regression","bivariateANM","bivariateCAM")
 
 ## arrange graphical output into a rectangular grid
 sq <- ceiling(sqrt(length(methods)+1))
@@ -94,8 +94,7 @@ for (method in methods){
     
     ## Option 2): use a stability selection based estimator
     ## with expected number of false positives bounded by EV=2
-    Ahat <- getParentsStable(X, environment,EV=2, interventions=interventions,
-                             method=method ,alpha=0.1)
+    Ahat <- getParentsStable(X, environment,EV=2, method=method ,alpha=0.1)
 
 
     ## print and plot estimate
