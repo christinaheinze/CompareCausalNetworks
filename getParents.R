@@ -12,7 +12,7 @@ getParents <- function(X,  environment=NULL, parentsOf=1:ncol(X),interventions= 
     if(!is.list(interventions) & !is.null(interventions)) stop("'interventions' needs to be a list or NULL")
     if(length(interventions)!=nrow(X) & !is.null(interventions)) stop("'interventions' needs to have as many entries as there are rows in 'X' (or be 'NULL')")
     if( is.null(environment) &is.null(interventions) & method %in% c("hiddenICP","ICP","hiddenICE","gies") ) stop(paste("'environment' and 'interventions' cannot both be 'NULL' for method", method))
-    if( is.null(environment) ){
+    if( is.null(environment) & !is.null(interventions) ){
         environment <- match( interventions, unique(interventions))
         if((lu <- length(unique(environment)))>50) warning(paste("'environment' was set to NULL and has been created via  \n '> environment <- match( interventions, unique(interventions))'\n but this results in",lu," different environments (unique intervention combinations);\n very likely better to define a smaller number of environments using subject knowledge about the experiment by grouping various intervention targets into a single environment") )
     }
