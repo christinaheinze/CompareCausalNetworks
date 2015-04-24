@@ -1,5 +1,5 @@
 
-getParents <- function(X,  environment=NULL, parentsOf=1:ncol(X),interventions= NULL,method= c("hiddenICP","ICP","hiddenICE","pc","lingam","ges","gies","cam","rfci","regression","bivariateANM","bivariateCAM")[1],  alpha=0.1, variableSelMat=NULL,  excludeTargetInterventions= TRUE, onlyObservationalData= FALSE,  returnAsList=FALSE, confBound=TRUE, setOptions = list(), warnings=TRUE){
+getParents <- function(X,  environment=NULL, parentsOf=1:ncol(X),interventions= NULL,method= c("hiddenICP","ICP","hiddenICE","pc","lingam","ges","gies","cam","rfci","regression","bivariateANM","bivariateCAM")[1],  alpha=0.1, variableSelMat=NULL,  excludeTargetInterventions= TRUE, onlyObservationalData= FALSE,  returnAsList=FALSE, confBound=FALSE, setOptions = list(), warnings=TRUE, directed=TRUE){
 
     methodsList <- c("ICP","hiddenICP","hiddenICE","pc","lingam","ges","gies","cam","rfci","regression","bivariateANM","bivariateCAM")
     if(!method %in% methodsList){
@@ -218,10 +218,8 @@ getParents <- function(X,  environment=NULL, parentsOf=1:ncol(X),interventions= 
                target.index <- match(interventions, targets)
 
                score <- new("GaussL0penIntScore", data=X, targets =targets,  target.index = target.index)
-               vers <- unlist(packageVersion('pcalg'))[1:2]
-               if( all(vers >= c(2,1))){
-                   tmp <- gies( score,fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat) )
-               }else{
+               tryNewVersion <- try({ tmp <- gies( score,fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat) )},silent=TRUE)
+               if(class(tryNewVersion)=="try-error"){
                    tmp <- gies( p, as.list(targets), score,fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat) )
                }
                giesmat <- as( tmp$essgraph, "matrix")
@@ -233,9 +231,8 @@ getParents <- function(X,  environment=NULL, parentsOf=1:ncol(X),interventions= 
                vers <- unlist(packageVersion('pcalg'))[1:2]
                score <- new("GaussL0penObsScore", X)
                vers <- unlist(packageVersion('pcalg'))[1:2]
-               if( all(vers >= c(2,1))){
-                   G <- ges( score , fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), turning = options$turning, maxDegree=options$maxDegree, verbose=options$verbose)
-               }else{
+               tryNewVersion <- try({G <- ges( score , fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), turning = options$turning, maxDegree=options$maxDegree, verbose=options$verbose)},silent=TRUE)
+               if(class(tryNewVersion)=="try-error"){
                    G <- ges( p,score , fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), turning = options$turning, maxDegree=options$maxDegree, verbose=options$verbose)
                }
                gesmat <- as(G$essgraph, "matrix")
@@ -319,6 +316,7 @@ getParents <- function(X,  environment=NULL, parentsOf=1:ncol(X),interventions= 
         colnames(resmat) <- parentsOf
 
         out <- resmat
+        if(directed) resmat <- resmat * (t(resmat)==0)
     }
     rownames(out) <- if(is.null(colnames(X))) as.character(1:ncol(X)) else colnames(X)
     colnames(out) <- rownames(out)[parentsOf]
