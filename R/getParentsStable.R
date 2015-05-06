@@ -2,26 +2,6 @@
 
 
 getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise=TRUE,threshold=0.75, sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2),  parentsOf=1:ncol(X), method= c("ICP","hiddenICP","hiddenICE","pc","lingam","ges","gies","cam","rfci")[1],  alpha=0.1, variableSelMat=NULL,  excludeTargetInterventions= TRUE, onlyObservationalData= FALSE,   setOptions = list(), warnings=TRUE, nsim=100 ){
-
-    if(0){
-         EV=1
-         nodewise=TRUE
-         threshold=0.75
-         parentsOf=1:ncol(X)
-         sampleSettings=1/sqrt(2)
-         sampleObservations=1/sqrt(2)
-             
-        environment= NULL
-
-         interventions= NULL
-        alpha=0.1
-        variableSelMat=NULL
-        excludeTargetInterventions= TRUE
-        onlyObservationalData= FALSE
-        setOptions = list()
-        warnings=FALSE
-        nsim=100
-    }
     p <- ncol(X)
     resmat <- matrix(0,p,length(parentsOf))
 

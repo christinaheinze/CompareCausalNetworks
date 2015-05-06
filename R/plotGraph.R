@@ -1,5 +1,6 @@
 
 plotGraph <- function(A, main="",labels=NULL,layoutfunction=layout.circle,...){
+    if(is(A, "dgCMatrix")) A <- as.matrix(A)
     if(!is.matrix(A)) stop("A needs to be a matrix")
     if(nrow(A)!=ncol(A)) stop("A needs to have as many rows as columns")
     if(is.null(labels)) labels <- if( !is.null(cc <- colnames(A)))
