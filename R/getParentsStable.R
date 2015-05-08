@@ -1,7 +1,7 @@
 
 
 
-getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise=TRUE,threshold=0.75, sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2),  parentsOf=1:ncol(X), method= c("ICP","hiddenICP","hiddenICE","pc","lingam","ges","gies","cam","rfci")[1],  alpha=0.1, variableSelMat=NULL,  excludeTargetInterventions= TRUE, onlyObservationalData= FALSE,   setOptions = list(), warnings=TRUE, nsim=100 ){
+getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise=TRUE,threshold=0.75, sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2),  parentsOf=1:ncol(X), method= c("ICP","hiddenICP","hiddenICE","pc","lingam","ges","gies","cam","rfci")[1],  alpha=0.1, variableSelMat=NULL,  excludeTargetInterventions= TRUE, onlyObservationalData= FALSE, setOptions = list(), warnings=TRUE, nsim=100 ){
     p <- ncol(X)
     resmat <- matrix(0,p,length(parentsOf))
 
@@ -24,15 +24,25 @@ getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise
         return(z)
     }
     if(method=="hiddenICE"){ ## 'hiddenICE' is doing internal subsampling already
-        resmat <- hiddenICE(X,environment, alpha=EV, threshold=threshold, nsim=nsim,  sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2), nodewise=nodewise)$AhatAdjacency
-
+      
+      optionsList <- list("covariance"=TRUE, "threshold"=0.75, "nsim"=100,"sampleSettings"=1/sqrt(2),"sampleObservations"=1/sqrt(2), "nodewise"=TRUE, "tolerance"=10^(-4))                
+      availableOptions <- names(optionsList)
+      changeOptions <- availableOptions[ availableOptions %in% names(setOptions)]
+      if(length(changeOptions)>0){
+        for (option in changeOptions) optionsList[[option]] <- setOptions[[option]]
+      }
+      resmat <- hiddenICE(X, environment,  alpha=EV, threshold =threshold, nsim=nsim,sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2), nodewise=nodewise, tolerance=optionsList$tolerance)$AhatAdjacency
+      
+#       resmat <- hiddenICE(X,environment, alpha=EV, threshold=threshold, nsim=nsim,  sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2), nodewise=nodewise)$AhatAdjacency
+#       resmat <- getParents(X, parentsOf=parentsOf,interventions=interventions, environment= environment, method=method, alpha=alpha, variableSelMat=variableSelMat, excludeTargetInterventions=excludeTargetInterventions, onlyObservationalData=onlyObservationalData, returnAsList=FALSE, confBound=FALSE, setOptions = setOptions, warnings=warnings)
+      
     }else{
         for (sim in 1:nsim){
             useSettings <- sample( uniqueSettings, drawE(subs))
             ind <- which(  environment %in% useSettings)
             useSamples <- sort(sample(ind, round(length(ind)*sampleObservations)))
             
-            res <- getParents(X[useSamples,], parentsOf=parentsOf,   interventions= interventions[useSamples], environment= environment[useSamples], method= method,  alpha= alpha, variableSelMat=variableSelMat,  excludeTargetInterventions= excludeTargetInterventions, onlyObservationalData= onlyObservationalData,  returnAsList=FALSE, confBound=TRUE, setOptions = setOptions, warnings=warnings)
+            res <- getParents(X[useSamples,], parentsOf=parentsOf, interventions=interventions[useSamples], environment= environment[useSamples], method= method,  alpha= alpha, variableSelMat=variableSelMat,  excludeTargetInterventions= excludeTargetInterventions, onlyObservationalData= onlyObservationalData,  returnAsList=FALSE, confBound=TRUE, setOptions = setOptions, warnings=warnings)
             diag(res) <- 0
             reskeep <- 0* as(res,"matrix")
             quse <- drawE( q)
