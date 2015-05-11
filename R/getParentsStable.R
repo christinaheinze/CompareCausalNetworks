@@ -1,7 +1,11 @@
 
 
 
-getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise=TRUE,threshold=0.75, sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2),  parentsOf=1:ncol(X), method= c("ICP","hiddenICP","hiddenICE","pc","lingam","ges","gies","cam","rfci")[1],  alpha=0.1, variableSelMat=NULL,  excludeTargetInterventions= TRUE, onlyObservationalData= FALSE, setOptions = list(), warnings=TRUE, nsim=100 ){
+getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise=TRUE,threshold=0.75, 
+                             sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2),  parentsOf=1:ncol(X), 
+                             method= c("ICP","hiddenICP","hiddenICE","pc","lingam","ges","gies","cam","rfci")[1],  
+                             alpha=0.1, variableSelMat=NULL,  excludeTargetInterventions= TRUE, 
+                             onlyObservationalData= FALSE, indexObservationalData = 1, setOptions = list(), warnings=TRUE, nsim=100 ){
     p <- ncol(X)
     resmat <- matrix(0,p,length(parentsOf))
 
@@ -32,17 +36,29 @@ getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise
         for (option in changeOptions) optionsList[[option]] <- setOptions[[option]]
       }
       resmat <- hiddenICE(X, environment,  alpha=EV, threshold =threshold, nsim=nsim,sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2), nodewise=nodewise, tolerance=optionsList$tolerance)$AhatAdjacency
-      
-#       resmat <- hiddenICE(X,environment, alpha=EV, threshold=threshold, nsim=nsim,  sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2), nodewise=nodewise)$AhatAdjacency
-#       resmat <- getParents(X, parentsOf=parentsOf,interventions=interventions, environment= environment, method=method, alpha=alpha, variableSelMat=variableSelMat, excludeTargetInterventions=excludeTargetInterventions, onlyObservationalData=onlyObservationalData, returnAsList=FALSE, confBound=FALSE, setOptions = setOptions, warnings=warnings)
-      
     }else{
         for (sim in 1:nsim){
-            useSettings <- sample( uniqueSettings, drawE(subs))
-            ind <- which(  environment %in% useSettings)
-            useSamples <- sort(sample(ind, round(length(ind)*sampleObservations)))
-            
-            res <- getParents(X[useSamples,], parentsOf=parentsOf, interventions=interventions[useSamples], environment= environment[useSamples], method= method,  alpha= alpha, variableSelMat=variableSelMat,  excludeTargetInterventions= excludeTargetInterventions, onlyObservationalData= onlyObservationalData,  returnAsList=FALSE, confBound=TRUE, setOptions = setOptions, warnings=warnings)
+            if(onlyObservationalData){
+              # if indexObservationalData is given, extract observational data and sample from these
+              if(!is.null(indexObservationalData)){
+                ind <- which(environment %in% indexObservationalData)
+                useSamples <- sort(sample(ind, round(length(ind)*sampleObservations)))
+                if(warnings) warning(paste("Will use only environment", indexObservationalData,"(= observational data?) among the", length(uniqueSettings),
+                                           "given distinct environments for method", method, "(", length(ind),"observations)"))
+              }
+#               else{
+#                 # if indexObservationalData is set to NULL, use all data points
+#                 useSamples <- 1:nrow(X)
+#                 if(warnings) warning(paste("Will use all observations for method", method, "assuming all data points are observational data
+#                                            (", nrow(X),"observations)"))
+#               }
+            }else{
+              # if onlyObservationalData is false, sample from settings
+              useSettings <- sample( uniqueSettings, drawE(subs))
+              ind <- which(  environment %in% useSettings)
+              useSamples <- sort(sample(ind, round(length(ind)*sampleObservations)))
+            }
+            res <- getParents(X[useSamples,], parentsOf=parentsOf, interventions=interventions[useSamples], environment= environment[useSamples], method= method,  alpha= alpha, variableSelMat=variableSelMat,  excludeTargetInterventions= excludeTargetInterventions, onlyObservationalData= onlyObservationalData, indexObservationalData = indexObservationalData, returnAsList=FALSE, confBound=TRUE, setOptions = setOptions, warnings=warnings)
             diag(res) <- 0
             reskeep <- 0* as(res,"matrix")
             quse <- drawE( q)

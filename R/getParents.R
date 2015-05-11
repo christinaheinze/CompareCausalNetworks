@@ -1,5 +1,8 @@
 
-getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:ncol(X),method= c("hiddenICP","ICP","hiddenICE","pc","lingam","ges","gies","cam","rfci","regression","bivariateANM","bivariateCAM")[1],  alpha=0.1, variableSelMat=NULL,  excludeTargetInterventions= TRUE, onlyObservationalData= FALSE,  returnAsList=FALSE, confBound=FALSE, setOptions = list(), warnings=TRUE, directed=TRUE){
+getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:ncol(X),
+                       method= c("hiddenICP","ICP","hiddenICE","pc","lingam","ges","gies","cam","rfci","regression","bivariateANM","bivariateCAM")[1],  
+                       alpha=0.1, variableSelMat=NULL,  excludeTargetInterventions= TRUE, onlyObservationalData= FALSE, indexObservationalData=1,
+                       returnAsList=FALSE, confBound=FALSE, setOptions = list(), warnings=TRUE, directed=TRUE){
 
     methodsList <- c("ICP","hiddenICP","hiddenICE","pc","lingam","ges","gies","cam","rfci","regression","bivariateANM","bivariateCAM")
     if(!method %in% methodsList){
@@ -22,22 +25,30 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
         if(!is.logical(variableSelMat)) stop("'variableSelMat' needs to be a matrix with boolean entries")
         if(nrow(variableSelMat)!=ncol(X)) stop("'variableSelMat' needs to have as many rows as there are variables (columns of 'X')")
     }
+    if((length(unique(environment)) > 1) & onlyObservationalData & is.null(indexObservationalData)) stop("'indexObservationalData' needs to be specified")
     
-    
-    if(onlyObservationalData ){ ## use only observational data
+    if(onlyObservationalData){ ## use only observational data
       if(length(ue <- unique(environment))>1){
-        if(!is.null(interventions)){
-          lengthinterventions <- numeric(length(ue))
-          for (uc in 1:length(ue)){
-            sel <- which( environment==ue[uc])
-            lengthinterventions[uc] <- mean(sapply(interventions[sel],length))
-          }
-          usecl <- ue[which.min( lengthinterventions)]
-        }else{
-          usecl <- 1
-        }
-        if(warnings) (paste("will use only environment", ue[usecl],"(= observational data?) among the", length(ue),"given distinct environments for method", method))
-        sel <- which(environment== ue[usecl])
+#         if(!is.null(interventions)){
+#           lengthinterventions <- numeric(length(ue))
+#           for (uc in 1:length(ue)){
+#             sel <- which( environment==ue[uc])
+#             lengthinterventions[uc] <- mean(sapply(interventions[sel],length))
+#           }
+#           usecl <- ue[which.min( lengthinterventions)]
+#         }else{
+#           usecl <- indexObservationalData
+#         }
+#         if(warnings) warning(paste("will use only environment", ue[usecl],"(= observational data?) among the", length(ue),"given distinct environments for method", method))
+#         sel <- which(environment== ue[usecl])
+#         X <- X[sel,]
+#         environment <- environment[sel]
+#         interventions <- interventions[sel]
+        
+        sel <- which(environment== indexObservationalData)
+        if(warnings) warning(paste("Will use only environment", indexObservationalData,"(= observational data?) among the", length(ue),
+                                   "given distinct environments for method", method, "(", length(sel),"observations)"))
+        
         X <- X[sel,]
         environment <- environment[sel]
         interventions <- interventions[sel]
@@ -49,7 +60,6 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
           removeObsTarget[[parentsOfC]] <- which( sapply(interventions, function(x,a) a %in% x, a=parentsOf[parentsOfC]))
         }
       }
-      
     }
     
     ## gather estimated parents of each "parentsOf" node in an elemnt of a list
@@ -84,7 +94,7 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
                         "gies"      = list("turning"=TRUE,"maxDegree"=integer(0),"verbose"=FALSE),
                         "ges"       = list("turning"=TRUE,"maxDegree"=integer(0),"verbose"=FALSE),
                         "pc"        = list("alpha" = 0.05, "indepTest" =gaussCItest, "fixedEdges"=NULL,"NAdelete"=TRUE,"m.max"=Inf,"u2pd","skel.method"= "stable","conservative"=FALSE,"maj.rule"=FALSE,"solve.confl"=FALSE,"verbose"=FALSE),
-                        "lingam"    = list("output"=FALSE),
+                        "lingam"    = list("verbose"=FALSE),
                         "cam"       = list("scoreName"="SEMGAM", "numCores"=1,  "output"=FALSE,"variableSel"=FALSE, "variableSelMethod"=selGamBoost,  "pruning"=FALSE, "pruneMethod"=selGam),
                         "rfci"      = list("alpha" = 0.05, "indepTest" =gaussCItest,"skel.method"="stable","fiedEdges"=NULL,"NAdelete"=TRUE,"m.max"=Inf,"rules"=rep(TRUE,10),"conservative"=FALSE,"maj.rule"=FALSE,"verbose"=FALSE),
                         "bivariateCAM"      = list("silent"=TRUE),
@@ -258,7 +268,7 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
            },
            "lingam" = {
                if(nrow(X)<=ncol(X)) stop("LINGAM not suitable for high-dimensional data; need nrow(X) > ncol(X)")
-              res <- LINGAM(X, output=options$output)
+              res <- LINGAM(X, verbose=options$verbose)
               lingammat <- res$Adj 
               for (k in 1:length(parentsOf)){
                    result[[k]] <- (wh <- which(lingammat[, parentsOf[k]]))

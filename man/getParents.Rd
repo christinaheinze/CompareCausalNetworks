@@ -11,7 +11,7 @@ getParents(X, environment = NULL, interventions = NULL, parentsOf = 1:ncol(X),
           method = c("hiddenICP", "ICP", "hiddenICE", "pc", "lingam",
                       "ges", "gies", "cam", "rfci", "regression", "bivariateANM", "bivariateCAM")[1], 
           alpha = 0.1, variableSelMat = NULL, excludeTargetInterventions = TRUE, 
-          onlyObservationalData = FALSE, returnAsList = FALSE, confBound = FALSE, 
+          onlyObservationalData = FALSE, indexObservationalData = 1, returnAsList = FALSE, confBound = FALSE, 
           setOptions = list(), warnings = TRUE, directed = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -41,7 +41,11 @@ An optional logical matrix of dimension (pxp). An entry \code{TRUE} for entry (i
 When looking for parents of variable k in 1,...,p, set to \code{TRUE} if observations where an intervention on variable k occured should be excluded. Default is \code{TRUE}.
 }
   \item{onlyObservationalData}{
-If set to \code{TRUE}, only observational data (where \code{environment}=1) is used. If \code{interventions} is specified, it will read out observational data from this list, otherwise it will take the first occuring entry in \code{environment} as a code for observational data. Default is \code{FALSE}.
+If set to \code{TRUE}, only observational data is used. It will take the index in \code{environment} specified by \code{indexObservationalData}. If \code{environment} is \code{NULL}, all observations are used. Default is \code{FALSE}.
+%If \code{interventions} is specified, it will read out observational data from this list, otherwise it will take the first occuring entry in \code{environment} as a code for observational data. Default is \code{FALSE}.
+}
+  \item{indexObservationalData}{
+Index in \code{environment} that encodes observational data. Default is \code{1}.
 }
   \item{returnAsList}{
 If set to \code{TRUE}, will return a list, where entry k is a list containing the estimated parents of variable k. The option \code{directed} will be ignored if set to \code{TRUE}. Default is \code{FALSE}.

@@ -7,7 +7,12 @@ Estimate the connectivity matrix of a causal graph using stability selection
 Estimates the connectivity matrix of a directed causal graph, using various possible methods. Supported methods at the moment are PC, Lingam, GES, GIES, RFCI, CAM, and invariant prediction with or without hidden variables (ICP and hiddenICP) as well as invariant covariance estimation (hiddenICE). Uses stability selection to select an appropriate sparseness.
 }
 \usage{
-getParentsStable(X, environment, interventions = NULL, EV = 1, nodewise = TRUE, threshold = 0.75, sampleSettings = 1/sqrt(2), sampleObservations = 1/sqrt(2), parentsOf = 1:ncol(X), method = c("ICP", "hiddenICP", "hiddenICE", "pc", "lingam", "ges", "gies", "cam", "rfci")[1], alpha = 0.1, variableSelMat = NULL, excludeTargetInterventions = TRUE, onlyObservationalData = FALSE, setOptions = list(), warnings = TRUE, nsim = 100)
+getParentsStable(X, environment, interventions = NULL, EV = 1, nodewise = TRUE, threshold = 0.75, 
+                sampleSettings = 1/sqrt(2), sampleObservations = 1/sqrt(2), parentsOf = 1:ncol(X), 
+                method = c("ICP", "hiddenICP", "hiddenICE", "pc", "lingam", "ges", "gies", "cam", "rfci")[1], 
+                alpha = 0.1, variableSelMat = NULL, excludeTargetInterventions = TRUE, 
+                onlyObservationalData = FALSE, indexObservationalData = 1,
+                setOptions = list(), warnings = TRUE, nsim = 100)
 }
 \arguments{
   \item{X}{
@@ -45,7 +50,12 @@ An optional logical matrix of dimension (pxp). An entry \code{TRUE} for entry (i
 When looking for parents of variable k in 1,...,p, set to \code{TRUE} if observations where an intervention on variable k occured should be excluded. Default is \code{TRUE}.
 }
   \item{onlyObservationalData}{
-If set to \code{TRUE}, only observational data (where \code{environment}=1) is used. If \code{interventions} is specified, it will read out observational data from this list, otherwise it will take the first occuring entry in \code{environment} as a code for observational data. Default is \code{FALSE}.}
+If set to \code{TRUE}, only observational data is used. It will take the index in \code{environment} specified by \code{indexObservationalData}. Default is \code{FALSE}.
+%If \code{interventions} is specified, it will read out observational data from this list, otherwise it will take the first occuring entry in \code{environment} as a code for observational data. Default is \code{FALSE}.
+}
+  \item{indexObservationalData}{
+Index in \code{environment} that encodes observational data. Default is \code{1}.
+}
   \item{setOptions}{
 A list that can take method-specific options; see the individual documentations of the methods for more options and their possible values.
 }
