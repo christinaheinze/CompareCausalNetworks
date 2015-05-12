@@ -281,8 +281,9 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
                    for (i in 1:length(interventions)){
                        if(length(interventions[[i]])>0) intervMat[i, interventions[[i]]] <- TRUE
                    }
-                   cammat <- as(CAM(X,intervData=TRUE,intervMat=intervMat,variableSelMat=variableSelMat, scoreName=options$scoreName, numCores=options$numCores, output= options$output, variableSel=options$variableSel, variableSelMethod= options$variableSelMethod, pruning = options$pruning, pruneMethod=options$pruneMethod)$Adj,"matrix")
-               }else{
+#                    cammat <- as(CAM(X,intervData=TRUE,intervMat=intervMat,variableSelMat=variableSelMat, scoreName=options$scoreName, numCores=options$numCores, output= options$output, variableSel=options$variableSel, variableSelMethod= options$variableSelMethod, pruning = options$pruning, pruneMethod=options$pruneMethod)$Adj,"matrix")
+                   cammat <- as(CAM(X,intervData=TRUE,intervMat=intervMat,scoreName=options$scoreName, numCores=options$numCores, output= options$output, variableSel=options$variableSel, variableSelMethod= options$variableSelMethod, pruning = options$pruning, pruneMethod=options$pruneMethod)$Adj,"matrix")
+                   }else{
                    cammat <- as(CAM(X)$Adj,"matrix")
                }
                for (k in 1:length(parentsOf)){
