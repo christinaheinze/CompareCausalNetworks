@@ -89,7 +89,7 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
     
     optionsList <- list("ICP" = list("gof" = 0.1,"test"="approximate","selection"="lasso","maxNoVariables"=7,"maxNoVariablesSimult"=3,"maxNoObs"=200,"stopIfEmpty"=TRUE, "selfselect"=NULL),
                         "hiddenICP"   = list("mode"="asymptotic", "selfselect"=NULL),
-                        "hiddenICE"   = list("covariance"=TRUE, "threshold"=0.75, "nsim"=100,"sampleSettings"=1/sqrt(2),"sampleObservations"=1/sqrt(2), "nodewise"=TRUE, "tolerance"=10^(-4)),
+                        "hiddenICE"   = list("covariance"=TRUE, "threshold"=0.75, "nsim"=100,"sampleSettings"=1/sqrt(2),"sampleObservations"=1/sqrt(2), "nodewise"=TRUE, "tolerance"=10^(-4), "baseSettingEnv" = 1),
                         "regression"   = list("selfselect"=NULL),
                         "gies"      = list("turning"=TRUE,"maxDegree"=integer(0),"verbose"=FALSE),
                         "ges"       = list("turning"=TRUE,"maxDegree"=integer(0),"verbose"=FALSE),
@@ -178,7 +178,10 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
                if( nrow(X) < ncol(X)) stop( "hiddenICE not suitable if there are more variables than observations")
                if( !is.null(variableSelMat)) warning( "option 'variableSelMat' not implemented for 'hiddenICE' -- using all variables")
 
-               res <- hiddenICE(X, environment, covariance=options$covariance, alpha=alpha, threshold =options$threshold, nsim=options$nsim, sampleSettings=options$sampleSettings, sampleObservations=options$sampleObservations, nodewise=options$nodewise, tolerance=options$tolerance)
+               res <- hiddenICE(X, environment, covariance=options$covariance, alpha=alpha, 
+                                threshold =options$threshold, nsim=options$nsim, sampleSettings=options$sampleSettings, 
+                                sampleObservations=options$sampleObservations, nodewise=options$nodewise, tolerance=options$tolerance,
+                                baseSettingEnv = options$baseSettingEnv)
                for (k in 1:length(parentsOf)){
                    result[[k]] <- (wh <- which(res$AhatAdjacency[, k]!=0))
                    if(confBound)  attr(result[[k]],"coefficients") <- res$Ahat[ wh,k ]

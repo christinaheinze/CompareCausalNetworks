@@ -29,13 +29,16 @@ getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise
     }
     if(method=="hiddenICE"){ ## 'hiddenICE' is doing internal subsampling already
       
-      optionsList <- list("covariance"=TRUE, "threshold"=0.75, "nsim"=100,"sampleSettings"=1/sqrt(2),"sampleObservations"=1/sqrt(2), "nodewise"=TRUE, "tolerance"=10^(-4))                
+      optionsList <- list("covariance"=TRUE, "threshold"=0.75, "nsim"=100,"sampleSettings"=1/sqrt(2),
+                          "sampleObservations"=1/sqrt(2), "nodewise"=TRUE, "tolerance"=10^(-4), "baseSettingEnv" = 1)                
       availableOptions <- names(optionsList)
       changeOptions <- availableOptions[ availableOptions %in% names(setOptions)]
       if(length(changeOptions)>0){
         for (option in changeOptions) optionsList[[option]] <- setOptions[[option]]
       }
-      resmat <- hiddenICE(X, environment, covariance=optionsList$covariance,  alpha=EV, threshold =threshold, nsim=nsim,sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2), nodewise=nodewise, tolerance=optionsList$tolerance)$AhatAdjacency
+      resmat <- hiddenICE(X, environment, covariance=optionsList$covariance,  alpha=EV, threshold =threshold, 
+                          nsim=nsim,sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2), nodewise=nodewise, 
+                          tolerance=optionsList$tolerance, baseSettingEnv = optionsList$baseSettingEnv)$AhatAdjacency
     }else{
         for (sim in 1:nsim){
             if(onlyObservationalData){
@@ -62,7 +65,7 @@ getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise
             diag(res) <- 0
             reskeep <- 0* as(res,"matrix")
             quse <- drawE( q)
-            if( nodewise){
+            if(nodewise){
                 for (k in 1:p){
                     wh <- order( abs( res[,k]), rnorm(p), decreasing=TRUE)[1:quse]
                     reskeep[wh,k] <- 1
@@ -77,16 +80,14 @@ getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise
             
             resmat <- resmat + reskeep/nsim
         }
-        rem <- which( resmat < threshold)
+        rem <- which(resmat < threshold)
         if(length(rem)>0) resmat[rem] <- 0
         resmat <- round(100*resmat)
     }
-     rownames(resmat) <- if(is.null(colnames(X))) as.character(1:ncol(X)) else colnames(X)
+    rownames(resmat) <- if(is.null(colnames(X))) as.character(1:ncol(X)) else colnames(X)
     colnames(resmat) <- rownames(resmat)[parentsOf]
     return(resmat)
-   
 }
-
 
 
 
