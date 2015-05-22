@@ -178,10 +178,14 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
                if( nrow(X) < ncol(X)) stop( "hiddenICE not suitable if there are more variables than observations")
                if( !is.null(variableSelMat)) warning( "option 'variableSelMat' not implemented for 'hiddenICE' -- using all variables")
 
-               res <- hiddenICE(X, environment, covariance=options$covariance, alpha=alpha, 
+               res <- try(hiddenICE(X, environment, covariance=options$covariance, alpha=alpha, 
                                 threshold =options$threshold, nsim=options$nsim, sampleSettings=options$sampleSettings, 
                                 sampleObservations=options$sampleObservations, nodewise=options$nodewise, tolerance=options$tolerance,
-                                baseSettingEnv = options$baseSettingEnv)
+                                baseSettingEnv = options$baseSettingEnv), silent = FALSE)
+               if(inherits(res, "try-error")){
+                 cat("HiddenICE -- no stable model found. Possible model mispecification. Returning the empty graph.\n")
+                 res<- list(Ahat=0*diag(p), AhatAdjacency = 0*diag(p), varianceEnv = matrix(0, nrow = length(unique(environment)), ncol = p))
+               }
                for (k in 1:length(parentsOf)){
                    result[[k]] <- (wh <- which(res$AhatAdjacency[, k]!=0))
                    if(confBound)  attr(result[[k]],"coefficients") <- res$Ahat[ wh,k ]

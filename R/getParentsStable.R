@@ -36,9 +36,13 @@ getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise
       if(length(changeOptions)>0){
         for (option in changeOptions) optionsList[[option]] <- setOptions[[option]]
       }
-      resmat <- hiddenICE(X, environment, covariance=optionsList$covariance,  alpha=EV, threshold =threshold, 
+      resmat <- try(hiddenICE(X, environment, covariance=optionsList$covariance,  alpha=EV, threshold =threshold, 
                           nsim=nsim,sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2), nodewise=nodewise, 
-                          tolerance=optionsList$tolerance, baseSettingEnv = optionsList$baseSettingEnv)$AhatAdjacency
+                          tolerance=optionsList$tolerance, baseSettingEnv = optionsList$baseSettingEnv)$AhatAdjacency, silent = FALSE)
+      if(inherits(resmat, "try-error")){
+        cat("HiddenICE -- no stable model. Possible model mispecification. Returning the empty graph.\n")
+        resmat <- 0*diag(p)
+      }
     }else{
         for (sim in 1:nsim){
             if(onlyObservationalData){
