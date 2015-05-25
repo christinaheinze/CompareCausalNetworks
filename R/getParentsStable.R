@@ -62,8 +62,11 @@ getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise
             }else{
               # if onlyObservationalData is false, sample from settings
               useSettings <- sample( uniqueSettings, drawE(subs))
-              ind <- which(  environment %in% useSettings)
-              useSamples <- sort(sample(ind, round(length(ind)*sampleObservations)))
+              useSamples <- NULL
+              for(s in 1:length(useSettings)){
+                ind <- which(  environment %in% useSettings[s])
+                useSamples <- c(useSamples, sort(sample(ind, round(length(ind)*sampleObservations))))
+              }
             }
             res <- getParents(X[useSamples,], parentsOf=parentsOf, interventions=interventions[useSamples], environment= environment[useSamples], method= method,  alpha= alpha, variableSelMat=variableSelMat,  excludeTargetInterventions= excludeTargetInterventions, onlyObservationalData= onlyObservationalData, indexObservationalData = indexObservationalData, returnAsList=FALSE, confBound=TRUE, setOptions = setOptions, warnings=warnings)
             diag(res) <- 0
