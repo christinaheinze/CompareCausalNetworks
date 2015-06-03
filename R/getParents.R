@@ -240,6 +240,7 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
                    tmp <- gies( p, as.list(targets), score,fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat) )
                }
                giesmat <- as( tmp$essgraph, "matrix")
+               if(directed) giesmat <- giesmat * (t(giesmat)==0)
                for (k in 1:length(parentsOf)){
                    result[[k]] <- which(giesmat[, parentsOf[k]])
                }
@@ -253,6 +254,7 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
                    G <- ges( p,score , fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), turning = options$turning, maxDegree=options$maxDegree, verbose=options$verbose)
                }
                gesmat <- as(G$essgraph, "matrix")
+               if(directed) gesmat <- gesmat * (t(gesmat)==0)
                for (k in 1:length(parentsOf)){
                    result[[k]] <- which(gesmat[, parentsOf[k]])
                }
@@ -261,6 +263,8 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
                suffStat <- list(C = cor(X), n = nrow(X))
                pc.fit <- pc(suffStat, indepTest = options$indepTest, p = ncol(X), alpha = options$alpha, fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), fixedEdges = options$fixedEdges, NAdelete= options$NAdelete, m.max= options$m.max, u2pd=options$u2pd, skel.method= options$skel.method, conservative= options$conservative, maj.rule= options$maj.rule, solve.confl = options$solve.confl, verbose= options$verbose )
                pcmat <- as(pc.fit@graph, "matrix")
+               if(directed) pcmat <- pcmat * (t(pcmat)==0)
+  
                for (k in 1:length(parentsOf)){
                    result[[k]] <- which(as.logical(pcmat[, parentsOf[k]]))
                }
@@ -269,6 +273,8 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
                suffStat <- list(C = cor(X), n = nrow(X))
                rfci.fit <- rfci(suffStat, indepTest = options$indepTest, p = ncol(X), alpha = options$alpha, fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), fixedEdges = options$fixedEdges, NAdelete= options$NAdelete, m.max= options$m.max, skel.method= options$skel.method, conservative= options$conservative, maj.rule= options$maj.rule, rules = options$rules, verbose= options$verbose )
                rfcimat <- as(rfci.fit@amat, "matrix")
+               if(directed) rfcimat <- rfcimat * (t(rfcimat)==0)
+
                for (k in 1:length(parentsOf)){
                    result[[k]] <- which(as.logical(rfcimat[, parentsOf[k]]))
                }
@@ -276,7 +282,9 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
            "lingam" = {
                if(nrow(X)<=ncol(X)) stop("LINGAM not suitable for high-dimensional data; need nrow(X) > ncol(X)")
               res <- LINGAM(X, verbose=options$verbose)
-              lingammat <- res$Adj 
+              lingammat <- res$Adj
+               if(directed) lingammat <- lingammat * (t(lingammat)==0)
+
               for (k in 1:length(parentsOf)){
                    result[[k]] <- (wh <- which(lingammat[, parentsOf[k]]))
                    if(confBound)  attr(result[[k]],"coefficients") <- t(res$B)[ wh,parentsOf[k] ]
@@ -284,15 +292,17 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
            },
            "cam" = {
                if(!is.null(interventions)){
-                   intervMat <- matrix(FALSE,nrow=nrow(X),ncol=ncol(X))
-                   for (i in 1:length(interventions)){
-                       if(length(interventions[[i]])>0) intervMat[i, interventions[[i]]] <- TRUE
-                   }
-#                    cammat <- as(CAM(X,intervData=TRUE,intervMat=intervMat,variableSelMat=variableSelMat, scoreName=options$scoreName, numCores=options$numCores, output= options$output, variableSel=options$variableSel, variableSelMethod= options$variableSelMethod, pruning = options$pruning, pruneMethod=options$pruneMethod)$Adj,"matrix")
-                   cammat <- as(CAM(X,intervData=TRUE,intervMat=intervMat,scoreName=options$scoreName, numCores=options$numCores, output= options$output, variableSel=options$variableSel, variableSelMethod= options$variableSelMethod, pruning = options$pruning, pruneMethod=options$pruneMethod)$Adj,"matrix")
-                   }else{
-                   cammat <- as(CAM(X)$Adj,"matrix")
+                 intervMat <- matrix(FALSE,nrow=nrow(X),ncol=ncol(X))
+                 for (i in 1:length(interventions)){
+                   if(length(interventions[[i]])>0) intervMat[i, interventions[[i]]] <- TRUE
+                 }
+                                        #                    cammat <- as(CAM(X,intervData=TRUE,intervMat=intervMat,variableSelMat=variableSelMat, scoreName=options$scoreName, numCores=options$numCores, output= options$output, variableSel=options$variableSel, variableSelMethod= options$variableSelMethod, pruning = options$pruning, pruneMethod=options$pruneMethod)$Adj,"matrix")
+                 cammat <- as(CAM(X,intervData=TRUE,intervMat=intervMat,scoreName=options$scoreName, numCores=options$numCores, output= options$output, variableSel=options$variableSel, variableSelMethod= options$variableSelMethod, pruning = options$pruning, pruneMethod=options$pruneMethod)$Adj,"matrix")
+               }else{
+                 cammat <- as(CAM(X)$Adj,"matrix")
                }
+               if(directed) cammat <- cammat * (t(cammat)==0)
+
                for (k in 1:length(parentsOf)){
                    result[[k]] <- which(cammat[, parentsOf[k]]>0)
                }
@@ -334,7 +344,6 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
         colnames(resmat) <- parentsOf
 
         out <- resmat
-        if(directed & length(parentsOf)==ncol(X)) resmat <- resmat * (t(resmat)==0)
     }
     rownames(out) <- if(is.null(colnames(X))) as.character(1:ncol(X)) else colnames(X)
     colnames(out) <- rownames(out)[parentsOf]
