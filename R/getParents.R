@@ -1,10 +1,10 @@
 
 getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:ncol(X),
-                       method= c("hiddenICP","ICP","hiddenICE","pc","lingam","ges","gies","cam","rfci","regression","bivariateANM","bivariateCAM")[1],  
+                       method= c("hiddenICP","ICP","backShift","pc","lingam","ges","gies","cam","rfci","regression","bivariateANM","bivariateCAM")[1],  
                        alpha=0.1, variableSelMat=NULL,  excludeTargetInterventions= TRUE, onlyObservationalData= FALSE, indexObservationalData=1,
                        returnAsList=FALSE, confBound=FALSE, setOptions = list(), warnings=TRUE, directed=TRUE){
 
-    methodsList <- c("ICP","hiddenICP","hiddenICE","pc","lingam","ges","gies","cam","rfci","regression","bivariateANM","bivariateCAM")
+    methodsList <- c("ICP","hiddenICP","backShift","pc","lingam","ges","gies","cam","rfci","regression","bivariateANM","bivariateCAM")
     if(!method %in% methodsList){
         stop(paste("Method", method,"not (yet?) implemented"))
     }
@@ -14,7 +14,7 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
     if( !all(as.numeric(parentsOf) %in% (1:ncol(X)))) stop("'parentsOf' needs to be a subset of 1:ncol(X)")
     if(!is.list(interventions) & !is.null(interventions)) stop("'interventions' needs to be a list or NULL")
     if(length(interventions)!=nrow(X) & !is.null(interventions)) stop("'interventions' needs to have as many entries as there are rows in 'X' (or be 'NULL')")
-    if( is.null(environment) &is.null(interventions) & method %in% c("hiddenICP","ICP","hiddenICE","gies") ) stop(paste("'environment' and 'interventions' cannot both be 'NULL' for method", method))
+    if( is.null(environment) &is.null(interventions) & method %in% c("hiddenICP","ICP","backShift","gies") ) stop(paste("'environment' and 'interventions' cannot both be 'NULL' for method", method))
     if( is.null(environment) & !is.null(interventions) ){
         environment <- match( interventions, unique(interventions))
         if((lu <- length(unique(environment)))>50) warning(paste("'environment' was set to NULL and has been created via  \n '> environment <- match( interventions, unique(interventions))'\n but this results in",lu," different environments (unique intervention combinations);\n very likely better to define a smaller number of environments using subject knowledge about the experiment by grouping various intervention targets into a single environment") )
@@ -89,7 +89,7 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
     
     optionsList <- list("ICP" = list("gof" = 0.1,"test"="approximate","selection"="lasso","maxNoVariables"=7,"maxNoVariablesSimult"=3,"maxNoObs"=200,"stopIfEmpty"=TRUE, "selfselect"=NULL),
                         "hiddenICP"   = list("mode"="asymptotic", "selfselect"=NULL),
-                        "hiddenICE"   = list("covariance"=TRUE, "threshold"=0.75, "nsim"=100,"sampleSettings"=1/sqrt(2),"sampleObservations"=1/sqrt(2), "nodewise"=TRUE, "tolerance"=10^(-4), "baseSettingEnv" = 1),
+                        "backShift"   = list("covariance"=TRUE, "threshold"=0.75, "nsim"=100,"sampleSettings"=1/sqrt(2),"sampleObservations"=1/sqrt(2), "nodewise"=TRUE, "tolerance"=10^(-4), "baseSettingEnv" = 1),
                         "regression"   = list("selfselect"=NULL),
                         "gies"      = list("turning"=TRUE,"maxDegree"=integer(0),"verbose"=FALSE),
                         "ges"       = list("turning"=TRUE,"maxDegree"=integer(0),"verbose"=FALSE),
@@ -174,16 +174,16 @@ getParents <- function(X,  environment=NULL, interventions= NULL, parentsOf=1:nc
                    if(confBound)  attr(result[[k]],"coefficients") <- res$maximinCoefficients[ wh ]
                }
             },
-           "hiddenICE" = {
-               if( nrow(X) < ncol(X)) stop( "hiddenICE not suitable if there are more variables than observations")
-               if( !is.null(variableSelMat)) warning( "option 'variableSelMat' not implemented for 'hiddenICE' -- using all variables")
+           "backShift" = {
+               if( nrow(X) < ncol(X)) stop( "backShift not suitable if there are more variables than observations")
+               if( !is.null(variableSelMat)) warning( "option 'variableSelMat' not implemented for 'backShift' -- using all variables")
 
-               res <- try(hiddenICE(X, environment, covariance=options$covariance, alpha=alpha, 
+               res <- try(backShift(X, environment, covariance=options$covariance, ev=alpha, 
                                 threshold =options$threshold, nsim=options$nsim, sampleSettings=options$sampleSettings, 
                                 sampleObservations=options$sampleObservations, nodewise=options$nodewise, tolerance=options$tolerance,
                                 baseSettingEnv = options$baseSettingEnv), silent = FALSE)
                if(inherits(res, "try-error")){
-                 cat("HiddenICE -- no stable model found. Possible model mispecification. Returning the empty graph.\n")
+                 cat("backShift -- no stable model found. Possible model mispecification. Returning the empty graph.\n")
                  res<- list(Ahat=0*diag(p), AhatAdjacency = 0*diag(p), varianceEnv = matrix(0, nrow = length(unique(environment)), ncol = p))
                }
                for (k in 1:length(parentsOf)){

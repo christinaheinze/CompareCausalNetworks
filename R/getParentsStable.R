@@ -3,7 +3,7 @@
 
 getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise=TRUE,threshold=0.75, 
                              sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2),  parentsOf=1:ncol(X), 
-                             method= c("ICP","hiddenICP","hiddenICE","pc","lingam","ges","gies","cam","rfci")[1],  
+                             method= c("ICP","hiddenICP","backShift","pc","lingam","ges","gies","cam","rfci")[1],  
                              alpha=0.1, variableSelMat=NULL,  excludeTargetInterventions= TRUE, 
                              onlyObservationalData= FALSE, indexObservationalData = 1, setOptions = list(), warnings=TRUE, nsim=100 ){
     p <- ncol(X)
@@ -27,7 +27,7 @@ getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise
         z <- max(1,z)
         return(z)
     }
-    if(method=="hiddenICE"){ ## 'hiddenICE' is doing internal subsampling already
+    if(method=="backShift"){ ## 'backShift' is doing internal subsampling already
       
       optionsList <- list("covariance"=TRUE, "threshold"=0.75, "nsim"=100,"sampleSettings"=1/sqrt(2),
                           "sampleObservations"=1/sqrt(2), "nodewise"=TRUE, "tolerance"=10^(-4), "baseSettingEnv" = 1)                
@@ -36,11 +36,17 @@ getParentsStable <- function(X, environment, interventions= NULL, EV=1, nodewise
       if(length(changeOptions)>0){
         for (option in changeOptions) optionsList[[option]] <- setOptions[[option]]
       }
-      resmat <- try(hiddenICE(X, environment, covariance=optionsList$covariance,  alpha=EV, threshold =threshold, 
+      
+      cat("\nEV", EV)
+      cat("\ncov", optionsList$covariance)
+      cat("\nthres", threshold)
+      cat("\ntol", optionsList$tolerance)
+      
+      resmat <- try(backShift(X, environment, covariance=optionsList$covariance, ev=EV, threshold =threshold, 
                           nsim=nsim,sampleSettings=1/sqrt(2), sampleObservations=1/sqrt(2), nodewise=nodewise, 
-                          tolerance=optionsList$tolerance, baseSettingEnv = optionsList$baseSettingEnv)$AhatAdjacency, silent = FALSE)
+                          tolerance=optionsList$tolerance, baseSettingEnv = optionsList$baseSettingEnv, verbose = TRUE)$AhatAdjacency, silent = FALSE)
       if(inherits(resmat, "try-error")){
-        cat("HiddenICE -- no stable model. Possible model mispecification. Returning the empty graph.\n")
+        cat("backShift -- no stable model. Possible model mispecification. Returning the empty graph.\n")
         resmat <- 0*diag(p)
       }
     }else{
