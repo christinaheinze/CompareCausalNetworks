@@ -1,2 +1,2 @@
 import(InvariantCausalPrediction,pcalg,CAM,igraph, backShift)
-export(getParents, getParentsStable,plotGraph)
+export(getParents, getParentsStable)
