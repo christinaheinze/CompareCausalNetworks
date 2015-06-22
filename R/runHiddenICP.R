@@ -25,7 +25,7 @@ runHiddenICP <- function(X, environment, interventions, parentsOf, alpha,
     removeObsTarget <- list()
     for (parentsOfC in 1:length(parentsOf)){
       removeObsTarget[[parentsOfC]] <- 
-        which( sapply(interventions, 
+        which(sapply(interventions, 
                       function(x,a) a %in% x, a=parentsOf[parentsOfC]))
     }
   }
@@ -49,8 +49,8 @@ runHiddenICP <- function(X, environment, interventions, parentsOf, alpha,
         unique(c(removeVar,which( !variableSelMat[,selc] )))
     }else{
       if(!is.null(optionsList$selfselect)){
-        gl <- glmnet(X[, possibleVar[-removeVar],drop=FALSE], 
-                     as.numeric(X[, parentsOf[k]]))
+        gl <- glmnet::glmnet(X[, possibleVar[-removeVar],drop=FALSE], 
+                             as.numeric(X[, parentsOf[k]]))
         nnz <- apply(coef(gl)!=0, 2,sum)
         beta <- 
           coef(gl, s= gl$lambda[sum(nnz<=optionsList$selfselect)])[-1]
@@ -61,10 +61,12 @@ runHiddenICP <- function(X, environment, interventions, parentsOf, alpha,
     if(length(removeVar)>0) 
       possibleVar <- possibleVar[-removeVar]
     
-    res <- hiddenICP(X[allobs,possibleVar,drop=FALSE], 
-                     as.numeric(X[allobs,parentsOf[k]]), 
-                     environment[allobs],
-                     alpha=alpha, mode=optionsList$mode)
+    res <- InvariantCausalPrediction::hiddenICP(
+       X[allobs,possibleVar,drop=FALSE], 
+       as.numeric(X[allobs,parentsOf[k]]), 
+       environment[allobs],
+       alpha=alpha, mode=optionsList$mode)
+    
     parents <- possibleVar[wh <- which(res$maximinCoefficients !=0)]
     result[[k]] <- parents
     if(confBound) 

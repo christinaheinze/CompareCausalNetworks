@@ -13,7 +13,7 @@ runLINGAM <- function(X, parentsOf, pointEst, setOptions, directed, verbose,
   if(nrow(X)<=ncol(X)) 
     stop("LINGAM not suitable for high-dimensional data; 
          need nrow(X) > ncol(X)")
-  res <- LINGAM(X, verbose=verbose)
+  res <- pcalg::LINGAM(X, verbose=verbose)
   lingammat <- res$Adj
   if(directed) lingammat <- lingammat * (t(lingammat)==0)
   

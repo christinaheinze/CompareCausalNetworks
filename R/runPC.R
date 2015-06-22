@@ -2,7 +2,7 @@ runPC <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, ver
                    result){
   
   # additional options for PC
-  optionsList <- list("indepTest"=gaussCItest, "fixedEdges"=NULL,
+  optionsList <- list("indepTest"=pcalg::gaussCItest, "fixedEdges"=NULL,
                       "NAdelete"=TRUE, "m.max"=Inf, "u2pd", 
                       "skel.method"= "stable", "conservative"=FALSE,
                       "maj.rule"=FALSE, "solve.confl"=FALSE)
@@ -12,7 +12,7 @@ runPC <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, ver
                                optionsToSet = setOptions)
   
   suffStat <- list(C = cor(X), n = nrow(X))
-  pc.fit <- pc(suffStat, indepTest = optionsList$indepTest, p=ncol(X), 
+  pc.fit <- pcalg::pc(suffStat, indepTest = optionsList$indepTest, p=ncol(X), 
                alpha = alpha, 
                fixedGaps= if(is.null(variableSelMat)) NULL else (!variableSelMat), 
                fixedEdges = optionsList$fixedEdges, 

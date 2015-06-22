@@ -91,6 +91,10 @@
 #' 
 #' @examples
 #' # load the backShift package for data generation and plotting functionality
+#' if(!requireNamespace("backShift", quietly = TRUE))
+#'  stop("The package 'backShift' is needed for the examples to 
+#'  work. Please install it.", call. = FALSE)
+#' 
 #' require(backShift)
 #' 
 #' # 1st example:
@@ -116,7 +120,7 @@
 #' G <- 10
 #' 
 #' # simulate
-#' simResult <- simulateInterventions(n, p, A, G, intervMultiplier = 3, 
+#' simResult <- backShift::simulateInterventions(n, p, A, G, intervMultiplier = 3, 
 #' noiseMult = 1, nonGauss = TRUE, hiddenVars = TRUE, 
 #' knownInterventions = FALSE, fracVarInt = NULL, simulateObs = TRUE, 
 #' seed = myseed)
@@ -158,10 +162,10 @@
 #'   # print and plot estimate
 #'   print(Ahat)
 #'   if(!stability)
-#'     plotGraphEdgeAttr(Ahat, plotStabSelec = FALSE, labels = c("1", "2", "3"),
+#'     backShift::plotGraphEdgeAttr(Ahat, plotStabSelec = FALSE, labels = c("1", "2", "3"),
 #'     main=paste("POINT ESTIMATE FOR METHOD", toupper(method)))
 #'   else
-#'     plotGraphEdgeAttr(Ahat, plotStabSelec = TRUE, labels = c("1", "2", "3"), 
+#'     backShift::plotGraphEdgeAttr(Ahat, plotStabSelec = TRUE, labels = c("1", "2", "3"), 
 #'     thres.point = 0, main = paste("STABILITY SELECTION 
 #'     ESTIMATE FOR METHOD", toupper(method)))
 #'  }
@@ -193,7 +197,8 @@
 #' G <- 10
 #' 
 #' # simulate choose explicity intervention targets
-#' simResult <- simulateInterventions(n, p, A, G, intervMultiplier = 3, 
+#' simResult <- backShift::simulateInterventions(n, p, A, G, 
+#'  intervMultiplier = 3, 
 #'  noiseMult = 1, nonGauss = TRUE, hiddenVars = FALSE, 
 #'  knownInterventions = TRUE, fracVarInt = 0.1*p, simulateObs = TRUE, 
 #'  seed = myseed)
@@ -220,7 +225,7 @@
 #' # plot and print true graph
 #' cat("\n true graph is  ------  \n" )
 #' print(A)
-#' plotGraphEdgeAttr(A, plotStabSelec = FALSE, 
+#' backShift::plotGraphEdgeAttr(A, plotStabSelec = FALSE, 
 #'    labels = c("1", "2", "3", "4", "5"), 
 #'    thres.point = 0, main = "TRUE GRAPH")
 #' 
@@ -242,11 +247,11 @@
 #'   # print and plot estimate
 #'   print(Ahat)
 #'   if(!stability)
-#'     plotGraphEdgeAttr(Ahat, plotStabSelec = FALSE, 
+#'     backShift::plotGraphEdgeAttr(Ahat, plotStabSelec = FALSE, 
 #'     labels = c("1", "2", "3", "4", "5"), 
 #'     main=paste("POINT ESTIMATE FOR METHOD", toupper(method)))
 #'   else
-#'     plotGraphEdgeAttr(Ahat, plotStabSelec = TRUE, 
+#'     backShift::plotGraphEdgeAttr(Ahat, plotStabSelec = TRUE, 
 #'     labels = c("1", "2", "3", "4", "5"), 
 #'     thres.point = 0, main = paste("STABILITY SELECTION 
 #'     ESTIMATE FOR METHOD", toupper(method)))
@@ -268,16 +273,9 @@ getParents <- function(X, environment = NULL, interventions = NULL,
                        returnAsList=FALSE, pointConf = FALSE, 
                        setOptions = list(), directed=TRUE, verbose = FALSE){
 
-    # supported methods
-    methodsList <- c("ICP", "hiddenICP", "backShift", "pc", "lingam", "ges", 
-                     "gies", "cam", "rfci", "regression", "bivariateANM",
-                     "bivariateCAM")
-    
-    # check whether method is in methods
-    if(!method %in% methodsList){
-        stop(paste("Method", method,"not (yet?) implemented"))
-    }
-
+    # check whether method is supported and dependencies are installed
+    checkDependencies(method)
+  
     # check validity of other input arguments
     if(is.data.frame(X)) X <- as.matrix(X)
     if(!is.matrix(X)) stop("'X' needs to be a matrix")
@@ -355,25 +353,6 @@ getParents <- function(X, environment = NULL, interventions = NULL,
         result[[k]] <- numeric(0)
         attr(result[[k]],"parentsOf") <- parentsOf[k]
     }
-
-    # TODO: take out? pcalg to suggests?
-#     ## if package 'pcalg' is not loaded, still allow execution of code 
-#     ## that is not making use of 'pcalg'
-#     functry <- try(gaussCItest,silent=TRUE)
-#     if(class(functry)=="try-error"){
-#       gaussCItest <- function(x) 
-#         stop("function gaussCItest not loaded from package 'pcalg'")
-#     }
-#     functry <- try(selGam,silent=TRUE)
-#     if(class(functry)=="try-error"){
-#       selGam <- function(x) 
-#         stop("function selGam not loaded from package 'pcalg'")
-#     }
-#     functry <- try(selGamBoost,silent=TRUE)
-#     if(class(functry)=="try-error"){
-#       selGamBoost <- function(x) 
-#         stop("function selGamBoost not loaded from package 'pcalg'")
-#     }
     
     # run method
     switch(method,

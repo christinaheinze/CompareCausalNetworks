@@ -37,7 +37,7 @@ environment <- simResult$environment
 ## (using all data pooled for pc/lingam/rfci -- can be changed with option 
 ## 'onlyObservationalData=TRUE')
 
-method <- "ges"
+method <- "rfci"
 
 # Option 1): use this estimator as a point estimate
 # Ahat <- getParents(X, environment, method=method, alpha=0.1)

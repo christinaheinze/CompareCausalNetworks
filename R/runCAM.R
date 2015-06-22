@@ -3,8 +3,8 @@ runCAM<- function(X, interventions, parentsOf, variableSelMat, setOptions,
   
   # additional options for CAM
   optionsList <- list("scoreName"="SEMGAM", "numCores"=1, "output"=FALSE, 
-                      "variableSel"=FALSE, "variableSelMethod"=selGamBoost, 
-                      "pruning"=FALSE, "pruneMethod"=selGam)
+                      "variableSel"=FALSE, "variableSelMethod"=CAM::selGamBoost, 
+                      "pruning"=FALSE, "pruneMethod"=CAM::selGam)
   
   # adjust according to setOptions if necessary
   optionsList <- adjustOptions(availableOptions = optionsList, 
@@ -16,16 +16,16 @@ runCAM<- function(X, interventions, parentsOf, variableSelMat, setOptions,
       if(length(interventions[[i]])>0) intervMat[i, interventions[[i]]] <- TRUE
     }
     
-    cammat <- as(CAM(X,intervData=TRUE,intervMat=intervMat,
-                     scoreName=optionsList$scoreName, 
-                     numCores=optionsList$numCores, 
-                     output= optionsList$output, 
-                     variableSel=optionsList$variableSel, 
-                     variableSelMethod= optionsList$variableSelMethod, 
-                     pruning = optionsList$pruning, 
-                     pruneMethod=optionsList$pruneMethod)$Adj,"matrix")
+    cammat <- as(CAM::CAM(X,intervData=TRUE,intervMat=intervMat,
+                         scoreName=optionsList$scoreName, 
+                         numCores=optionsList$numCores, 
+                         output= optionsList$output, 
+                         variableSel=optionsList$variableSel, 
+                         variableSelMethod= optionsList$variableSelMethod, 
+                         pruning = optionsList$pruning, 
+                         pruneMethod=optionsList$pruneMethod)$Adj,"matrix")
   }else{
-    cammat <- as(CAM(X)$Adj,"matrix")
+    cammat <- as(CAM::CAM(X)$Adj,"matrix")
   }
   if(directed) cammat <- cammat * (t(cammat)==0)
   

@@ -3,3 +3,5 @@
 ^R/scratchScript\.R$
 ^man/adjustOptions\.Rd$
 ^man/stabilitySelectionChecks\.Rd$
+^\.git/*$
+^man/checkDependencies\.Rd$

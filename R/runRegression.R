@@ -24,8 +24,8 @@ runRegression <- function(X, parentsOf, variableSelMat, pointEst, setOptions,
         unique(c(removeVar,which( !variableSelMat[,selc] )))
     }else{
       if(!is.null(optionsList$selfselect)){
-        gl <- glmnet(X[, possibleVar[-removeVar],drop=FALSE], 
-                     as.numeric(X[, parentsOf[k]]))
+        gl <- glmnet::glmnet(X[, possibleVar[-removeVar],drop=FALSE], 
+                             as.numeric(X[, parentsOf[k]]))
         nnz <- apply(coef(gl)!=0, 2,sum)
         beta <- 
           coef(gl, s=gl$lambda[sum(nnz<=optionsList$selfselect)])[-1]
@@ -39,9 +39,9 @@ runRegression <- function(X, parentsOf, variableSelMat, pointEst, setOptions,
     
     parents <- numeric(0)
     if(length(possibleVar)>1){
-      gl <- cv.glmnet(X[ ,possibleVar,drop=FALSE], 
-                      as.numeric( X[,parentsOf[k]]),
-                      intercept=TRUE)
+      gl <- glmnet::cv.glmnet(X[ ,possibleVar,drop=FALSE], 
+                              as.numeric( X[,parentsOf[k]]),
+                              intercept=TRUE)
       beta <- as.numeric(coef(gl))[-1]
       parents <- possibleVar[which(beta!=0)]
     }else{
