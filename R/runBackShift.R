@@ -19,16 +19,18 @@ runBackShift <- function(X, environment, parentsOf, variableSelMat, pointEst,
     warning("option 'variableSelMat' not implemented for 
             'backShift' -- using all variables")
   
-  res <- try(backShift(X, environment, covariance=optionsList$covariance, 
-                       ev=optionsList$ev, threshold=optionsList$threshold, 
-                       nsim=optionsList$nsim, 
-                       sampleSettings=optionsList$sampleSettings, 
-                       sampleObservations=optionsList$sampleObservations, 
-                       nodewise=optionsList$nodewise, 
-                       tolerance=optionsList$tolerance,
-                       baseSettingEnv = optionsList$baseSettingEnv, 
-                       verbose = verbose), 
-             silent = FALSE)
+  res <- try(backShift::backShift(
+     X, environment, covariance=optionsList$covariance, 
+     ev=optionsList$ev, threshold=optionsList$threshold, 
+     nsim=optionsList$nsim, 
+     sampleSettings=optionsList$sampleSettings, 
+     sampleObservations=optionsList$sampleObservations, 
+     nodewise=optionsList$nodewise, 
+     tolerance=optionsList$tolerance,
+     baseSettingEnv = optionsList$baseSettingEnv, 
+     verbose = verbose), 
+     silent = FALSE)
+  
   if(inherits(res, "try-error")){
     warning("backShift -- no stable model found. Possible model 
             mispecification. Returning the empty graph.\n")

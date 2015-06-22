@@ -13,14 +13,14 @@ runGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose,
   vers <- unlist(packageVersion('pcalg'))[1:2]
   tryNewVersion <- try(
     {
-      G <- ges(score, 
+      G <- pcalg::ges(score, 
                fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
                turning = optionsList$turning, maxDegree=optionsList$maxDegree, 
                verbose=verbose)
     }, 
     silent=TRUE)
   if(class(tryNewVersion)=="try-error"){
-    G <- ges(ncol(X), score, 
+    G <- pcalg::ges(ncol(X), score, 
              fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
              turning = optionsList$turning, maxDegree=optionsList$maxDegree, 
              verbose=verbose)

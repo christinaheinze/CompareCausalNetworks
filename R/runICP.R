@@ -54,8 +54,8 @@ runICP <- function(X, environment, interventions, parentsOf, alpha,
     }else{
       if(!is.null(optionsList$selfselect)){
         
-        gl <- glmnet(X[, possibleVar[-removeVar],drop=FALSE], 
-                     as.numeric(X[, parentsOf[k]]))
+        gl <- glmnet::glmnet(X[, possibleVar[-removeVar],drop=FALSE], 
+                             as.numeric(X[, parentsOf[k]]))
         nnz <- apply(coef(gl)!=0, 2,sum)
         beta <- 
           coef(gl, s= gl$lambda[sum(nnz<=optionsList$selfselect)])[-1]
@@ -65,18 +65,20 @@ runICP <- function(X, environment, interventions, parentsOf, alpha,
     }
     if(length(removeVar)>0) possibleVar <- possibleVar[ -removeVar]
     
-    res <- ICP(X[allobs,possibleVar,drop=FALSE], 
-               as.numeric(X[allobs,parentsOf[k]]), 
-               ExpInd=environment[allobs], 
-               showAcceptedSets=FALSE,
-               showCompletion=FALSE, alpha=alpha, 
-               gof=optionsList$gof, 
-               test=optionsList$test, 
-               selection=optionsList$selection, 
-               maxNoVariables=optionsList$maxNoVariables, 
-               maxNoVariablesSimult=optionsList$maxNoVariablesSimult, 
-               maxNoObs=optionsList$maxNoObs, 
-               stopIfEmpty=optionsList$stopIfEmpty)
+    res <- InvariantCausalPrediction::ICP(
+       X[allobs,possibleVar,drop=FALSE], 
+       as.numeric(X[allobs,parentsOf[k]]), 
+       ExpInd=environment[allobs], 
+       showAcceptedSets=FALSE,
+       showCompletion=FALSE, alpha=alpha, 
+       gof=optionsList$gof, 
+       test=optionsList$test, 
+       selection=optionsList$selection, 
+       maxNoVariables=optionsList$maxNoVariables, 
+       maxNoVariablesSimult=optionsList$maxNoVariablesSimult, 
+       maxNoObs=optionsList$maxNoObs, 
+       stopIfEmpty=optionsList$stopIfEmpty)
+    
     parents <- possibleVar[which( res$maximinCoefficients !=0)]
     result[[k]] <- parents
     if(confBound)

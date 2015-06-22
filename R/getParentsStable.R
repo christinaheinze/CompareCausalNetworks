@@ -142,16 +142,16 @@ getParentsStable <- function(X, environment, interventions=NULL,
                                    optionsToSet = setOptions)
       
       # run backShift and return adjacency matrix
-      resmat <- try(backShift(X, environment, 
-                              covariance=optionsList$covariance, 
-                              ev=EV, threshold=threshold, nsim=nsim,
-                              sampleSettings=sampleSettings, 
-                              sampleObservations=sampleObservations, 
-                              nodewise=nodewise, 
-                              tolerance=optionsList$tolerance, 
-                              baseSettingEnv=optionsList$baseSettingEnv, 
-                              verbose = verbose)$AhatAdjacency, 
-                    silent = FALSE)
+      resmat <- try(backShift::backShift(
+        X, environment, covariance=optionsList$covariance, ev=EV, 
+        threshold=threshold, nsim=nsim,
+        sampleSettings=sampleSettings, 
+        sampleObservations=sampleObservations, 
+        nodewise=nodewise, 
+        tolerance=optionsList$tolerance, 
+        baseSettingEnv=optionsList$baseSettingEnv, 
+        verbose = verbose)$AhatAdjacency, 
+        silent = FALSE)
       
       # catch error
       if(inherits(resmat, "try-error")){

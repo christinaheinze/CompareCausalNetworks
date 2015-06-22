@@ -2,7 +2,7 @@ runRFCI <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, v
                     result){
   
   # additional options for RFCI
-  optionsList <- list("indepTest"=gaussCItest,
+  optionsList <- list("indepTest"=pcalg::gaussCItest,
                       "skel.method"="stable", "fixedEdges"=NULL,
                       "NAdelete"=TRUE, "m.max"=Inf,"rules"=rep(TRUE,10),
                       "conservative"=FALSE, "maj.rule"=FALSE)
@@ -12,14 +12,10 @@ runRFCI <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, v
                                optionsToSet = setOptions)
   
   suffStat <- list(C = cor(X), n = nrow(X))
-  rfci.fit <- rfci(suffStat, indepTest = optionsList$indepTest, 
-                   p = ncol(X), alpha = alpha, 
-                   fixedGaps=
-                     if(is.null(variableSelMat)) 
-                       NULL 
-                   else 
-                     (!variableSelMat), 
-                   fixedEdges = optionsList$fixedEdges, 
+  rfci.fit <- pcalg::rfci(suffStat, indepTest = optionsList$indepTest, 
+                   p=ncol(X), alpha=alpha, 
+                   fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
+                   fixedEdges=optionsList$fixedEdges, 
                    NAdelete=optionsList$NAdelete, m.max=optionsList$m.max, 
                    skel.method= optionsList$skel.method, 
                    conservative= optionsList$conservative, 

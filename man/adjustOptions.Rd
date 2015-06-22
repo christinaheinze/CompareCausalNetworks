@@ -7,9 +7,9 @@
 adjustOptions(availableOptions, optionsToSet)
 }
 \arguments{
-\item{optionsToSet}{Options to be changed to user-provided values.}
+\item{availableOptions}{Options provided by function.}
 
-\item{available}{Options Options provided by function.}
+\item{optionsToSet}{Options to be changed to user-provided values.}
 }
 \description{
 Helper function to change default options

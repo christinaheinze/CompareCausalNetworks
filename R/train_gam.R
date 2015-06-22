@@ -8,7 +8,8 @@ train_gam <- function(X,y,pars = list(numBasisFcts = 10))
     if(p[1]/p[2] < 3*pars$numBasisFcts)
     {
         pars$numBasisFcts <- ceiling(p[1]/(3*p[2]))
-        cat("changed number of basis functions to    ", pars$numBasisFcts, "    in order to have enough samples per basis function\n")
+        cat("changed number of basis functions to    ", pars$numBasisFcts, " 
+            in order to have enough samples per basis function\n")
     }
     dat <- data.frame(as.matrix(y),as.matrix(X))
     coln <- rep("null",p[2]+1)

@@ -21,18 +21,20 @@ runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions,
                target.index = target.index)
   tryNewVersion <- try(
     {
-      tmp <- gies(score, 
-                  fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
-                  turning=optionsList$turning, maxDegree=optionsList$maxDegree,
-                  verbose=verbose)
+      tmp <- pcalg::gies(
+        score, 
+        fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
+        turning=optionsList$turning, maxDegree=optionsList$maxDegree,
+        verbose=verbose)
     },
     silent=TRUE)
+  
   if(class(tryNewVersion)=="try-error"){
-    tmp <- gies(ncol(X), as.list(targets), score, 
-                fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat),
-                turning=optionsList$turning, maxDegree=optionsList$maxDegree,
-                verbose=verbose)
-    
+    tmp <- pcalg::gies(
+      ncol(X), as.list(targets), score, 
+      fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat),
+      turning=optionsList$turning, maxDegree=optionsList$maxDegree,
+      verbose=verbose)
   }
   giesmat <- as(tmp$essgraph, "matrix")
   if(directed) giesmat <- giesmat * (t(giesmat)==0)
