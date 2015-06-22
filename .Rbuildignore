@@ -1,0 +1,5 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^R/scratchScript\.R$
+^man/adjustOptions\.Rd$
+^man/stabilitySelectionChecks\.Rd$
