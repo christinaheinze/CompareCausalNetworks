@@ -18,7 +18,8 @@ checkDependencies <- function(method){
     missingDependenciesMessage("kernlab", method)
     missingDependenciesMessage("mgcv", method)
   }else{
-    stop(paste("Method", method, "not (yet?) implemented."))
+    if(method != "backShift")
+      stop(paste("Method", method, "not (yet?) implemented."))
   }
 }
 
