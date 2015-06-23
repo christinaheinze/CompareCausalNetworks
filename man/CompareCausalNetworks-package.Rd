@@ -13,13 +13,17 @@ Provides a unified interface to various causal graph estimation methods.
 Package: \tab CompareCausalNetworks\cr
 Type: \tab Package\cr
 Version: \tab 0.1.0\cr
-Date: \tab 2015-06-17\cr
+Date: \tab 2015-06-23\cr
 License: \tab GPL\cr
 }
 The causal graphs can be estimated with function \code{\link{getParents}} 
-and a stability-selection version is available at \code{\link{getParentsStable}}. %The resulting graphs can be plotted for example with \code{\link{plotGraph}}.
+and a stability-selection version is available at \code{\link{getParentsStable}}. 
+
+The supported methods are provided through the packages listed in \code{Suggests}. 
+Thus, to use a particular method the corresponding package needs to be installed 
+on your machine. To run the examples, most of these packages need to be installed.
 }
 \author{
-Christina Heinze <heinze@stat.math.ethz.ch>, Nicolai Meinshausen <meinshausen@stat.math.ethz.ch>
-Maintainer: Christina Heinze <heinze@stat.math.ethz.ch>, Nicolai Meinshausen <meinshausen@stat.math.ethz.ch>
+Christina Heinze <heinze@stat.math.ethz.ch>, 
+Nicolai Meinshausen <meinshausen@stat.math.ethz.ch>
 }

@@ -1,7 +1,7 @@
 runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions, 
                     directed, verbose, result){
 
-  # check validity of input arguments for GIES
+    # check validity of input arguments for GIES
   if(is.null(interventions)) 
     stop("'interventions' cannot be 'NULL' for method 'gies'")
   
@@ -13,12 +13,19 @@ runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions,
                                optionsToSet = setOptions)
 
   isn <- which(sapply(interventions, is.null))
-  if(length(isn)>0) { for (k in isn) interventions[[k]] <- numeric(0)}
+  if(length(isn)>0) { for (k in isn) interventions[[k]] <- numeric(0) }
   targets <- unique(interventions)
   target.index <- match(interventions, targets)
+  targets <- as.list(lapply(targets, as.integer))
   
-  score <- new("GaussL0penIntScore", data=X, targets =targets,  
+  if(any(table(unlist(targets)) == length(targets)))
+    stop(paste("One variable is intervened on in all settings. At least one\n",
+         "setting needs to be entirely different for 'gies' to run."), 
+         call. = FALSE)
+  
+  score <- new("GaussL0penIntScore", data=X, targets=targets,  
                target.index = target.index)
+  
   tryNewVersion <- try(
     {
       tmp <- pcalg::gies(
@@ -31,7 +38,7 @@ runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions,
   
   if(class(tryNewVersion)=="try-error"){
     tmp <- pcalg::gies(
-      ncol(X), as.list(targets), score, 
+      ncol(X), targets, score, 
       fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat),
       turning=optionsList$turning, maxDegree=optionsList$maxDegree,
       verbose=verbose)

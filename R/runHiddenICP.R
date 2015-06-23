@@ -61,6 +61,15 @@ runHiddenICP <- function(X, environment, interventions, parentsOf, alpha,
     if(length(removeVar)>0) 
       possibleVar <- possibleVar[-removeVar]
     
+    numUniqueInt <- length(unique(environment[allobs]))
+    if(numUniqueInt <= 1)
+      stop(paste(
+        "After excluding observations where interventions occured on\n", 
+        "target variable (variable ", k, ") only", numUniqueInt, "unique environment(s)\n", 
+        "remained. At least 2 unique environments are required by hiddenICP."), 
+        call. = FALSE)
+    
+    
     res <- InvariantCausalPrediction::hiddenICP(
        X[allobs,possibleVar,drop=FALSE], 
        as.numeric(X[allobs,parentsOf[k]]), 

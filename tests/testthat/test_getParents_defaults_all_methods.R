@@ -6,19 +6,30 @@ data("simData_unknownShiftInterventions")
 X <- simData_unknownShiftInterventions$X
 environment <- simData_unknownShiftInterventions$environment
 
-methods <- c("ICP", "hiddenICP", "backShift", "pc", "lingam", 
-             "ges", "CAM", "rfci", "regression", 
+methods <- c("ICP", "hiddenICP", "backShift", "pc", "LINGAM", 
+             "ges", "CAM", "rfci", "regression",
              "bivariateANM", "bivariateCAM")
 
 
-# TODO: modify title of check, put loop outside?
 # TODO: change all method names to spelling in original package?
-test_that("Checks configs for ICP", {
-  for(method in methods){
+
+for(method in methods){
+  test_that(paste("Checks output type for", method), {
+    
     expect_is(
       Ahat <- getParents(X, environment, method=method, alpha=0.1)
       , "Matrix")
+    
+    
+    if(method %in% c("ICP", "hiddenICP")){
+      expect_warning(
+        Ahat <- getParents(X, environment, method=method, alpha=0.1)
+      )
+    }
+    
+    
   }
-})
+  )
+}
 
 # gies
