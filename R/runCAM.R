@@ -2,7 +2,7 @@ runCAM<- function(X, interventions, parentsOf, variableSelMat, setOptions,
                   directed, verbose, result){
   
   # additional options for CAM
-  optionsList <- list("scoreName"="SEMGAM", "numCores"=1, "output"=FALSE, 
+  optionsList <- list("scoreName"="SEMGAM", "numCores"=1,
                       "variableSel"=FALSE, "variableSelMethod"=CAM::selGamBoost, 
                       "pruning"=FALSE, "pruneMethod"=CAM::selGam)
   
@@ -19,7 +19,7 @@ runCAM<- function(X, interventions, parentsOf, variableSelMat, setOptions,
     cammat <- as(CAM::CAM(X,intervData=TRUE,intervMat=intervMat,
                          scoreName=optionsList$scoreName, 
                          numCores=optionsList$numCores, 
-                         output= optionsList$output, 
+                         output= verbose, 
                          variableSel=optionsList$variableSel, 
                          variableSelMethod= optionsList$variableSelMethod, 
                          pruning = optionsList$pruning, 

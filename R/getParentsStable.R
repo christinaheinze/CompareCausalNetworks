@@ -1,9 +1,9 @@
 #' Estimate the connectivity matrix of a causal graph using stability selection.
 #'
 #' @description Estimates the connectivity matrix of a directed causal graph, 
-#'  using various possible methods. Supported methods at the moment are PC, 
-#'  Lingam, GES, GIES, RFCI, CAM, and invariant prediction with or without 
-#'  hidden variables (ICP and hiddenICP) as well as backShift. 
+#'  using various possible methods. Supported methods at the moment are backShift, 
+#'  bivariateANM, bivariateCAM, CAM, hiddenICP, ICP, GES, GIES, LINGAM, 
+#'  PC, regression and RFCI.
 #'  Uses stability selection to select an appropriate sparseness.
 #'
 #' @param X A (nxp)-data matrix with n observations of p variables.
@@ -11,7 +11,7 @@
 #' observation i is an index for the environment in which observation i took 
 #' place (simplest case entries \code{1} for observational data and entries
 #'  \code{2} for interventional data of unspecified type). Is required for 
-#'  methods "ICP", "hiddenICP", "backShift".
+#'  methods \code{ICP}, \code{hiddenICP}, \code{backShift}.
 #' @param interventions A optional list of length n. The entry for observation
 #'  i is a numeric vector that specifies the variables on which interventions 
 #'  happened for observation i (a scalar if an intervention happened on just 
@@ -41,12 +41,12 @@
 #' @param parentsOf The variables for which we would like to estimate the 
 #' parents. Default are all variables.
 #' @param method A string that specfies the method to use. The methods 
-#' \code{pc} (PC-algorithm), \code{lingam} (Lingam), \code{ges} 
+#' \code{pc} (PC-algorithm), \code{LINGAM} (LINGAM), \code{ges} 
 #' (Greedy equivalence search), \code{gies} (Greedy interventional equivalence 
 #' search) and \code{rfci} (Really fast causal inference) are imported from the 
 #' package "pcalg" and are documented there in more detail, including the 
 #' additional options that can be supplied via \code{setOptions}. The method 
-#' \code{cam} (Causal additive models) is documented in the package "cam" and 
+#' \code{CAM} (Causal additive models) is documented in the package "CAM" and 
 #' the methods \code{ICP} (Invariant causal prediction), \code{hiddenICP} 
 #' (Invariant causal prediction with hidden variables) are from the package 
 #' "InvariantCausalPrediction".  The method \code{backShift} comes from the 
@@ -60,8 +60,8 @@
 #' entry \code{TRUE} for entry (i,j) says that variable i should be considered 
 #' as a potential parent for variable j and vice versa for \code{FALSE}. If the 
 #' default value of \code{NULL} is used, all variables will be considered, but 
-#' this can be very slow, especially for methods "pc", "ges", "gies", "rfci" 
-#' and "cam".
+#' this can be very slow, especially for methods \code{pc}, \code{ges}, 
+#' \code{gies}, \code{rfci} and \code{CAM}.
 #' @param excludeTargetInterventions When looking for parents of variable k 
 #' in 1,...,p, set to \code{TRUE} if observations where an intervention on 
 #' variable k occured should be excluded. Default is \code{TRUE}.
@@ -100,7 +100,7 @@ getParentsStable <- function(X, environment, interventions=NULL,
                              sampleObservations=1/sqrt(2), 
                              parentsOf=1:ncol(X), 
                              method= c("ICP", "hiddenICP", "backShift", "pc", 
-                                       "lingam", "ges", "gies", "cam", "rfci",
+                                       "LINGAM", "ges", "gies", "CAM", "rfci",
                                        "regression", "bivariateANM", 
                                        "bivariateCAM"
                                        )[1],  

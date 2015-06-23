@@ -2,15 +2,15 @@ Package: CompareCausalNetworks
 Type: Package
 Title: Interface to Diverse Estimation Methods of Causal Networks
 Version: 0.1.0
-Date: 2015-06-22
-Author: Nicolai Meinshausen <meinshausen@stat.math.ethz.ch>, 
- Christina Heinze <heinze@stat.math.ethz.ch>
+Date: 2015-06-23
+Author: Christina Heinze <heinze@stat.math.ethz.ch>,
+  Nicolai Meinshausen <meinshausen@stat.math.ethz.ch>
 Depends: R (>= 3.1.0)
 Imports: Matrix
 Maintainer: Christina Heinze <heinze@stat.math.ethz.ch>
 Description: Unified interface for the estimation of causal networks, 
- including the methods GES, GIES, regression, PC, Lingam, RFCI, 
- invariant prediction (ICP) and backShift.
+ including the methods backShift, bivariateANM, bivariateCAM, CAM, hiddenICP, 
+ ICP, GES, GIES, LINGAM, PC, regression and RFCI.
 License: GPL
 LazyData: true
 Suggests: pcalg, InvariantCausalPrediction, glmnet, backShift, CAM, kernlab, 

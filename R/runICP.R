@@ -27,9 +27,9 @@ runICP <- function(X, environment, interventions, parentsOf, alpha,
   # use data from different environments/interventions
   if(excludeTargetInterventions & !is.null(interventions)){
     removeObsTarget <- list()
-    for (parentsOfC in 1:length(parentsOf)){
+    for(parentsOfC in 1:length(parentsOf)){
       removeObsTarget[[parentsOfC]] <- 
-        which( sapply(interventions, 
+        which(sapply(interventions, 
                       function(x,a) a %in% x, a=parentsOf[parentsOfC]))
     }
   }
@@ -38,12 +38,15 @@ runICP <- function(X, environment, interventions, parentsOf, alpha,
     if(round(k/100)==(k/100)) cat(" ",k)
     
     allobs <- 1:nrow(X)
+    
     if(excludeTargetInterventions & !is.null(interventions)){
-      if( length(removeObsTarget[[k]])>0) 
+      if(length(removeObsTarget[[k]])>0) 
         allobs <- allobs[ -removeObsTarget[[k]]]
     }
+    
     possibleVar <- (1:ncol(X))
     removeVar <- parentsOf[k]
+    
     if(!is.null(variableSelMat) & is.null(optionsList$selfselect)){
       if(ncol(variableSelMat)==length(parentsOf)) 
         selc <- k 
@@ -64,6 +67,15 @@ runICP <- function(X, environment, interventions, parentsOf, alpha,
       }
     }
     if(length(removeVar)>0) possibleVar <- possibleVar[ -removeVar]
+    
+    numUniqueInt <- length(unique(environment[allobs]))
+    if(numUniqueInt <= 1)
+      stop(paste(
+      "After excluding observations where interventions occured on\n", 
+      "target variable (variable ", k, ") only", numUniqueInt, "unique environment(s)\n", 
+      "remained. At least 2 unique environments are required by ICP."), 
+           call. = FALSE)
+    
     
     res <- InvariantCausalPrediction::ICP(
        X[allobs,possibleVar,drop=FALSE], 

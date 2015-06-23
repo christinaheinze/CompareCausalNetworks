@@ -40,8 +40,12 @@ runBackShift <- function(X, environment, parentsOf, variableSelMat, pointEst,
                                     ncol = p))
   }
   for (k in 1:length(parentsOf)){
-    result[[k]] <- (wh <- which(res$AhatAdjacency[, k]!=0))
-    if(pointEst)  attr(result[[k]],"coefficients") <- res$Ahat[ wh,k ]
+    if(optionsList$ev == 0)
+      result[[k]] <- (wh <- which(res$Ahat[, k]!=0))
+    else
+      result[[k]] <- (wh <- which(res$AhatAdjacency[, k]!=0))
+    
+    if(pointEst) attr(result[[k]],"coefficients") <- res$Ahat[ wh,k ]
   }
   
   result
