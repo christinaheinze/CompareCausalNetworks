@@ -263,7 +263,7 @@
 getParents <- function(X, environment = NULL, interventions = NULL, 
                        parentsOf = 1:ncol(X),
                        method= c("ICP", "hiddenICP", "backShift", "pc", 
-                                 "lingam", "ges", "gies", "cam", "rfci",
+                                 "lingam", "ges", "gies", "CAM", "rfci",
                                  "regression", "bivariateANM", 
                                  "bivariateCAM")[1],  
                        alpha = 0.1, variableSelMat = NULL,
