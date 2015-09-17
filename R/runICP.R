@@ -13,16 +13,17 @@ runICP <- function(X, environment, interventions, parentsOf, alpha,
                                optionsToSet = setOptions)
   
   
-  if(all((1:ncol(X)) %in% parentsOf) & is.null(interventions)) 
+  if(all((1:ncol(X)) %in% parentsOf) & is.null(interventions) & excludeTargetInterventions) 
     warning(
      "ICP requires that no interventions occured on the target variables. In the 
      current function call 
      (a) all variables are considered as target variables (parentsOf=1:ncol(X)) and 
      (b) the interventions are equal to NULL (and can thus not be removed for 
-     each variables). 
+     each variable).
+
      The results are likely to be misleading. Either target just specific 
      variables by specifying 'parentsOf' or add the list where interventons 
-     occured (using argument 'interventions').")
+     occured (using argument 'interventions').\n")
   
   # use data from different environments/interventions
   if(excludeTargetInterventions & !is.null(interventions)){
@@ -48,10 +49,11 @@ runICP <- function(X, environment, interventions, parentsOf, alpha,
     removeVar <- parentsOf[k]
     
     if(!is.null(variableSelMat) & is.null(optionsList$selfselect)){
-      if(ncol(variableSelMat)==length(parentsOf)) 
+      if(ncol(variableSelMat)==length(parentsOf)){
         selc <- k 
-      else 
+      }else{
         selc <- which( (1:ncol(X)) == parentsOf[k])
+    }
       removeVar <- 
         unique(c(removeVar,which( !variableSelMat[,selc] )))
     }else{
@@ -96,7 +98,7 @@ runICP <- function(X, environment, interventions, parentsOf, alpha,
     if(confBound)
       attr(result[[k]],"coefficients") <- 
       res$maximinCoefficients[which(res$maximinCoefficients !=0)]
-  }
+}
     
   result
 }
