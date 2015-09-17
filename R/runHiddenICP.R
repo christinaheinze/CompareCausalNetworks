@@ -18,7 +18,7 @@ runHiddenICP <- function(X, environment, interventions, parentsOf, alpha,
       each variables). 
       The results are likely to be misleading. Either target just specific 
       variables by specifying 'parentsOf' or add the list where interventons 
-      occured (using argument 'interventions'.")
+      occured (using argument 'interventions').")
   
   # use data from different environments/interventions
   if(excludeTargetInterventions & !is.null(interventions)){
