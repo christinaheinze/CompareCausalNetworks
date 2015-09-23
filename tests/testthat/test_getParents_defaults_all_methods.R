@@ -6,7 +6,7 @@ data("simData_unknownShiftInterventions")
 X <- simData_unknownShiftInterventions$X
 environment <- simData_unknownShiftInterventions$environment
 
-methods <- c("ICP", "hiddenICP", "backShift", "pc", "LINGAM", 
+methods <- c("ICP", "hiddenICP", "backShift", "pc", "LINGAM",
              "ges", "CAM", "rfci", "regression",
              "bivariateANM", "bivariateCAM")
 
@@ -31,5 +31,4 @@ for(method in methods){
   }
   )
 }
-
 # gies
