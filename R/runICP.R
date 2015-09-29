@@ -3,7 +3,7 @@ runICP <- function(X, environment, interventions, parentsOf, alpha,
                    setOptions, verbose, result){
   
   # additional options for ICP
-  optionsList <- list("gof" = 0.1, "test"="approximate", 
+  optionsList <- list( "test"="normal", 
                       "selection"="lasso", "maxNoVariables"=7, 
                       "maxNoVariablesSimult"=3, "maxNoObs"=200, 
                       "stopIfEmpty"=TRUE, "selfselect"=NULL)
@@ -85,7 +85,6 @@ runICP <- function(X, environment, interventions, parentsOf, alpha,
        ExpInd=environment[allobs], 
        showAcceptedSets=FALSE,
        showCompletion=FALSE, alpha=alpha, 
-       gof=optionsList$gof, 
        test=optionsList$test, 
        selection=optionsList$selection, 
        maxNoVariables=optionsList$maxNoVariables, 
