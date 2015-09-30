@@ -9,8 +9,17 @@ Depends: R (>= 3.1.0)
 Imports: Matrix
 Maintainer: Christina Heinze <heinze@stat.math.ethz.ch>
 Description: Unified interface for the estimation of causal networks, 
- including the methods backShift, bivariateANM, bivariateCAM, CAM, hiddenICP, 
- ICP, GES, GIES, LINGAM, PC, regression and RFCI.
+ including the methods 'backShift' (from package 'backShift'), 
+ 'bivariateANM' (bivariate additive noise model), 
+ 'bivariateCAM' (bivariate causal additive model), 
+ 'CAM' (causal additive model) (from package 'CAM'), 
+ 'hiddenICP' (invariant causal prediction with hidden variables), 
+ 'ICP' (invariant causal prediction) (from package 'InvariantCausalPrediction'), 
+ 'GES' (greedy equivalence search), 
+ 'GIES' (greedy interventional equivalence search), 
+ 'LINGAM', 'PC' (PC Algorithm), 
+ 'RFCI' (really fast causal inference)
+ (all from package 'pcalg') and regression.
 License: GPL
 LazyData: true
 Suggests: pcalg, InvariantCausalPrediction, glmnet, backShift, CAM, kernlab, 
