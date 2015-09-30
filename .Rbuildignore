@@ -7,3 +7,4 @@
 ^man/checkDependencies\.Rd$
 ^aux/*$
 ^tests/testthat/test_getParents_ICP\.R$
+^\.gitignore$
