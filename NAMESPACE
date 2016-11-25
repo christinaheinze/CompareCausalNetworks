@@ -1,2 +1,6 @@
 import(Matrix)
+importFrom("methods", "as", "new")
+importFrom("stats", "coef", "cor", "dist", "formula", "median",
+             "pgamma", "qgamma", "rnorm", "runif", "var")
+importFrom("utils", "packageVersion")
 export(getParents, getParentsStable)
