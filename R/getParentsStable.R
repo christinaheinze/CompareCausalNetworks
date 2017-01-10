@@ -100,7 +100,7 @@ getParentsStable <- function(X, environment, interventions=NULL,
                              sampleObservations=1/sqrt(2), 
                              parentsOf=1:ncol(X), 
                              method= c("ICP", "hiddenICP", "backShift", "pc", 
-                                       "LINGAM", "ges", "gies", "CAM", "rfci",
+                                       "LINGAM", "ges", "gies", "CAM", "fci", "rfci",
                                        "regression", "bivariateANM", 
                                        "bivariateCAM"
                                        )[1],  

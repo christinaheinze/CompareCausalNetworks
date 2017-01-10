@@ -177,7 +177,7 @@
 getParents <- function(X, environment = NULL, interventions = NULL, 
                        parentsOf = 1:ncol(X),
                        method= c("ICP", "hiddenICP", "backShift", "pc", 
-                                 "LINGAM", "ges", "gies", "CAM", "rfci",
+                                 "LINGAM", "ges", "gies", "CAM", "fci", "rfci",
                                  "regression", "bivariateANM", 
                                  "bivariateCAM")[1],  
                        alpha = 0.1, variableSelMat = NULL,
@@ -307,6 +307,11 @@ getParents <- function(X, environment = NULL, interventions = NULL,
               result <- runPC(X, parentsOf, alpha, variableSelMat, setOptions, 
                               directed, verbose, result)
             },
+           
+           "fci" = {
+             result <- runFCI(X, parentsOf, alpha, variableSelMat, setOptions, 
+                               directed, verbose, result)
+           },
            
             "rfci" = {
               result <- runRFCI(X, parentsOf, alpha, variableSelMat, setOptions, 

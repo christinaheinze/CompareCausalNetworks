@@ -1,8 +1,8 @@
 Package: CompareCausalNetworks
 Type: Package
 Title: Interface to Diverse Estimation Methods of Causal Networks
-Version: 0.1.5
-Date: 2016-11-25
+Version: 0.1.5.9000
+Date: 2017-01-10
 Author: Christina Heinze-Deml <heinzedeml@stat.math.ethz.ch>,
     Nicolai Meinshausen <meinshausen@stat.math.ethz.ch>
 Depends:
@@ -18,7 +18,8 @@ Description: Unified interface for the estimation of causal networks, including
     causal prediction with hidden variables), 'ICP' (invariant causal prediction)
     (from package 'InvariantCausalPrediction'), 'GES' (greedy equivalence
     search), 'GIES' (greedy interventional equivalence search), 'LINGAM', 'PC' (PC
-    Algorithm), 'RFCI' (really fast causal inference) (all from package 'pcalg') and
+    Algorithm), 'FCI' (fast causal inference), 
+    'RFCI' (really fast causal inference) (all from package 'pcalg') and
     regression.
 License: GPL
 LazyData: true
@@ -30,6 +31,7 @@ Suggests:
     CAM,
     kernlab,
     mgcv,
+    bnlearn,
     testthat
 URL: https://github.com/christinaheinze/CompareCausalNetworks
 BugReports: https://github.com/christinaheinze/CompareCausalNetworks/issues
