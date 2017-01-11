@@ -1,5 +1,10 @@
 runBivariateANM<- function(X, parentsOf, variableSelMat, pointEst, verbose, 
-                           result){
+                           result, ...){
+  
+  dots <- list(...)
+  if(length(dots) > 0){
+    warning("options provided via '...' not taken")
+  }
   
   bivanmmat <- bivariateANM(X, parentsOf =parentsOf, 
                             variableSelMat = variableSelMat, 

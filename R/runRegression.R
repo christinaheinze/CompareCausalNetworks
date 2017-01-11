@@ -1,5 +1,10 @@
 runRegression <- function(X, parentsOf, variableSelMat, pointEst, setOptions, 
-                          verbose, result){
+                          verbose, result, ...){
+  
+  dots <- list(...)
+  if(length(dots) > 0){
+    warning("options provided via '...' not taken")
+  }
   
   # additional options for regression
   optionsList <- list("selfselect"=NULL)
@@ -8,6 +13,7 @@ runRegression <- function(X, parentsOf, variableSelMat, pointEst, setOptions,
   optionsList <- adjustOptions(availableOptions = optionsList, 
                                optionsToSet = setOptions)
   
+ 
   for (k in 1:length(parentsOf)){
     if(round(k/100)==(k/100)) cat(" ",k)
     

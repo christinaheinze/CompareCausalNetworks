@@ -1,8 +1,11 @@
 runGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose, 
-                   result){
+                   result, ...){
   
   # additional options for GES
-  optionsList <- list("turning"=TRUE, "maxDegree"=integer(0))
+  optionsList <- list("phases"= c("forward", "backward"),
+                      "iterate"=FALSE,
+                      "adaptive" = "none", 
+                      "maxDegree"=integer(0))
   
   # adjust according to setOptions if necessary
   optionsList <- adjustOptions(availableOptions = optionsList, 
@@ -11,8 +14,11 @@ runGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose,
   score <- new("GaussL0penObsScore", X)
   G <- pcalg::ges(score, 
                fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
-               turning = optionsList$turning, maxDegree=optionsList$maxDegree, 
-               verbose=verbose)
+               adaptive = optionsList$adaptive,
+               phase = optionsList$phase,
+               iterate = optionsList$iterate,
+               maxDegree=optionsList$maxDegree, 
+               verbose=verbose, ...)
   gesmat <- as(G$essgraph, "matrix")
   if(directed) gesmat <- gesmat * (t(gesmat)==0)
   for (k in 1:length(parentsOf)){

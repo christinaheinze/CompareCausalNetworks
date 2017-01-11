@@ -6,7 +6,7 @@
 checkDependencies <- function(method){
   if(method %in% c("ICP", "hiddenICP")){
     missingDependenciesMessage("InvariantCausalPrediction", method)
-  }else if(method %in% c("pc", "LINGAM", "ges", "gies", "fci", "rfci")){
+  }else if(method %in% c("pc", "LINGAM", "arges", "ges", "gies", "fci", "rfci")){
     missingDependenciesMessage("pcalg", method)
   }else if(method == "CAM"){
     missingDependenciesMessage("CAM", method)

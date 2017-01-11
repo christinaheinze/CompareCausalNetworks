@@ -1,18 +1,19 @@
-runLINGAM <- function(X, parentsOf, pointEst, setOptions, directed, verbose, 
-                    result){
+runLINGAM <- function(X, parentsOf, pointEst, variableSelMat, setOptions, directed, verbose, 
+                    result, ...){
   
-  # additional options for LINGAM
-  # TODO: None?
+  dots <- list(...)
+  if(length(dots) > 0){
+    warning("options provided via '...' not taken")
+  }
   
-  # adjust according to setOptions if necessary
-  # optionsList <- adjustOptions(availableOptions = optionsList, 
-                               # optionsToSet = setOptions)
-                            
-  # variableSelMat not implemented                          
+  if(!is.null(variableSelMat)) 
+    warning("option 'variableSelMat' not implemented for 
+            'LINGAM' -- using all variables")                          
   
   if(nrow(X)<=ncol(X)) 
     stop("LINGAM not suitable for high-dimensional data; 
          need nrow(X) > ncol(X)")
+  
   res <- pcalg::lingam(X, verbose=verbose)
   B <- res$Bpruned
   B[B != 0] <- 1

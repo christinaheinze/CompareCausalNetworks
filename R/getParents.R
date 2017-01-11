@@ -24,21 +24,25 @@
 #' @param parentsOf The variables for which we would like to estimate the 
 #' parents. Default are all variables.
 #' @param method A string that specfies the method to use. The methods 
-#' \code{pc} (PC-algorithm), \code{LINGAM} (LINGAM), \code{ges} 
+#' \code{pc} (PC-algorithm), \code{LINGAM} (LINGAM), \code{arges} (Adaptively 
+#' restricted greedy equivalence search), \code{ges} 
 #' (Greedy equivalence search), \code{gies} (Greedy interventional equivalence 
-#' search) and \code{rfci} (Really fast causal inference) are imported from the 
+#' search),  \code{fci} (Fast causal inference)  
+#' and \code{rfci} (Really fast causal inference) are imported from the 
 #' package "pcalg" and are documented there in more detail, including the 
 #' additional options that can be supplied via \code{setOptions}. The method 
 #' \code{CAM} (Causal additive models) is documented in the package "CAM" and 
 #' the methods \code{ICP} (Invariant causal prediction), \code{hiddenICP} 
 #' (Invariant causal prediction with hidden variables) are from the package 
 #' "InvariantCausalPrediction". The method \code{backShift} comes from the 
-#' package "backShift". Finally, the methods \code{bivariateANM} and 
+#' package "backShift". The method \code{mmhc} comes from the 
+#' package "bnlearn". 
+#' Finally, the methods \code{bivariateANM} and 
 #' \code{bivariateCAM} are for now implemented internally but will hopefully 
 #' be part of another package at some point in the near future.
 #' @param alpha The level at which tests are done. This leads to confidence 
 #' intervals for \code{ICP} and \code{hiddenICP} and is used internally for 
-#' \code{pc} and \code{rfci}.
+#' \code{pc}, \code{mmhc}, \code{fci} and \code{rfci}.
 #' @param variableSelMat An optional logical matrix of dimension (pxp). An 
 #' entry \code{TRUE} for entry (i,j) says that variable i should be considered 
 #' as a potential parent for variable j and vice versa for \code{FALSE}. If the 
@@ -185,7 +189,7 @@ getParents <- function(X, environment = NULL, interventions = NULL,
                        onlyObservationalData = FALSE, 
                        indexObservationalData = 1,
                        returnAsList=FALSE, pointConf = FALSE, 
-                       setOptions = list(), directed=TRUE, verbose = FALSE){
+                       setOptions = list(), directed=TRUE, verbose = FALSE, ...){
 
     # check whether method is supported and dependencies are installed
     checkDependencies(method)
@@ -273,70 +277,82 @@ getParents <- function(X, environment = NULL, interventions = NULL,
            "ICP" = {
              result <- runICP(X, environment, interventions, parentsOf, alpha, 
                               variableSelMat, excludeTargetInterventions, 
-                              pointConf, setOptions, verbose, result)
+                              pointConf, setOptions, verbose, result, ...)
            },
            
            "hiddenICP" = {
              result <- runHiddenICP(X, environment, interventions, parentsOf, 
                                     alpha, variableSelMat, 
                                     excludeTargetInterventions, pointConf, 
-                                    setOptions, verbose, result)
+                                    setOptions, verbose, result, ...)
             },
            
             "backShift" = {
               result <- runBackShift(X, environment, parentsOf, variableSelMat, 
-                                     pointConf, setOptions, verbose, result)
+                                     pointConf, setOptions, verbose, result, ...)
             },
            
             "regression" = {
               result <- runRegression(X, parentsOf, variableSelMat, pointConf, 
-                                      setOptions, verbose, result)
+                                      setOptions, verbose, result, ...)
             },
            
             "gies" = {
               result <- runGIES(X, interventions, parentsOf, variableSelMat, 
-                                setOptions, directed, verbose, result)
+                                setOptions, directed, verbose, result, ...)
             },
             
             "ges" = {
               result <- runGES(X, parentsOf, variableSelMat, setOptions, 
-                               directed, verbose, result)
+                               directed, verbose, result, ...)
+            },
+           
+            "arges" = {
+              result <- runARGES(X, parentsOf, variableSelMat, setOptions, 
+                              directed, verbose, result, ...)
             },
             
             "pc" = {
               result <- runPC(X, parentsOf, alpha, variableSelMat, setOptions, 
-                              directed, verbose, result)
+                              directed, verbose, result, ...)
             },
            
            "fci" = {
              result <- runFCI(X, parentsOf, alpha, variableSelMat, setOptions, 
-                               directed, verbose, result)
+                               directed, verbose, result, ...)
            },
            
             "rfci" = {
               result <- runRFCI(X, parentsOf, alpha, variableSelMat, setOptions, 
-                                directed, verbose, result)
+                                directed, verbose, result, ...)
             },
            
             "LINGAM" = {
-              result <- runLINGAM(X, parentsOf, pointConf, setOptions, directed, 
-                                  verbose, result)
+              result <- runLINGAM(X, parentsOf, pointConf, variableSelMat, 
+                                  setOptions, directed, 
+                                  verbose, result, ...)
             },
            
            "CAM" = {
               result <- runCAM(X, interventions, parentsOf, variableSelMat, 
-                               setOptions, directed, verbose, result)
+                               setOptions, directed, verbose, result, ...)
             },
            
             "bivariateCAM" = {
               result <- runBivariateCAM(X, parentsOf, variableSelMat, pointConf,
-                                        verbose, result)
+                                        verbose, result, ...)
             },
            
             "bivariateANM" = {
               result <- runBivariateANM(X, parentsOf, variableSelMat, pointConf, 
-                                        verbose, result)
+                                        verbose, result, ...)
             },
+           
+           "mmhc" = {
+             result <- runMMHC(X, parentsOf, alpha, variableSelMat, 
+                               setOptions, directed, verbose, 
+                               result, ...)
+           },
            
            {
                warning(paste("method ", method," not implemented"))

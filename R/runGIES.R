@@ -1,5 +1,5 @@
 runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions, 
-                    directed, verbose, result){
+                    directed, verbose, result, ...){
 
     # check validity of input arguments for GIES
   if(is.null(interventions)) 
@@ -32,7 +32,7 @@ runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions,
         score, 
         fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
         turning=optionsList$turning, maxDegree=optionsList$maxDegree,
-        verbose=verbose)
+        verbose=verbose, ...)
     },
     silent=TRUE)
   

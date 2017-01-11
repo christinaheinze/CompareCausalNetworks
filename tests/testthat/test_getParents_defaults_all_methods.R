@@ -7,8 +7,8 @@ X <- simData_unknownShiftInterventions$X
 environment <- simData_unknownShiftInterventions$environment
 
 methods <- c("ICP", "hiddenICP", "backShift", "pc", "LINGAM",
-             "ges", "CAM", "fci", "rfci", "regression",
-             "bivariateANM", "bivariateCAM")
+             "arges", "ges", "CAM", "fci", "rfci", "regression",
+             "bivariateANM", "bivariateCAM", "mmhc")
 
 
 # TODO: change all method names to spelling in original package?

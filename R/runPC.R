@@ -1,5 +1,10 @@
 runPC <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, verbose, 
-                   result){
+                   result, ...){
+  
+  dots <- list(...)
+  if(length(dots) > 0){
+    warning("options provided via '...' not taken")
+  }
   
   # additional options for PC
   optionsList <- list("indepTest"=pcalg::gaussCItest, "fixedEdges"=NULL,

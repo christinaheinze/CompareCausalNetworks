@@ -1,10 +1,15 @@
 runCAM<- function(X, interventions, parentsOf, variableSelMat, setOptions, 
-                  directed, verbose, result){
+                  directed, verbose, result, ...){
   
   # additional options for CAM
   optionsList <- list("scoreName"="SEMGAM", "numCores"=1,
                       "variableSel"=FALSE, "variableSelMethod"=CAM::selGamBoost, 
                       "pruning"=FALSE, "pruneMethod"=CAM::selGam)
+  
+  dots <- list(...)
+  if(length(dots) > 0){
+    warning("options provided via '...' not taken")
+  }
   
   # adjust according to setOptions if necessary
   optionsList <- adjustOptions(availableOptions = optionsList, 

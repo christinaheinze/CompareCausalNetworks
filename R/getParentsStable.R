@@ -41,16 +41,20 @@
 #' @param parentsOf The variables for which we would like to estimate the 
 #' parents. Default are all variables.
 #' @param method A string that specfies the method to use. The methods 
-#' \code{pc} (PC-algorithm), \code{LINGAM} (LINGAM), \code{ges} 
+#' \code{pc} (PC-algorithm), \code{LINGAM} (LINGAM), \code{arges} (Adaptively 
+#' restricted greedy equivalence search), \code{ges} 
 #' (Greedy equivalence search), \code{gies} (Greedy interventional equivalence 
-#' search) and \code{rfci} (Really fast causal inference) are imported from the 
+#' search),  \code{fci} (Fast causal inference)  
+#' and \code{rfci} (Really fast causal inference) are imported from the 
 #' package "pcalg" and are documented there in more detail, including the 
 #' additional options that can be supplied via \code{setOptions}. The method 
 #' \code{CAM} (Causal additive models) is documented in the package "CAM" and 
 #' the methods \code{ICP} (Invariant causal prediction), \code{hiddenICP} 
 #' (Invariant causal prediction with hidden variables) are from the package 
-#' "InvariantCausalPrediction".  The method \code{backShift} comes from the 
-#' package "backShift". Finally, the methods \code{bivariateANM} and 
+#' "InvariantCausalPrediction". The method \code{backShift} comes from the 
+#' package "backShift". The method \code{mmhc} comes from the 
+#' package "bnlearn". 
+#' Finally, the methods \code{bivariateANM} and 
 #' \code{bivariateCAM} are for now implemented internally but will hopefully 
 #' be part of another package at some point in the near future.
 #' @param alpha The level at which tests are done. This leads to confidence 

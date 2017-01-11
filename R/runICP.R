@@ -1,6 +1,11 @@
 runICP <- function(X, environment, interventions, parentsOf, alpha, 
                    variableSelMat, excludeTargetInterventions, confBound, 
-                   setOptions, verbose, result){
+                   setOptions, verbose, result, ...){
+  
+  dots <- list(...)
+  if(length(dots) > 0){
+    warning("options provided via '...' not taken")
+  }
   
   # additional options for ICP
   optionsList <- list( "test"="normal", 

@@ -1,5 +1,10 @@
 runBivariateCAM<- function(X, parentsOf, variableSelMat, pointEst, verbose, 
-                           result){
+                           result, ...){
+  
+  dots <- list(...)
+  if(length(dots) > 0){
+    warning("options provided via '...' not taken")
+  }
   
   bivcammat <- bivariateCAM(X, parentsOf=parentsOf, 
                             variableSelMat=variableSelMat, 

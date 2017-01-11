@@ -24,6 +24,6 @@ Thus, to use a particular method the corresponding package needs to be installed
 on your machine. To run the examples, most of these packages need to be installed.
 }
 \author{
-Christina Heinze <heinze@stat.math.ethz.ch>, 
+Christina Heinze-Deml <heinzedeml@stat.math.ethz.ch>, 
 Nicolai Meinshausen <meinshausen@stat.math.ethz.ch>
 }

@@ -1,5 +1,5 @@
 runBackShift <- function(X, environment, parentsOf, variableSelMat, pointEst, 
-                         setOptions, verbose, result){
+                         setOptions, verbose, result, ...){
   
   # additional options for backShift
   optionsList <- list("covariance"=TRUE, "ev"=0, "threshold"=0.75, "nsim"=100, 
@@ -18,6 +18,10 @@ runBackShift <- function(X, environment, parentsOf, variableSelMat, pointEst,
   if(!is.null(variableSelMat)) 
     warning("option 'variableSelMat' not implemented for 
             'backShift' -- using all variables")
+  dots <- list(...)
+  if(length(dots) > 0){
+    warning("options provided via '...' not taken")
+  }
   
   res <- try(backShift::backShift(
      X, environment, covariance=optionsList$covariance, 
