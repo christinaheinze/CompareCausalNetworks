@@ -11,6 +11,11 @@ runCAM<- function(X, interventions, parentsOf, variableSelMat, setOptions,
     warning("options provided via '...' not taken")
   }
   
+  if(!is.null(variableSelMat)) 
+    warning("option 'variableSelMat' not implemented for 
+            'LINGAM' -- using all variables")                          
+  
+  
   # adjust according to setOptions if necessary
   optionsList <- adjustOptions(availableOptions = optionsList, 
                                optionsToSet = setOptions)
