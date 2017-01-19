@@ -88,12 +88,11 @@ set.seed(seed)
   }
   
   ###### simulate noise
-  noise <- matrix(rt(n*p,df=df),nrow=n)
+  noise <- matrix(rnorm(n*p),nrow=n)
   Sigma <- matrix(rhoNoise,nrow=p,ncol=p)
   diag(Sigma) <- 1
   CC <- chol(Sigma)
   noise <- noise %*% CC
-  noise <- scale(noise)
   noise[,which(colSums(A) != 0)] <- sqrt(snrPar)*noise[,which(colSums(A) != 0)] 
   
   # change A to achieve given SNR in observational case
@@ -121,6 +120,8 @@ set.seed(seed)
     
   }
   
+  # apply t-distribution for noise
+  noise <- apply(noise, 2, function(x) qt(pnorm(x), df = df))
   inv <- solve(diag(p) - A)
   X <- (noise + Perturb)%*%inv
 
