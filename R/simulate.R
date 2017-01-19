@@ -104,7 +104,7 @@ set.seed(seed)
     # add cycle to A
     # sample uniformly at random one connection backwards
     backConnect <- sample(1:p, 2, replace = FALSE)
-    A[max(backConnect), min(min(backConnect))] <- 1
+    A[max(backConnect), min(backConnect)] <- 1
     # find cyclic path from max(backConnect) back to max(backConnect)
     # and get largest coefficient path can have (if it exists)
     cpmat <- getLargestWeightForCycle(A)$cpMat
