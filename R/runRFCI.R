@@ -27,11 +27,15 @@ runRFCI <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, v
                    maj.rule=optionsList$maj.rule, rules=optionsList$rules, 
                    verbose= verbose )
   rfcimat <- as(rfci.fit@amat, "matrix")
-  if(directed) rfcimat <- rfcimat * (t(rfcimat)==0)
   
-  for (k in 1:length(parentsOf)){
-    result[[k]] <- which(as.logical(rfcimat[, parentsOf[k]]))
+  if(directed){ 
+    stop("directed currently not implemented for fci.")
+    # fcimat <- fcimat * (t(fcimat)==0) #TODO: fix
   }
+  
+  # for (k in 1:length(parentsOf)){
+  #   result[[k]] <- which(as.logical(rfcimat[, parentsOf[k]]))
+  # }
 
-  result
+  rfcimat
 }

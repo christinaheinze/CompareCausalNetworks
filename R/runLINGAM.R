@@ -18,13 +18,12 @@ runLINGAM <- function(X, parentsOf, pointEst, variableSelMat, setOptions, direct
   B <- res$Bpruned
   B[B != 0] <- 1
   lingammat <- t(B)
-  if(directed) lingammat <- lingammat * (t(lingammat)==0)
+
+  # for (k in 1:length(parentsOf)){
+  #   result[[k]] <- (wh <- which(lingammat[, parentsOf[k]] == 1)) 
+  #   if(pointEst) 
+  #     attr(result[[k]],"coefficients") <- t(res$Bpruned)[ wh,parentsOf[k]]
+  # }
   
-  for (k in 1:length(parentsOf)){
-    result[[k]] <- (wh <- which(lingammat[, parentsOf[k]] == 1)) 
-    if(pointEst) 
-      attr(result[[k]],"coefficients") <- t(res$Bpruned)[ wh,parentsOf[k]]
-  }
-  
-  result
+  lingammat
 }

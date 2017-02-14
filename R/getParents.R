@@ -27,7 +27,7 @@
 #' \code{pc} (PC-algorithm), \code{LINGAM} (LINGAM), \code{arges} (Adaptively 
 #' restricted greedy equivalence search), \code{ges} 
 #' (Greedy equivalence search), \code{gies} (Greedy interventional equivalence 
-#' search),  \code{fci} (Fast causal inference)  
+#' search),  \code{fci} (Fast causal inference), \code{fciplus}  
 #' and \code{rfci} (Really fast causal inference) are imported from the 
 #' package "pcalg" and are documented there in more detail, including the 
 #' additional options that can be supplied via \code{setOptions}. The method 
@@ -180,11 +180,14 @@
 #'  
 getParents <- function(X, environment = NULL, interventions = NULL, 
                        parentsOf = 1:ncol(X),
-                       method= c("ICP", "hiddenICP", "backShift", "pc", 
-                                 "LINGAM", "ges", "gies", "CAM", "fci", "rfci",
+                       method= c("ICP", "hiddenICP", "backShift", "pc", "mmhc",
+                                 "LINGAM", "arges", "ges", "gies", "CAM",
+                                 "fci", "rfci", "fciplus",
                                  "regression", "bivariateANM", 
                                  "bivariateCAM")[1],  
-                       alpha = 0.1, variableSelMat = NULL,
+                       alpha = 0.1, 
+                       mode = c("raw", "parental", "ancestral")[1],
+                       variableSelMat = NULL,
                        excludeTargetInterventions = TRUE, 
                        onlyObservationalData = FALSE, 
                        indexObservationalData = 1,
@@ -194,6 +197,9 @@ getParents <- function(X, environment = NULL, interventions = NULL,
     # check whether method is supported and dependencies are installed
     checkDependencies(method)
   
+    # check whether mode is compatible with the method
+    checkMode(mode, method)
+    
     # check validity of other input arguments
     if(is.data.frame(X)) X <- as.matrix(X)
     if(!is.matrix(X)) stop("'X' needs to be a matrix")
@@ -231,6 +237,7 @@ getParents <- function(X, environment = NULL, interventions = NULL,
           stop("'variableSelMat' needs to have as many rows as there 
                are variables (columns of 'X')")
     }
+   
     
     # find unique settings
     uniqueSettings <- unique(environment)
@@ -317,14 +324,19 @@ getParents <- function(X, environment = NULL, interventions = NULL,
                               directed, verbose, result, ...)
             },
            
-           "fci" = {
-             result <- runFCI(X, parentsOf, alpha, variableSelMat, setOptions, 
+            "fci" = {
+              result <- runFCI(X, parentsOf, alpha, variableSelMat, setOptions, 
                                directed, verbose, result, ...)
-           },
+            },
            
             "rfci" = {
               result <- runRFCI(X, parentsOf, alpha, variableSelMat, setOptions, 
                                 directed, verbose, result, ...)
+            },
+           
+            "fciplus" = {
+              result <- runFCIPlus(X, parentsOf, alpha, variableSelMat, setOptions, 
+                               directed, verbose, result, ...)
             },
            
             "LINGAM" = {
@@ -349,9 +361,9 @@ getParents <- function(X, environment = NULL, interventions = NULL,
             },
            
            "mmhc" = {
-             result <- runMMHC(X, parentsOf, alpha, variableSelMat, 
-                               setOptions, directed, verbose, 
-                               result, ...)
+              result <- runMMHC(X, parentsOf, alpha, variableSelMat, 
+                                setOptions, directed, verbose, 
+                                result, ...)
            },
            
            {
@@ -359,39 +371,43 @@ getParents <- function(X, environment = NULL, interventions = NULL,
            }
            )
     
+    # bring into correct mode TODO
+    # result <- changeMode(mode, method, result)
+   
     # prepare output
     if(returnAsList){
-        out <- result
-    }else{
-        rowind <- unlist(result)
-        colind <- numeric(length(rowind))
-        x <- unlist(lapply(result, function(x) attr(x,"coefficients")))
-        
-        if(is.null(x)) x <- 1
-        
-        cc <- 0
-        
-        for (k in 1:length(result)){
-            norep <- length(result[[k]])
-            if(norep>0){
-                colind[ cc+(1:norep)] <- rep(k,norep)
-                cc <- cc+norep
-            }
-        }
-        
-        resmat <- sparseMatrix(i=rowind,
-                               j=colind,
-                               x=x,
-                               dims=c(ncol(X), length(parentsOf)))
-        
-        colnames(resmat) <- parentsOf
-
-        out <- resmat
+        out <- result #TODO
     }
+    # else{
+    #     rowind <- unlist(result)
+    #     colind <- numeric(length(rowind))
+    #     x <- unlist(lapply(result, function(x) attr(x,"coefficients")))
+    #     
+    #     if(is.null(x)) x <- 1
+    #     
+    #     cc <- 0
+    #     
+    #     for (k in 1:length(result)){
+    #         norep <- length(result[[k]])
+    #         if(norep>0){
+    #             colind[ cc+(1:norep)] <- rep(k,norep)
+    #             cc <- cc+norep
+    #         }
+    #     }
+    #     
+    #     resmat <- sparseMatrix(i=rowind,
+    #                            j=colind,
+    #                            x=x,
+    #                            dims=c(ncol(X), length(parentsOf)))
+    #     
+    #     colnames(resmat) <- parentsOf
+    # 
+    #     out <- resmat
+    # }
     
-    rownames(out) <- 
-      if(is.null(colnames(X))) as.character(1:ncol(X)) else colnames(X)
-    colnames(out) <- rownames(out)[parentsOf]
-    
-    return(out)
+    # rownames(out) <- 
+    #   if(is.null(colnames(X))) as.character(1:ncol(X)) else colnames(X)
+    # colnames(out) <- rownames(out)[parentsOf]
+    # 
+    return(result)
 }

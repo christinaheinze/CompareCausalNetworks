@@ -42,11 +42,9 @@ runMMHC <- function(X, parentsOf, alpha, variableSelMat,
     matrixRow
   })
   
-  if(directed) mmhcmat <- mmhcmat * (t(mmhcmat)==0)
-  
-  for (k in 1:length(parentsOf)){
-    result[[k]] <- (wh <- which(mmhcmat[, parentsOf[k]] == 1))
-  }
-  
-  result
+  # for (k in 1:length(parentsOf)){
+  #   result[[k]] <- (wh <- which(mmhcmat[, parentsOf[k]] == 1))
+  # }
+  # 
+  mmhcmat
 }

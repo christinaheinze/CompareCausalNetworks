@@ -20,10 +20,17 @@ runGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose,
                maxDegree=optionsList$maxDegree, 
                verbose=verbose, ...)
   gesmat <- as(G$essgraph, "matrix")
-  if(directed) gesmat <- gesmat * (t(gesmat)==0)
-  for (k in 1:length(parentsOf)){
-    result[[k]] <- which(gesmat[, parentsOf[k]] == 1) 
+  gesmat[gesmat] <- 1
+  gesmat[!gesmat] <- 0
+  
+  if(directed){
+    warning("Removing undirected edges from estimated adjacency matrix.")
+    gesmat <- gesmat * (t(gesmat)==0)
   }
   
-  result
+  # for (k in 1:length(parentsOf)){
+  #   result[[k]] <- which(gesmat[, parentsOf[k]] == 1) 
+  # }
+  
+  gesmat
 }

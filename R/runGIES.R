@@ -26,28 +26,35 @@ runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions,
   score <- new("GaussL0penIntScore", data=X, targets=targets,  
                target.index = target.index)
   
-  tryNewVersion <- try(
-    {
+  # tryNewVersion <- try(
+    # {
       tmp <- pcalg::gies(
         score, 
         fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
         turning=optionsList$turning, maxDegree=optionsList$maxDegree,
         verbose=verbose, ...)
-    },
-    silent=TRUE)
+    # },
+    # silent=TRUE)
   
-  if(class(tryNewVersion)=="try-error"){
-    tmp <- pcalg::gies(
-      ncol(X), targets, score, 
-      fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat),
-      turning=optionsList$turning, maxDegree=optionsList$maxDegree,
-      verbose=verbose)
-  }
+  # if(class(tryNewVersion)=="try-error"){
+  #   tmp <- pcalg::gies(
+  #     ncol(X), targets, score, 
+  #     fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat),
+  #     turning=optionsList$turning, maxDegree=optionsList$maxDegree,
+  #     verbose=verbose)
+  # }
   giesmat <- as(tmp$essgraph, "matrix")
-  if(directed) giesmat <- giesmat * (t(giesmat)==0)
-  for (k in 1:length(parentsOf)){
-    result[[k]] <- which(giesmat[, parentsOf[k]] == 1) 
+  giesmat[giesmat] <- 1
+  giesmat[!giesmat] <- 0
+  
+  if(directed){
+    warning("Removing undirected edges from estimated adjacency matrix.")
+    giesmat <- giesmat * (t(giesmat)==0)
   }
   
-  result
+  # for (k in 1:length(parentsOf)){
+  #   result[[k]] <- which(giesmat[, parentsOf[k]] == 1) 
+  # }
+  
+  giesmat
 }

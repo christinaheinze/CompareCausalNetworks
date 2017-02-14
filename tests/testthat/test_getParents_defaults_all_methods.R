@@ -7,7 +7,7 @@ X <- simData_unknownShiftInterventions$X
 environment <- simData_unknownShiftInterventions$environment
 
 methods <- c("ICP", "hiddenICP", "backShift", "pc", "LINGAM",
-             "arges", "ges", "CAM", "fci", "rfci", "regression",
+             "arges", "ges", "CAM", "fci", "rfci", "fciplus", "regression",
              "bivariateANM", "bivariateCAM", "mmhc")
 
 

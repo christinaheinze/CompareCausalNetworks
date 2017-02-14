@@ -113,6 +113,7 @@ getParentsStable <- function(X, environment, interventions=NULL,
                              onlyObservationalData=FALSE, 
                              indexObservationalData=NULL, 
                              setOptions=list(), 
+                             noThreshold = FALSE,
                              verbose=FALSE){
     # number of variables
     p <- ncol(X)
@@ -134,36 +135,36 @@ getParentsStable <- function(X, environment, interventions=NULL,
     subs <- sampleSettings* length(uniqueSettings)
     
     # 'backShift' is doing internal subsampling already, so treat differently
-    if(method=="backShift"){ 
-      
-      # additional options for backShift
-      optionsList <- list("covariance"=TRUE, 
-                          "tolerance"=10^(-4), 
-                          "baseSettingEnv"=1)      
-      
-      # adjust according to setOptions if necessary
-      optionsList <- adjustOptions(availableOptions = optionsList, 
-                                   optionsToSet = setOptions)
-      
-      # run backShift and return adjacency matrix
-      resmat <- try(backShift::backShift(
-        X, environment, covariance=optionsList$covariance, ev=EV, 
-        threshold=threshold, nsim=nsim,
-        sampleSettings=sampleSettings, 
-        sampleObservations=sampleObservations, 
-        nodewise=nodewise, 
-        tolerance=optionsList$tolerance, 
-        baseSettingEnv=optionsList$baseSettingEnv, 
-        verbose = verbose)$AhatAdjacency, 
-        silent = FALSE)
-      
-      # catch error
-      if(inherits(resmat, "try-error")){
-        warning("backShift -- no stable model found. 
-                Possible model mispecification. Returning the empty graph.\n")
-        resmat <- 0*diag(p)
-      }
-    }else{
+    # if(method=="backShift"){ 
+    #   
+    #   # additional options for backShift
+    #   optionsList <- list("covariance"=TRUE, 
+    #                       "tolerance"=10^(-4), 
+    #                       "baseSettingEnv"=1)      
+    #   
+    #   # adjust according to setOptions if necessary
+    #   optionsList <- adjustOptions(availableOptions = optionsList, 
+    #                                optionsToSet = setOptions)
+    #   
+    #   # run backShift and return adjacency matrix
+    #   resmat <- try(backShift::backShift(
+    #     X, environment, covariance=optionsList$covariance, ev=EV, 
+    #     threshold=threshold, nsim=nsim,
+    #     sampleSettings=sampleSettings, 
+    #     sampleObservations=sampleObservations, 
+    #     nodewise=nodewise, 
+    #     tolerance=optionsList$tolerance, 
+    #     baseSettingEnv=optionsList$baseSettingEnv, 
+    #     verbose = verbose)$AhatAdjacency, 
+    #     silent = FALSE)
+    #   
+    #   # catch error
+    #   if(inherits(resmat, "try-error")){
+    #     warning("backShift -- no stable model found. 
+    #             Possible model mispecification. Returning the empty graph.\n")
+    #     resmat <- 0*diag(p)
+    #   }
+    # }else{
         for (sim in 1:nsim){
             # find observations to use in this round
             # only use observational data?
@@ -205,8 +206,9 @@ getParentsStable <- function(X, environment, interventions=NULL,
             res <- getParents(X[useSamples,], 
                               environment= environment[useSamples], 
                               interventions=interventions[useSamples],
-                              parentsOf=parentsOf, 
-                              method= method,  alpha= alpha, 
+                              mode = c("raw"),
+                              parentsOf=1:ncol(X), 
+                              method=method, alpha= alpha, 
                               variableSelMat=variableSelMat,  
                               excludeTargetInterventions= excludeTargetInterventions, 
                               onlyObservationalData=FALSE, 
@@ -218,28 +220,23 @@ getParentsStable <- function(X, environment, interventions=NULL,
             diag(res) <- 0
             reskeep <- 0*as(res,"matrix")
             quse <- drawE(q)
-            if(nodewise){
-                for (k in 1:p){
-                    wh <- order(abs(res[,k]), rnorm(p), decreasing=TRUE)[1:quse]
-                    reskeep[wh,k] <- 1
-                    wh <- order(abs(res[k,]), rnorm(p), decreasing=TRUE)[1:quse]
-                    reskeep[k,wh] <- 1
-                }
-            }else{
-                selected <- sort(abs(res), decreasing =  TRUE)[1:quse]
-                indicesSelected <- which(abs(res) >= min(selected), arr.ind=TRUE)
-                reskeep[indicesSelected] <- 1
-            }
+         
+            # order, break ties by maybe category if exsists (at the end)
+            selected <- sort(abs(res), decreasing =  TRUE)[1:quse]
+            indicesSelected <- which(abs(res) >= min(selected), arr.ind=TRUE)
+            reskeep[indicesSelected] <- 1
             
             # add result of this run to resmat
             resmat <- resmat + reskeep/nsim
         }
       
         # determine edges to keep
-        rem <- which(resmat < threshold)
-        if(length(rem)>0) resmat[rem] <- 0
+        if(!noThreshold){
+          rem <- which(resmat < threshold)
+          if(length(rem)>0) resmat[rem] <- 0
+        }
         resmat <- round(100*resmat)
-    }
+    # }
     
     # add row and column names to result matrix
     rownames(resmat) <- 

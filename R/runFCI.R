@@ -30,12 +30,15 @@ runFCI <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, ve
                          conservative= optionsList$conservative, 
                          maj.rule=optionsList$maj.rule,
                          verbose= verbose )
-  fcimat <- as(fci.fit@amat, "matrix")
-  if(directed) fcimat <- fcimat * (t(fcimat)==0) #TODO: fix
+  fcimat <- fci.fit@amat
   
-  for (k in 1:length(parentsOf)){
-    result[[k]] <- which(as.logical(fcimat[, parentsOf[k]]))
+  if(directed){ 
+    stop("directed currently not implemented for fci.")
+    # fcimat <- fcimat * (t(fcimat)==0) #TODO: fix
   }
+  # for (k in 1:length(parentsOf)){
+  #   result[[k]] <- which(as.logical(fcimat[, parentsOf[k]]))
+  # }
   
-  result
+  fcimat
 }
