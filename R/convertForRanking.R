@@ -6,22 +6,22 @@ convertForRanking <- function(amat, queries, method){
   graphMode <- getGraphMode(method)
   
   if(graphMode == "PAG"){
-    queriesList <- lapply(queries, function(q) answerQueries(amat, NULL, q))
+    queriesList <- lapply(queries, function(q) answerQueries(amat, NULL, q, graphMode))
     
   }else if(graphMode == "CPDAG"){
     # to answer ancestral queries -- convert to ancestral matrix
     ancMat <- cpdag2pag(amat)
-    queriesList <- lapply(queries, function(q) answerQueries(ancMat, amat, q))
+    queriesList <- lapply(queries, function(q) answerQueries(ancMat, amat, q, graphMode))
     
   }else if(graphMode == "DAG"){
     # to answer ancestral queries -- convert to ancestral matrix
     ancMat <- dag2ancestral(amat)
-    queriesList <- lapply(queries, function(q) answerQueries(ancMat, amat, q))
+    queriesList <- lapply(queries, function(q) answerQueries(ancMat, amat, q, graphMode))
     
   }else if(graphMode == "CG"){
     # to answer ancestral queries -- convert to ancestral matrix
     ancMat <- cg2ancestral(amat)
-    queriesList <- lapply(queries, function(q) answerQueries(ancMat, amat, q))
+    queriesList <- lapply(queries, function(q) answerQueries(ancMat, amat, q, graphMode))
   }
   
   # check query
@@ -31,20 +31,20 @@ convertForRanking <- function(amat, queries, method){
   queriesList
 }
 
-answerQueries <- function(ancestralAmat, parentalAmat, query){
+answerQueries <- function(ancestralAmat, parentalAmat, query, graphMode){
   p <- ncol(ancestralAmat)
   
   if(graphMode == "PAG"){
     # can answer ancestral queries
     switch(query,
            "isParent" = { 
-             matrix(0, p, p)
+             resMat <- matrix(0, p, p)
            },
            "isMaybeParent" = { 
-             matrix(0, p, p)
+             resMat <- matrix(0, p, p)
            }, 
            "isNoParent" = { 
-             matrix(0, p, p)
+             resMat <- matrix(0, p, p)
            },
            "isAncestor" = { 
              resMat <- pagIsAncestor(ancestralAmat)
@@ -92,7 +92,7 @@ answerQueries <- function(ancestralAmat, parentalAmat, query){
              resMat[resMat != 0] <- 1
            },
            "isMaybeParent" = { 
-             matrix(0, p, p)
+             resMat <- matrix(0, p, p)
            }, 
            "isNoParent" = { 
              noParentMat <- matrix(0, ncol = p, nrow = p)
@@ -103,7 +103,7 @@ answerQueries <- function(ancestralAmat, parentalAmat, query){
              resMat <- ancestralAmat
            },
            "isMaybeAncestor" = { 
-             matrix(0, p, p)
+             resMat <- matrix(0, p, p)
            }, 
            "isNoAncestor" = { 
              noParentMat <- matrix(0, ncol = p, nrow = p)
@@ -118,7 +118,7 @@ answerQueries <- function(ancestralAmat, parentalAmat, query){
              resMat[resMat != 0] <- 1
            },
            "isMaybeParent" = { 
-             matrix(0, p, p)
+             resMat <- matrix(0, p, p)
            }, 
            "isNoParent" = { 
              noParentMat <- matrix(0, ncol = p, nrow = p)
@@ -129,7 +129,7 @@ answerQueries <- function(ancestralAmat, parentalAmat, query){
              resMat <- ancestralAmat
            },
            "isMaybeAncestor" = { 
-             matrix(0, p, p)
+             resMat <- matrix(0, p, p)
            }, 
            "isNoAncestor" = { 
              noParentMat <- matrix(0, ncol = p, nrow = p)

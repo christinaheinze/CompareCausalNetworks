@@ -20,7 +20,7 @@ runFCIPlus <- function(X, parentsOf, alpha, variableSelMat, setOptions,
                          alpha = alpha,
                          p=ncol(X), 
                          verbose= verbose )
-  fcimat <- as(fci.fit@amat, "matrix")
+  fcimat <- fci.fit@amat
   
   if(directed){ 
     stop("directed currently not implemented for fci.")

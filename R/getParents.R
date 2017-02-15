@@ -192,7 +192,7 @@ getParents <- function(X, environment = NULL, interventions = NULL,
                        onlyObservationalData = FALSE, 
                        indexObservationalData = 1,
                        returnAsList=FALSE, pointConf = FALSE, 
-                       setOptions = list(), directed=TRUE, verbose = FALSE, ...){
+                       setOptions = list(), directed=FALSE, verbose = FALSE, ...){
 
     # check whether method is supported and dependencies are installed
     checkDependencies(method)
@@ -238,6 +238,8 @@ getParents <- function(X, environment = NULL, interventions = NULL,
                are variables (columns of 'X')")
     }
    
+    # eval options
+    setOptions <- lapply(setOptions, function(l) eval(l))
     
     # find unique settings
     uniqueSettings <- unique(environment)

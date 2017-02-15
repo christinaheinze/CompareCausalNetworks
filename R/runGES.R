@@ -5,13 +5,16 @@ runGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose,
   optionsList <- list("phases"= c("forward", "backward"),
                       "iterate"=FALSE,
                       "adaptive" = "none", 
-                      "maxDegree"=integer(0))
+                      "maxDegree"=integer(0),
+                      "lambda" = 0.5*log(nrow(X)))
   
   # adjust according to setOptions if necessary
   optionsList <- adjustOptions(availableOptions = optionsList, 
                                optionsToSet = setOptions)
   
-  score <- new("GaussL0penObsScore", X)
+  score <- new("GaussL0penObsScore", 
+               data = X,
+               lambda = optionsList$lambda)
   G <- pcalg::ges(score, 
                fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
                adaptive = optionsList$adaptive,

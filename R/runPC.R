@@ -27,8 +27,7 @@ runPC <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, ver
                maj.rule= optionsList$maj.rule, 
                solve.confl = optionsList$solve.confl, 
                verbose= verbose)
-  pcmat <- wgtMatrix(getGraph(pc.fit), transpose = FALSE) # == as(pc.fit@graph, "matrix")
-  # pcmat <- as(pc.fit@graph, "matrix")
+  pcmat <- as(pc.fit@graph, "matrix") 
   if(directed){
     warning("Removing undirected edges from estimated adjacency matrix.")
     pcmat <- pcmat * (t(pcmat)==0)

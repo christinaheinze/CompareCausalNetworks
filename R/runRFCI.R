@@ -26,7 +26,7 @@ runRFCI <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, v
                    conservative= optionsList$conservative, 
                    maj.rule=optionsList$maj.rule, rules=optionsList$rules, 
                    verbose= verbose )
-  rfcimat <- as(rfci.fit@amat, "matrix")
+  rfcimat <- rfci.fit@amat
   
   if(directed){ 
     stop("directed currently not implemented for fci.")

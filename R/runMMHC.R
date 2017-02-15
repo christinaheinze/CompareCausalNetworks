@@ -2,7 +2,8 @@ runMMHC <- function(X, parentsOf, alpha, variableSelMat,
                     setOptions, directed, verbose, result, ...){
   
   # additional options for MMHC
-  optionsList <- list(whitelist = NULL, blacklist = NULL, test = NULL, score = NULL,
+  optionsList <- list(whitelist = NULL, blacklist = NULL, test = NULL, score = NULL, 
+                      k = log(nrow(X))/2,
                       alpha = alpha, B = NULL, restart = 0, perturb = 1, max.iter = Inf,
                       optimized = TRUE, strict = FALSE, debug = verbose)
   
@@ -30,6 +31,7 @@ runMMHC <- function(X, parentsOf, alpha, variableSelMat,
                        optimized = optionsList$optimized, 
                        strict = optionsList$strict, 
                        debug = optionsList$debug,
+                       k = optionsList$k,
                        ...
                        )
   

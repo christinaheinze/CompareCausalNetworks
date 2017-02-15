@@ -6,7 +6,8 @@ runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions,
     stop("'interventions' cannot be 'NULL' for method 'gies'")
   
   # additional optionsList for GIES
-  optionsList <- list("turning"=TRUE, "maxDegree"=integer(0))
+  optionsList <- list("turning"=TRUE, "maxDegree"=integer(0), 
+                      "lambda" = 0.5*log(nrow(X)))
   
   # adjust according to setOptions if necessary
   optionsList <- adjustOptions(availableOptions = optionsList, 
@@ -23,8 +24,11 @@ runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions,
          "setting needs to be entirely different for 'gies' to run."), 
          call. = FALSE)
   
-  score <- new("GaussL0penIntScore", data=X, targets=targets,  
-               target.index = target.index)
+  score <- new("GaussL0penIntScore", 
+               data=X, 
+               targets=targets,  
+               target.index = target.index,
+               lambda = optionsList$lambda)
   
   # tryNewVersion <- try(
     # {

@@ -110,23 +110,12 @@ getRanking <- function(X, environment, interventions=NULL,
                        onlyObservationalData=FALSE, 
                        indexObservationalData=NULL, 
                        setOptions=list(), 
+                       nsim=100, 
+                       sampleSettings=1/sqrt(2), 
+                       sampleObservations=1/sqrt(2),
                        verbose=FALSE){
   # number of variables
   p <- ncol(X)
-  
-  # initialize result matrix 
-  resmat <- matrix(0,p,p)
-  
-  resmatlist <- vector("list", length = length(queries))
-  resmatlist <- lapply(resmatlist, function(i) i <- resmat)
-  names(resmatlist) <- queries
-  
-  # compute stability selection parameter q
-  # q <- if(!nodewise) sqrt(EV*(2*threshold-1)*(p^2-p)) else sqrt(EV*(2*threshold-1))
-  
-  # check validity of input arguments for stability selection
-  # stabilitySelectionChecks(p, q, nodewise, threshold, 
-                           # sampleSettings, sampleObservations)
   
   # find unique settings
   uniqueSettings <- unique(environment)
@@ -135,7 +124,11 @@ getRanking <- function(X, environment, interventions=NULL,
   subs <- sampleSettings* length(uniqueSettings)
   
   # init result list
-  resList <- vector("list", length = nsim)
+  simList <- vector("list", length = nsim)
+  resList <- vector("list", length = length(queries))
+  names(resList) <- queries
+  resList <- lapply(resList, function(i) i <- matrix(0, ncol = p, nrow = p))
+  for(i in 1:length(resList)) attr(resList[[i]], "name") <- queries[i]
   
   for (sim in 1:nsim){
     
@@ -177,42 +170,70 @@ getRanking <- function(X, environment, interventions=NULL,
       }
     }
     
+    # permutation of columns
+    permuteCols <- sample(p)
+    
     # run getParents with this subsample
-    res <- getParents(X[useSamples,], 
+    res <- getParents(X[useSamples,permuteCols], 
                       environment= environment[useSamples], 
                       interventions=interventions[useSamples],
-                      parentsOf=parentsOf, 
+                      parentsOf=1:p, 
                       method= method,  alpha= alpha, 
                       variableSelMat=variableSelMat,  
                       excludeTargetInterventions= excludeTargetInterventions, 
-                      onlyObservationalData=FALSE, 
-                      indexObservationalData=NULL, 
+                      onlyObservationalData=onlyObservationalData, 
+                      indexObservationalData=indexObservationalData, 
                       returnAsList=FALSE, pointConf=FALSE, 
                       setOptions = setOptions, verbose = verbose)
     
-    resList[[sim]] <- res
+    # redo permutation of columns
+    res <- res[order(permuteCols),order(permuteCols)]
     
+    simList[[sim]] <- res
     
-    
-     
-    # add result of this run to resmat
-    resmat <- resmat + reskeep/nsim
+    resultForQueries <- convertForRanking(res, queries, method = method)
+    resList <- lapply(resList, function(r) r <- r + resultForQueries[attr(r, "name") == names(resultForQueries)][[1]])
+   
   }
   
-  # determine edges to keep
-  if(!noThreshold){
-    rem <- which(resmat < threshold)
-    if(length(rem)>0) resmat[rem] <- 0
+  resList <- lapply(resList, function(r) r/nsim*100)
+  
+  resList <- lapply(resList, function(resmat) {
+    # add row and column names to result matrix
+    rownames(resmat) <- 
+      if(is.null(colnames(X))) as.character(1:ncol(X)) else colnames(X)
+    colnames(resmat) <- rownames(resmat)
+    resmat
+  })
+  
+  ranking <- lapply(resList, function(r){
+    arrayInd(order(r, getVecTobreakTies(r, resList), decreasing = T), .dim = dim(r))
+  })
+  
+  toReturn <- list(ranking = ranking,
+                   resList = resList, 
+                   simEstimates = simList)
+  return(toReturn)
+}
+
+getVecTobreakTies <- function(m, histList){
+  if(attr(m, "name") == "isParent"){
+    vec <- histList$isMaybeParent
+  }else if(attr(m, "name") == "isMaybeParent"){
+    vec <- histList$isParent
+  }else if(attr(m, "name") == "isNoParent"){
+    vec <- histList$isMaybeParent
+  }else if(attr(m, "name") == "isAncestor"){
+    vec <- histList$isMaybeAncestor
+  }else if(attr(m, "name") == "isMaybeAncestor"){
+    vec <- histList$isAncestor
+  }else if(attr(m, "name") == "isNoAncestor"){
+    vec <- histList$isMaybeAncestor
+  }else{
+    stop("Query not supported.")
   }
-  resmat <- round(100*resmat)
-  # }
   
-  # add row and column names to result matrix
-  rownames(resmat) <- 
-    if(is.null(colnames(X))) as.character(1:ncol(X)) else colnames(X)
-  colnames(resmat) <- rownames(resmat)[parentsOf]
+  if(sum(vec) == 0) vec <- rnorm(ncol(m)^2)
   
-  toReturn <- list(resmat = resmat, 
-                   simEstimates = resList)
-  return(resmat)
+  vec
 }
