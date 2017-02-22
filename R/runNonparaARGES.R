@@ -1,6 +1,5 @@
-runARGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose, 
-                   result, ...){
-  
+runNonparanormalARGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose, 
+                     result, ...){
   
   package <- setOptions$package
   if(is.null(package)) package <- "huge"
@@ -28,7 +27,7 @@ runARGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose
       variableSelMat <- hugeSel$refit
     }else{
       flareObj <- flare::sugm(X, method = method, verbose = FALSE)  
-      flareSel <- flare::sugm.select(flareObj,  criterion = criterion, verbose = FALSE)  
+      flareSel <- flare::select(flareObj,  criterion = criterion, verbose = FALSE)  
       variableSelMat <- flareSel$refit
     }
     
@@ -44,6 +43,24 @@ runARGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose
     if(setOptions$adaptive == "none")
       setOptions$adaptive <- "vstructures" #ARGES-CIG
   }
+  
+  given.cov.mat <- cov(X)
+  p <- ncol(X)
+  n <- nrow(X)
+  e <- eigen(given.cov.mat)
+  sqrt.given.cov.mat <- e$vectors%*%sqrt(diag(e$values))
+  
+  ## generate from N(0,I)
+  dat <- rmvnorm(n,mean=rep(0,p),sigma=diag(p))
+  
+  ## transform data so that cov(dat) = given.cov.mat
+  samp.cov.mat <- 2*sin(cor(dat,method="spearman")*pi/6)
+  e <- eigen(samp.cov.mat, symmetric = T)
+  e$values[which(e$values<0)] <- 0
+  samp.cov.mat <- e$vectors%*%diag(e$values)%*%t(e$vectors)
+  e <- eigen(samp.cov.mat)
+  sqrt.samp.cov.mat <- e$vectors%*%sqrt(diag(e$values))
+  X <- t(sqrt.given.cov.mat%*%solve(sqrt.samp.cov.mat,t(dat)))
   
   runGES(X, parentsOf, variableSelMat, setOptions, directed, verbose, 
          result, ...)

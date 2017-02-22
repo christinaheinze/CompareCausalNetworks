@@ -32,7 +32,7 @@ convertForRanking <- function(amat, queries, method){
 }
 
 answerQueries <- function(ancestralAmat, parentalAmat, query, graphMode){
-  p <- ncol(ancestralAmat)
+  if(!is.null(ancestralAmat)) p <- ncol(ancestralAmat) else  p <- ncol(parentalAmat) 
   
   if(graphMode == "PAG"){
     # can answer ancestral queries
@@ -67,11 +67,13 @@ answerQueries <- function(ancestralAmat, parentalAmat, query, graphMode){
              resMat[resMat != 0] <- 1
            }, 
            "isNoParent" = { 
-             noParentMat <- matrix(0, ncol = p, nrow = p)
+             noParentMat <- 0*parentalAmat
              defParentalMat <- parentalAmat * (t(parentalAmat)==0)
              maybeParentalMat <- parentalAmat * (t(parentalAmat)!=0)
+             # setting all entries to 1 that are not certain parents
              noParentMat[defParentalMat == 0] <- 1
-             noParentMat[maybeParentalMat == 1] <- 0
+             # setting all entries to 0 that might be parents
+             noParentMat[maybeParentalMat == 1] <- 0 
              resMat <- noParentMat
            },
            "isAncestor" = { 
@@ -92,10 +94,10 @@ answerQueries <- function(ancestralAmat, parentalAmat, query, graphMode){
              resMat[resMat != 0] <- 1
            },
            "isMaybeParent" = { 
-             resMat <- matrix(0, p, p)
+             resMat <- 0*parentalAmat
            }, 
            "isNoParent" = { 
-             noParentMat <- matrix(0, ncol = p, nrow = p)
+             noParentMat <- 0*parentalAmat
              noParentMat[parentalAmat == 0] <- 1
              resMat <- noParentMat
            },
@@ -103,38 +105,12 @@ answerQueries <- function(ancestralAmat, parentalAmat, query, graphMode){
              resMat <- ancestralAmat
            },
            "isMaybeAncestor" = { 
-             resMat <- matrix(0, p, p)
+             resMat <- 0*ancestralAmat
            }, 
            "isNoAncestor" = { 
-             noParentMat <- matrix(0, ncol = p, nrow = p)
-             noParentMat[ancestralAmat == 0] <- 1
-             resMat <- noParentMat
-           })
-  }else if(graphMode == "CG"){
-    # to answer ancestral queries -- convert to ancestral matrix
-    switch(query,
-           "isParent" = { 
-             resMat <- parentalAmat 
-             resMat[resMat != 0] <- 1
-           },
-           "isMaybeParent" = { 
-             resMat <- matrix(0, p, p)
-           }, 
-           "isNoParent" = { 
-             noParentMat <- matrix(0, ncol = p, nrow = p)
-             noParentMat[parentalAmat == 0] <- 1
-             resMat <- noParentMat
-           },
-           "isAncestor" = { 
-             resMat <- ancestralAmat
-           },
-           "isMaybeAncestor" = { 
-             resMat <- matrix(0, p, p)
-           }, 
-           "isNoAncestor" = { 
-             noParentMat <- matrix(0, ncol = p, nrow = p)
-             noParentMat[ancestralAmat == 0] <- 1
-             resMat <- noParentMat
+             noAncestorMat <- 0*ancestralAmat
+             noAncestorMat[ancestralAmat == 0] <- 1
+             resMat <- noAncestorMat
            })
   }
   resMat
@@ -167,7 +143,7 @@ cpdag2pag <- function(amat){
   sumMat <- sumMatTmp <- directedPaths + directedAndUndirectedPaths
   sumMatTmp[sumMatTmp != 2] <- 0
   sumMatTmp[t(sumMatTmp) == 2] <- 3
-  # combination needed --> convert to maybe edge
+  # combination of directed and undirected edges needed --> convert to maybe edge 
   sumMat[sumMat != 1] <- 0
   
   sumMat[sumMat == 1 & t(sumMat) == 0] <- 2
@@ -197,22 +173,34 @@ pagIsMaybeAncestor <- function(ancestralAmat){
   # amat[a,b] = 1  and  amat[b,a] = 2   implies   a <-o b.
   # amat[a,b] = 1  and  amat[b,a] = 3   implies   a --o b.
   resMatTmp <- resMat + t(resMat)
+  # retain edges containing circles
   resMatTmp[resMat != 1 & t(resMat) != 1] <- 0
   
   # Case 1: a o-o b
   resMatTmpCase1 <- resMatTmp
+  # get only edges of type a o-o b
   resMatTmpCase1[resMatTmpCase1 != 2] <- 0
   
   # Case 2: a <-o b
   resMatTmpCase2 <- resMatTmp
+  # get only edges of type a <-o b 
   resMatTmpCase2[resMatTmpCase2 != 3] <- 0
   # remove entry so that resulting resMat[i,j] = 1 
-  # means that i is an ancestor of j
+  # means that i might be an ancestor of j
+  # -> only keep entries of type 2 so that
+  # amat[b,a] = 2 remain --> b might be an ancestor of a (a has edge mark arrowhead,
+  # b has edge mark circle)
   resMatTmpCase2[resMat != 2] <- 0
   
   # Case 3: a --o b
   resMatTmpCase3 <- resMatTmp
+  # get only edges of type  a --o b
   resMatTmpCase3[resMatTmpCase3 != 4] <- 0
+  # remove entry so that resulting resMat[i,j] = 1 
+  # means that i might be an ancestor of j
+  # -> only keep entries of type 1 so that
+  # amat[a,b] = 1 remain --> a might be an ancestor of b (b has edge mark circle,
+  # a has edge mark tail)
   resMatTmpCase3[resMat != 1] <- 0
   
   resMatTmpAll <- resMatTmpCase1 + resMatTmpCase2 + resMatTmpCase3
@@ -224,7 +212,9 @@ pagIsNoAncestor <- function(ancestralAmat){
   defAncestralMat <- pagIsAncestor(ancestralAmat)
   maybeAncestralMat <- pagIsMaybeAncestor(ancestralAmat)
   noAncestorMat <- 0*ancestralAmat
+  # setting all entries to 1 that are not certain ancestors
   noAncestorMat[defAncestralMat == 0] <- 1
+  # setting all entries to 0 that might be ancestors
   noAncestorMat[maybeAncestralMat == 1] <- 0
   noAncestorMat
 }

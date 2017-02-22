@@ -1,7 +1,9 @@
 import(Matrix)
 importFrom("expm", "%^%")
+importFrom("mvtnorm", "rmvnorm")
 importFrom("methods", "as", "new")
 importFrom("stats", "coef", "cor", "dist", "formula", "median",
              "pgamma", "qgamma", "rnorm", "runif", "var")
 importFrom("utils", "packageVersion")
-export(getParents, getParentsStable, simulateInterventions, getRanking)
+export(getParents, getParentsStable, simulateInterventions, 
+       getRanking, evaluateRanking)

@@ -6,9 +6,13 @@
 checkDependencies <- function(method){
   if(method %in% c("ICP", "hiddenICP")){
     missingDependenciesMessage("InvariantCausalPrediction", method)
-  }else if(method %in% c("pc", "LINGAM", "arges", "ges", "gies", 
-                         "fci", "rfci", "fciplus")){
+  }else if(method %in% c("rankPc", "pc", "LINGAM", "rankArges",
+                         "arges", "rankGes", "ges", "gies", 
+                         "rankFci", "fci", "rfci", "fciplus")){
     missingDependenciesMessage("pcalg", method)
+  }else if(method %in% c("rankArges", "arges")){
+    missingDependenciesMessage("huge", method)
+    missingDependenciesMessage("flare", method)
   }else if(method == "CAM"){
     missingDependenciesMessage("CAM", method)
   }else if(method == "regression"){
@@ -20,6 +24,8 @@ checkDependencies <- function(method){
     missingDependenciesMessage("mgcv", method)
   }else if(method == "mmhc"){
     missingDependenciesMessage("bnlearn", method)
+  }else if(method == "directLINGAM"){
+    missingDependenciesMessage("R.matlab", method)
   }else{
     if(method != "backShift")
       stop(paste("Method", method, "not (yet?) implemented."))

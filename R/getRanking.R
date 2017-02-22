@@ -113,7 +113,7 @@ getRanking <- function(X, environment, interventions=NULL,
                        nsim=100, 
                        sampleSettings=1/sqrt(2), 
                        sampleObservations=1/sqrt(2),
-                       verbose=FALSE){
+                       verbose=FALSE, ...){
   # number of variables
   p <- ncol(X)
   
@@ -173,8 +173,10 @@ getRanking <- function(X, environment, interventions=NULL,
     # permutation of columns
     permuteCols <- sample(p)
     
+    colnamesX <- if(is.null(colnames(X))) as.character(1:ncol(X)) else colnames(X)
+    
     # run getParents with this subsample
-    res <- getParents(X[useSamples,permuteCols], 
+    res <- try(getParents(X[useSamples,permuteCols], 
                       environment= environment[useSamples], 
                       interventions=interventions[useSamples],
                       parentsOf=1:p, 
@@ -184,11 +186,19 @@ getRanking <- function(X, environment, interventions=NULL,
                       onlyObservationalData=onlyObservationalData, 
                       indexObservationalData=indexObservationalData, 
                       returnAsList=FALSE, pointConf=FALSE, 
-                      setOptions = setOptions, verbose = verbose)
+                      setOptions = setOptions, verbose = verbose, ...))
+    
+    if(inherits(res, "try-error")){
+      cat(paste("Error in method", method,
+                ". Skipping subsampling iteration. getParents() returned the following error:", 
+                geterrmessage()))
+      next
+    }
     
     # redo permutation of columns
     res <- res[order(permuteCols),order(permuteCols)]
-    
+    rownames(res) <- colnames(res) <- colnamesX
+
     simList[[sim]] <- res
     
     resultForQueries <- convertForRanking(res, queries, method = method)
@@ -200,9 +210,7 @@ getRanking <- function(X, environment, interventions=NULL,
   
   resList <- lapply(resList, function(resmat) {
     # add row and column names to result matrix
-    rownames(resmat) <- 
-      if(is.null(colnames(X))) as.character(1:ncol(X)) else colnames(X)
-    colnames(resmat) <- rownames(resmat)
+    rownames(resmat) <- colnames(resmat) <- colnamesX
     resmat
   })
   
@@ -222,13 +230,13 @@ getVecTobreakTies <- function(m, histList){
   }else if(attr(m, "name") == "isMaybeParent"){
     vec <- histList$isParent
   }else if(attr(m, "name") == "isNoParent"){
-    vec <- histList$isMaybeParent
+    vec <-  max(histList$isMaybeParent) - histList$isMaybeParent
   }else if(attr(m, "name") == "isAncestor"){
-    vec <- histList$isMaybeAncestor
+    vec <-histList$isMaybeAncestor
   }else if(attr(m, "name") == "isMaybeAncestor"){
     vec <- histList$isAncestor
   }else if(attr(m, "name") == "isNoAncestor"){
-    vec <- histList$isMaybeAncestor
+    vec <-  max(histList$isMaybeAncestor) - histList$isMaybeAncestor
   }else{
     stop("Query not supported.")
   }

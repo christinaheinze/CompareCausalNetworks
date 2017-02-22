@@ -1,4 +1,4 @@
-runPC <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, verbose, 
+runPC <- function(X, suffStat, parentsOf, alpha, variableSelMat, setOptions, directed, verbose, 
                    result, ...){
   
   dots <- list(...)
@@ -8,7 +8,7 @@ runPC <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, ver
   
   # additional options for PC
   optionsList <- list("indepTest"=pcalg::gaussCItest, "fixedEdges"=NULL,
-                      "NAdelete"=TRUE, "m.max"=Inf, "u2pd", 
+                      "NAdelete"=TRUE, "m.max"=Inf, "u2pd" = "relaxed", 
                       "skel.method"= "stable", "conservative"=FALSE,
                       "maj.rule"=FALSE, "solve.confl"=FALSE)
   
@@ -16,7 +16,10 @@ runPC <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, ver
   optionsList <- adjustOptions(availableOptions = optionsList, 
                                optionsToSet = setOptions)
   
-  suffStat <- list(C = cor(X), n = nrow(X))
+  if(is.null(suffStat)){
+    suffStat <- list(C = cor(X), n = nrow(X))
+  }
+  
   pc.fit <- pcalg::pc(suffStat, indepTest = optionsList$indepTest, p=ncol(X), 
                alpha = alpha, 
                fixedGaps= if(is.null(variableSelMat)) NULL else (!variableSelMat), 

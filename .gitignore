@@ -3,3 +3,6 @@ cran-comments.md
 .Rhistory
 *.Rproj
 .RData
+scratch.R
+aux
+bugfixes

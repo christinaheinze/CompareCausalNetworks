@@ -1,16 +1,17 @@
-Package: CompareCausalNetworks
+Package: CompareCausalNetworksDev
 Type: Package
 Title: Interface to Diverse Estimation Methods of Causal Networks
-Version: 0.1.5.9001
-Date: 2017-02-15
+Version: 0.1.5.9003
+Date: 2017-02-21
 Author: Christina Heinze-Deml <heinzedeml@stat.math.ethz.ch>,
     Nicolai Meinshausen <meinshausen@stat.math.ethz.ch>
 Depends:
     R (>= 3.1.0)
 Imports:
+    methods,
     Matrix,
     expm,
-    methods
+    mvtnorm
 Maintainer: Christina Heinze-Deml <heinzedeml@stat.math.ethz.ch>
 Description: Unified interface for the estimation of causal networks, including
     the methods 'backShift' (from package 'backShift'), 'bivariateANM' (bivariate
@@ -33,7 +34,9 @@ Suggests:
     kernlab,
     mgcv,
     bnlearn,
-    testthat
+    testthat,
+    huge,
+    R.matlab
 URL: https://github.com/christinaheinze/CompareCausalNetworks
 BugReports: https://github.com/christinaheinze/CompareCausalNetworks/issues
 RoxygenNote: 5.0.1

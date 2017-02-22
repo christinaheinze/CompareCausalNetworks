@@ -1,4 +1,4 @@
-runFCI <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, verbose, 
+runFCI <- function(X, suffStat, parentsOf, alpha, variableSelMat, setOptions, directed, verbose, 
                     result, ...){
   
   dots <- list(...)
@@ -15,8 +15,9 @@ runFCI <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, ve
   # adjust according to setOptions if necessary
   optionsList <- adjustOptions(availableOptions = optionsList, 
                                optionsToSet = setOptions)
-  
-  suffStat <- list(C = cor(X), n = nrow(X))
+  if(is.null(suffStat)){
+    suffStat <- list(C = cor(X), n = nrow(X))
+  }
   fci.fit <- pcalg::fci(suffStat, 
                          indepTest = optionsList$indepTest, 
                          alpha = alpha,
@@ -31,6 +32,11 @@ runFCI <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, ve
                          maj.rule=optionsList$maj.rule,
                          verbose= verbose )
   fcimat <- fci.fit@amat
+  
+  if(is.logical(fcimat)){
+    fcimat[fcimat] <- 1
+    fcimat[!fcimat] <- 0
+  }
   
   if(directed){ 
     stop("directed currently not implemented for fci.")

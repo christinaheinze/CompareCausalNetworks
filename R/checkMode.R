@@ -15,52 +15,19 @@ checkMode <- function(mode, method){
   }
 }
  
- 
-# changeMode <- function(mode, method, result){
-#   if(mode == "raw")
-#     return(result)
-#   
-#   if(method %in% c("fci", "rfci", "fciplus")){
-#     if(mode == "ancestral"){
-#       # how to handle different edge types:  
-#       # a tail on an edge means that this tail is present in all MAGs in the 
-#       # Markov equivalence class
-#       #  
-#       # an arrowhead on an edge means that this arrowhead is present in all 
-#       # MAGs in the Markov equivalence class
-#       # 
-#       # a o-edgemark means that there is a at least one MAG in the Markov 
-#       # equivalence class where the edgemark is a tail, and at least one 
-#       # where the edgemark is an arrowhead
-#       # 
-#       # o-o
-#       # o-
-#       # o->
-#       # ->
-#       # <-> (hidden variables)
-#       # - (selection variables)
-#       # directed: 
-#       # undirected
-#       # bidirected
-#     }
-#   }else if(method %in% c("pc", "LINGAM", "arges", "ges", "gies", 
-#                          "ICP", "hiddenICP", "backShift")){
-#     # convert to ancestral
-#     # CPDAG to PAG
-#   }
-# 
-# }
-
 
 getGraphMode <- function(method){
-  if(method %in% c("fci", "rfci", "fciplus")){
+  if(method %in% c("fci", "rankFci", "rfci", "fciplus")){
     return("PAG")
-  }else if(method %in% c("pc", "arges", "ges", "gies")){
+  }else if(method %in% c("pc", "rankPc", "arges", "rankArges", "ges", 
+                         "rankGes", "gies")){
     return("CPDAG")
-  }else if(method %in%  c("LINGAM", "mmhc", "ICP", "hiddenICP", "backShift")){
+  }else if(method %in%  c("directLINGAM", "LINGAM", "mmhc", "ICP", "hiddenICP", "backShift")){
     return("DAG")
   }else if(method %in% c("backShift")){
     return("CG")
+  }else{
+    stop(paste("Method", method, "not supported in getGraphMode()"))
   }
   
 }

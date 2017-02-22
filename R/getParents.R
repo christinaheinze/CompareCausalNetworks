@@ -229,7 +229,7 @@ getParents <- function(X, environment = NULL, interventions = NULL,
     if(length(environment) != nrow(X) & !is.null(environment)) 
       stop("'environment' needs to have the same length as there 
            are rows in 'X' (or be 'NULL')")
-    if(alpha<0) stop("alpha needs to be positive")
+    if(!is.null(alpha)){ if(alpha<0) stop("alpha needs to be positive") }
     if(!is.null(variableSelMat)){
         if(!is.logical(variableSelMat)) 
           stop("'variableSelMat' needs to be a matrix with boolean entries")
@@ -316,19 +316,43 @@ getParents <- function(X, environment = NULL, interventions = NULL,
                                directed, verbose, result, ...)
             },
            
+            "rankGes" = {
+              result <- runNonparanormalGES(X, parentsOf, variableSelMat, setOptions, 
+                              directed, verbose, result, ...)
+            },
+           
             "arges" = {
               result <- runARGES(X, parentsOf, variableSelMat, setOptions, 
                               directed, verbose, result, ...)
             },
+           
+            "rankArges" = {
+              result <- runNonparanormalARGES(X, parentsOf, variableSelMat, setOptions, 
+                                directed, verbose, result, ...)
+            },
             
             "pc" = {
-              result <- runPC(X, parentsOf, alpha, variableSelMat, setOptions, 
+              result <- runPC(X, suffStat = NULL, parentsOf, alpha, 
+                              variableSelMat, setOptions, 
                               directed, verbose, result, ...)
             },
            
+            "rankPc" = {
+              result <- runNonparanormalPC(X, parentsOf, alpha, 
+                             variableSelMat, setOptions, 
+                             directed, verbose, result, ...)
+            },
+           
             "fci" = {
-              result <- runFCI(X, parentsOf, alpha, variableSelMat, setOptions, 
+              result <- runFCI(X, suffStat = NULL, parentsOf, alpha, 
+                               variableSelMat, setOptions, 
                                directed, verbose, result, ...)
+            },
+           
+            "rankFci" = {
+              result <- runNonparanormalFCI(X, parentsOf, alpha, 
+                                          variableSelMat, setOptions, 
+                                          directed, verbose, result, ...)
             },
            
             "rfci" = {
@@ -340,6 +364,12 @@ getParents <- function(X, environment = NULL, interventions = NULL,
               result <- runFCIPlus(X, parentsOf, alpha, variableSelMat, setOptions, 
                                directed, verbose, result, ...)
             },
+           
+           "directLINGAM" = {
+             result <- runDirectLINGAM(X, parentsOf, pointConf, variableSelMat, 
+                                 setOptions, directed, 
+                                 verbose, result, ...)
+           },
            
             "LINGAM" = {
               result <- runLINGAM(X, parentsOf, pointConf, variableSelMat, 
