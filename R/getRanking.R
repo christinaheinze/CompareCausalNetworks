@@ -218,10 +218,9 @@ getRanking <- function(X, environment, interventions=NULL,
     arrayInd(order(r, getVecTobreakTies(r, resList), decreasing = T), .dim = dim(r))
   })
   
-  toReturn <- list(ranking = ranking,
-                   resList = resList, 
-                   simEstimates = simList)
-  return(toReturn)
+  list(ranking = ranking,
+       resList = resList, 
+       simEstimates = simList)
 }
 
 getVecTobreakTies <- function(m, histList){

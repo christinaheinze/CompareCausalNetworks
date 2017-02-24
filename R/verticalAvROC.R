@@ -1,13 +1,16 @@
 verticalAvROC <- function(nSamplesToDraw, ROCs){
   nROCCurves <- length(ROCs)
+  nEmpty <- sum(sapply(ROCs, is.null))
+  
   # lensCurves <- sapply(ROCs, nrow)
   out <- numeric(nSamplesToDraw)
   for(s in 1:nSamplesToDraw){
     tprsum <- 0
     for(c in 1:nROCCurves){
+      if(is.null(ROCs[[c]])) next
       tprsum <- tprsum + tprForFpr(s/nSamplesToDraw, ROCs[[c]])
     }
-    out[s] <- tprsum/nROCCurves
+    out[s] <- tprsum/(nROCCurves-nEmpty)
   }
   out
 }
@@ -34,7 +37,7 @@ tprForFpr <- function(fprSamp, ROC){
 }
 
 ROCdfAllMethods <- function(evalList, queries, nSamplesToDraw){
-  methods <- unlist(unique(lapply(evalList, function(l) names(l$evaluation) )))
+  methods <- unique(unlist(lapply(evalList, function(l) names(l$evaluation) )))
   queriesList <- vector("list", length = length(queries))
   names(queriesList) <- queries
   
@@ -45,6 +48,7 @@ ROCdfAllMethods <- function(evalList, queries, nSamplesToDraw){
       # dfTmpM <- NULL
       
       fprSeq <- seq(0,1,length = nSamplesToDraw)
+
       TPRAv <- verticalAvROC(nSamplesToDraw, runList)
       dfTmpM <- data.frame(fpr = fprSeq, tpr = TPRAv, method = m)
       

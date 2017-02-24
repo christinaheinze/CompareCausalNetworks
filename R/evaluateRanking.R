@@ -1,4 +1,9 @@
 evaluateRanking <- function(trueDAG, estimatedRanking, queries){
+  
+  if(is.null(estimatedRanking)){
+    return(NULL)
+  }
+  
   p <- ncol(trueDAG)
   
   # adjacency matrix of true DAG
@@ -20,6 +25,9 @@ evaluateQuery <- function(query, trueDAGAdj, estimatedRanking){
   }else{
     est <- estimatedRanking[[idx]]
   }
+  
+  if(query == "isMaybeParent") query <- "isParent"
+  if(query == "isMaybeAncestor") query <- "isAncestor"
   
   groundTruthConverted <- answerQueries(ancestralAmat = dag2ancestral(trueDAGAdj), 
                                         parentalAmat = trueDAGAdj, 

@@ -6,4 +6,5 @@ importFrom("stats", "coef", "cor", "dist", "formula", "median",
              "pgamma", "qgamma", "rnorm", "runif", "var")
 importFrom("utils", "packageVersion")
 export(getParents, getParentsStable, simulateInterventions, 
-       getRanking, evaluateRanking, ROCdfAllMethods)
+       getRanking, convertForRanking, redoEval,
+       evaluateRanking, ROCdfAllMethods)
