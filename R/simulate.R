@@ -126,6 +126,8 @@ set.seed(seed)
   X <- (noise + Perturb)%*%inv
 
   config.options <- list(trueA = A, 
+                         n = n, 
+                         p = p,
                          df = df, 
                          rhoNoise = rhoNoise, 
                          snrPar = snrPar,

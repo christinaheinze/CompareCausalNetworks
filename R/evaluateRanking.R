@@ -33,14 +33,19 @@ evaluateQuery <- function(query, trueDAGAdj, estimatedRanking){
                                         parentalAmat = trueDAGAdj, 
                                         query, 
                                         "DAG")
-  getROCvalsVec(1:(p^2), est, groundTruthConverted)
+  getROCvalsVec(0:(p^2), est, groundTruthConverted)
 }
 
 
 # false positive rate
 getROCvals <- function(k, est, groundTruth){
+  
+  if(k == 0){
+    return(c(FPR = 0, TPR = 0))
+  }
+  
   p <- ncol(groundTruth)
-  estTrunc <- est[1:k,]
+  estTrunc <- est[1:k,,drop = FALSE]
   nPos <- sum(groundTruth)
   nNeg <- p^2 - sum(groundTruth)
   truePos <- sum(groundTruth[estTrunc])
