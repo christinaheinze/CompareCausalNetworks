@@ -176,7 +176,7 @@ getRanking <- function(X, environment, interventions=NULL,
     colnamesX <- if(is.null(colnames(X))) as.character(1:ncol(X)) else colnames(X)
     
     # run getParents with this subsample
-    res <- try(getParents(X[useSamples,permuteCols], 
+    res <- (getParents(X[useSamples,permuteCols], 
                       environment= environment[useSamples], 
                       interventions=interventions[useSamples],
                       parentsOf=1:p, 
@@ -188,12 +188,12 @@ getRanking <- function(X, environment, interventions=NULL,
                       returnAsList=FALSE, pointConf=FALSE, 
                       setOptions = setOptions, verbose = verbose, ...))
     
-    if(inherits(res, "try-error")){
-      cat(paste("Error in method", method,
-                ". Skipping subsampling iteration. getParents() returned the following error:", 
-                geterrmessage()))
-      next
-    }
+    # if(inherits(res, "try-error")){
+    #   cat(paste("Error in method", method,
+    #             ". Skipping subsampling iteration. getParents() returned the following error:", 
+    #             geterrmessage()))
+    #   next
+    # }
     
     # redo permutation of columns
     res <- res[order(permuteCols),order(permuteCols)]

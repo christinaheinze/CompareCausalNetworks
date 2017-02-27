@@ -198,7 +198,7 @@ getParents <- function(X, environment = NULL, interventions = NULL,
     checkDependencies(method)
   
     # check whether mode is compatible with the method
-    checkMode(mode, method)
+    # checkMode(mode, method)
     
     # check validity of other input arguments
     if(is.data.frame(X)) X <- as.matrix(X)

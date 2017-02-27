@@ -30,8 +30,12 @@ simulateInterventions <- function(n, p, df, rhoNoise, snrPar,
                                   sparse, numberInt, strengthInt,
                                   cyclic, strengthCycle,
                                   seed =1){
-###### set seed
-set.seed(seed)
+  ###### set seed
+  set.seed(seed)
+  
+  if(snrPar == 0 | snrPar >= 1){
+    stop("snrPar needs to be between 0 and 1.")
+  }
   
   # generate A
   cont <- TRUE
@@ -58,7 +62,7 @@ set.seed(seed)
   Perturb <- matrix(0,nrow=n,ncol=p)
 
   ### simulate environments
-  q <- floor(p/numberInt)
+  q <- ceiling(p/numberInt)
   whereInt <- list()
   allVar <- 1:p
   for (nic in 1:numberInt){
@@ -75,7 +79,7 @@ set.seed(seed)
                         replace=TRUE)
   interventions <- list()
   for (i in 1:n){
-    interventions[[i]] <- numeric(0)
+    interventions[[i]] <- integer(0)
     if(environment[i]>0) interventions[[i]] <- whereInt[[environment[i]]]
   }
   

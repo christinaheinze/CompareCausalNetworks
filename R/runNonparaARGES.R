@@ -27,7 +27,7 @@ runNonparanormalARGES <- function(X, parentsOf, variableSelMat, setOptions, dire
       variableSelMat <- hugeSel$refit
     }else{
       flareObj <- flare::sugm(X, method = method, verbose = FALSE)  
-      flareSel <- flare::select(flareObj,  criterion = criterion, verbose = FALSE)  
+      flareSel <- flare::sugm.select(flareObj,  criterion = criterion, verbose = FALSE)  
       variableSelMat <- flareSel$refit
     }
     
