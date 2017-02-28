@@ -20,7 +20,7 @@ getGraphMode <- function(method){
   if(method %in% c("fci", "rankFci", "rfci", "fciplus")){
     return("PAG")
   }else if(method %in% c("pc", "rankPc", "arges", "rankArges", "ges", 
-                         "rankGes", "gies")){
+                         "rankGes", "gies", "rankGies")){
     return("CPDAG")
   }else if(method %in%  c("directLINGAM", "LINGAM", "mmhc", "ICP", "hiddenICP", "backShift")){
     return("DAG")

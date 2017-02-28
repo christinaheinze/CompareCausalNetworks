@@ -152,26 +152,43 @@ cpdag2pag <- function(amat){
   sumMat + sumMatTmp
 }
 
-
-pagIsAncestor <- function(ancestralAmat){
+pagIsAncestorEdge <- function(ancestralAmat){
   resMat <- ancestralAmat
   # find edges of type
-  #  amat[a,b] = 2  and  amat[b,a] = 3  implies   a --> b.
-  resMatTmp <- resMat + t(resMat)
-  resMatTmp[resMatTmp != 5] <- 0
+  # 1)  amat[a,b] = 2  and  amat[b,a] = 3  implies   a --> b.
+  # 2) amat[a,b] = 1  and  amat[b,a] = 3   implies   a --o b.
+  
+  # Case 1: a --> b.
+  resMatTmpCase1 <- resMat + t(resMat)
+  resMatTmpCase1[resMatTmpCase1 != 5] <- 0
   # remove entry so that resulting resMat[i,j] = 1 
   # means that i is an ancestor of j
-  resMatTmp[resMat != 2] <- 0
-  resMatTmp[resMatTmp != 0] <- 1
-  resMatTmp
+  resMatTmpCase1[resMat != 2] <- 0
+
+  # Case 2: a --o b
+  resMatTmpCase2 <- resMat + t(resMat)
+  # retain edges containing circles
+  resMatTmpCase2[resMat != 1 & t(resMat) != 1] <- 0
+  # get only edges of type  a --o b
+  resMatTmpCase2[resMatTmpCase2 != 4] <- 0
+  # remove entry so that resulting resMat[i,j] = 1 
+  # means that i might be an ancestor of j
+  # -> only keep entries of type 1 so that
+  # amat[a,b] = 1 remain --> a might be an ancestor of b (b has edge mark circle,
+  # a has edge mark tail)
+  resMatTmpCase2[resMat != 1] <- 0
+  
+  resMatTmpAll <- resMatTmpCase1 + resMatTmpCase2 
+  resMatTmpAll[resMatTmpAll != 0] <- 1
+  resMatTmpAll
+  
 }
 
-pagIsMaybeAncestor <- function(ancestralAmat){
+pagIsMaybeAncestorEdge <- function(ancestralAmat){
   resMat <- ancestralAmat
   # find edges of type
   # amat[a,b] = 1  and  amat[b,a] = 1   implies   a o-o b.
   # amat[a,b] = 1  and  amat[b,a] = 2   implies   a <-o b.
-  # amat[a,b] = 1  and  amat[b,a] = 3   implies   a --o b.
   resMatTmp <- resMat + t(resMat)
   # retain edges containing circles
   resMatTmp[resMat != 1 & t(resMat) != 1] <- 0
@@ -192,20 +209,41 @@ pagIsMaybeAncestor <- function(ancestralAmat){
   # b has edge mark circle)
   resMatTmpCase2[resMat != 2] <- 0
   
-  # Case 3: a --o b
-  resMatTmpCase3 <- resMatTmp
-  # get only edges of type  a --o b
-  resMatTmpCase3[resMatTmpCase3 != 4] <- 0
-  # remove entry so that resulting resMat[i,j] = 1 
-  # means that i might be an ancestor of j
-  # -> only keep entries of type 1 so that
-  # amat[a,b] = 1 remain --> a might be an ancestor of b (b has edge mark circle,
-  # a has edge mark tail)
-  resMatTmpCase3[resMat != 1] <- 0
+  # # Case 3: a --o b
+  # resMatTmpCase3 <- resMatTmp
+  # # get only edges of type  a --o b
+  # resMatTmpCase3[resMatTmpCase3 != 4] <- 0
+  # # remove entry so that resulting resMat[i,j] = 1 
+  # # means that i might be an ancestor of j
+  # # -> only keep entries of type 1 so that
+  # # amat[a,b] = 1 remain --> a might be an ancestor of b (b has edge mark circle,
+  # # a has edge mark tail)
+  # resMatTmpCase3[resMat != 1] <- 0
   
-  resMatTmpAll <- resMatTmpCase1 + resMatTmpCase2 + resMatTmpCase3
+  resMatTmpAll <- resMatTmpCase1 + resMatTmpCase2 #+ resMatTmpCase3
   resMatTmpAll[resMatTmpAll != 0] <- 1
   resMatTmpAll
+}
+
+pagIsMaybeAncestor <- function(ancestralAmat){
+  p <- ncol(ancestralAmat)
+  cumsum <- matrix(0, p,p)
+  paths <- lapply(1:p, function(j) pagIsMaybeAncestorEdge(ancestralAmat)%^%j)
+  for(i in 1:p) cumsum <- cumsum + paths[[i]]
+  cumsum[cumsum != 0] <- 1
+  diag(cumsum) <- 0
+  cumsum
+}
+
+
+pagIsAncestor <- function(ancestralAmat){
+  p <- ncol(ancestralAmat)
+  cumsum <- matrix(0, p,p)
+  paths <- lapply(1:p, function(j) pagIsAncestorEdge(ancestralAmat)%^%j)
+  for(i in 1:p) cumsum <- cumsum + paths[[i]]
+  cumsum[cumsum != 0] <- 1
+  diag(cumsum) <- 0
+  cumsum
 }
 
 pagIsNoAncestor <- function(ancestralAmat){

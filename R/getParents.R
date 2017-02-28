@@ -310,6 +310,12 @@ getParents <- function(X, environment = NULL, interventions = NULL,
               result <- runGIES(X, interventions, parentsOf, variableSelMat, 
                                 setOptions, directed, verbose, result, ...)
             },
+           
+            "rankGies" = {
+              result <- runNonparanormalGIES(X, interventions, parentsOf, 
+                                             variableSelMat, setOptions, 
+                                             directed, verbose, result, ...)
+            },
             
             "ges" = {
               result <- runGES(X, parentsOf, variableSelMat, setOptions, 
