@@ -125,12 +125,20 @@ ROCdfAllMethods <- function(evalList, queries, nSamplesToDraw,
           if(!is.null(tmp)){
             if(!is.null(filterBy)) givenConfig <- l$configs[filterBy]
             toRet <- lapply(tmp, function(t){
+              
+              if(is.null(nrow(t[[q]]))){
+                if(!is.null(t$error)) if(t$error) print(t$errMsg)
+                return(NULL)
+              } 
+              
               givenOptions <- t$options
               if(!is.null(filterBy)) dfConf1 <- sapply(givenConfig, function(o) rep(o, times = nrow(t[[q]])))
               dfConf2 <- sapply(givenOptions, function(o){
                 optRep <- try(rep(o, times = nrow(t[[q]])), silent = TRUE)
                 if(inherits(optRep, "try-error")){
-                  optRep <- rep(paste(as.character(o), collapse = ""), times = nrow(t[[q]]))
+                  nrowEvalDf <- nrow(t[[q]])
+                  optRep <- rep(paste(as.character(o), collapse = ""), 
+                                times = nrowEvalDf)
                 }
                 optRep
               })
