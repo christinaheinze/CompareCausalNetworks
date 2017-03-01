@@ -50,7 +50,8 @@ getROCvals <- function(k, est, groundTruth){
   nNeg <- p^2 - sum(groundTruth)
   truePos <- sum(groundTruth[estTrunc])
   falsePos <- k - truePos
-  c(FPR = falsePos/nNeg, TPR = truePos/nPos)
+  c(FPR = if(nNeg > 0) falsePos/nNeg else NA, 
+    TPR = if(nPos > 0) truePos/nPos else NA)
 }
 
 getROCvalsVec <- function(vec, est, truth){

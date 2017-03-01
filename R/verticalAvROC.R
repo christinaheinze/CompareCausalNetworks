@@ -19,44 +19,57 @@ verticalAvROC <- function(nSamplesToDraw, ROCs, filterBy = NULL){
                                     all(l[,filterBy,drop=FALSE] == settings)))
       ROCsFilt <- ROCs[ROCsFiltIdx]
       nROCCurves <- length(ROCsFilt)
-      # nEmpty <- sum(sapply(ROCsFilt, is.null))
-      out <- numeric(0)
       
-      fprSeq <- seq(0, 1, length = nSamplesToDraw)
-      
-      for(s in fprSeq){
-        tprsum <- 0
-        for(c in 1:nROCCurves){
-          # if(is.null(ROCsFilt[[c]])) next
-          tprsum <- tprsum + tprForFpr(s, ROCsFilt[[c]])
+      if(nROCCurves > 0){
+        out <- sout <- numeric(0)
+        fprSeq <- seq(0, 1, length = nSamplesToDraw)
+        for(s in fprSeq){
+          tprsum <- 0
+          nROCCurvesCorr <- nROCCurves
+
+          for(c in 1:nROCCurves){
+            # if(is.null(ROCsFilt[[c]])) next
+            increment <- tprForFpr(s, ROCsFilt[[c]])
+            if(is.na(increment)){
+              nROCCurvesCorr <- nROCCurvesCorr-1
+            }else{
+              tprsum <- tprsum + increment
+            }
+            
+          }
+          out <- c(out, if(nROCCurvesCorr > 0) tprsum/nROCCurvesCorr else NULL)
+          if(nROCCurvesCorr == 0) sout <- c(sout, s)
         }
-        out <- c(out, tprsum/nROCCurves)
+        if(length(sout) > 0) fprSeq <- fprSeq[!is.element(fprSeq, sout)]
+        dfTmp <- rbind(dfTmp, data.frame(fpr = fprSeq, tpr = out, settings))
       }
-      # 
-      # dfToAdd <- data.frame(fpr = fprSeq, tpr = out)
-      # for(i in 1:ncol(settings)){
-      #   dfToAdd <- cbind(dfToAdd, rep(settings[,i], nrow(dfToAdd)))
-      # }
       
-      dfTmp <- rbind(dfTmp, data.frame(fpr = fprSeq, tpr = out, settings))
     }
     
     toReturn <- dfTmp
   }else{
     nROCCurves <- length(ROCs)
-    # nEmpty <- sum(sapply(ROCs, is.null))
-    out <- numeric(0)
-    
+    out <- sout <- numeric(0)
     fprSeq <- seq(0, 1, length = nSamplesToDraw)
     
     for(s in fprSeq){
       tprsum <- 0
+      nROCCurvesCorr <- nROCCurves
       for(c in 1:nROCCurves){
         # if(is.null(ROCs[[c]])) next
-        tprsum <- tprsum + tprForFpr(s, ROCs[[c]])
+        increment <- tprForFpr(s, ROCs[[c]])
+        if(is.na(increment)){
+            nROCCurvesCorr <- nROCCurvesCorr-1
+          }else{
+            tprsum <- tprsum + increment
+          }
       }
-      out <- c(out, tprsum/nROCCurves)
+
+      out <- c(out, if(nROCCurvesCorr > 0) tprsum/nROCCurvesCorr else NULL)
+      if(nROCCurvesCorr == 0) sout <- c(sout, s)
+      
     }
+    if(length(sout) > 0) fprSeq <- fprSeq[!is.element(fprSeq, sout)]
     toReturn <- data.frame(fpr = fprSeq, tpr = out)
   }
   toReturn
@@ -81,6 +94,17 @@ tprForFpr <- function(fprSamp, ROC){
     }
   }
   res
+}
+
+getCutoffTprFpr <- function(ROC){
+  fpr_seq <- seq(0, 1, length = 100)
+  tpr <- sapply(fpr_seq, function(s) tprForFpr(s, ROC))
+  err <- (fpr_seq + tpr - 1)
+  if(any(err == 0)){
+    
+  }
+  which(err > 0)
+  which(err < 0)
 }
 
 ROCdfAllMethods <- function(evalList, queries, nSamplesToDraw, 
