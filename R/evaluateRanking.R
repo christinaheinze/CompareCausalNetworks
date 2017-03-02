@@ -1,4 +1,5 @@
-evaluateRanking <- function(trueDAG, estimatedRanking, queries){
+evaluateRanking <- function(trueDAG, estimatedRanking, queries, 
+                            interpolate = TRUE, nSteps = 100){
   
   if(is.null(estimatedRanking)){
     return(NULL)
@@ -11,12 +12,14 @@ evaluateRanking <- function(trueDAG, estimatedRanking, queries){
   trueDAGAdj[trueDAGAdj != 0] <- 1
   trueDAGAdj
   
-  res <- lapply(queries, function(q) evaluateQuery(q, trueDAGAdj, estimatedRanking))
+  res <- lapply(queries, function(q) evaluateQuery(q, trueDAGAdj, estimatedRanking, 
+                                                   interpolate = interpolate, nSteps = nSteps))
   names(res) <- queries
   res
 }
 
-evaluateQuery <- function(query, trueDAGAdj, estimatedRanking){
+evaluateQuery <- function(query, trueDAGAdj, estimatedRanking, 
+                          interpolate = TRUE, nSteps = 100){
   p <- ncol(trueDAGAdj)
   idx <- which(names(estimatedRanking) == query)
   
@@ -33,7 +36,13 @@ evaluateQuery <- function(query, trueDAGAdj, estimatedRanking){
                                         parentalAmat = trueDAGAdj, 
                                         query, 
                                         "DAG")
-  getROCvalsVec(0:(p^2), est, groundTruthConverted)
+  roc <- getROCvalsVec(0:(p^2), est, groundTruthConverted)
+  if(interpolate){
+    fprSeq <- seq(0,1,length.out = nSteps)
+    tpr <- sapply(fprSeq, function(s) tprForFpr(s, roc))
+    roc <- data.frame(vec = 0:(nSteps-1), FPR = fprSeq, TPR = tpr)         
+  }
+  roc
 }
 
 
