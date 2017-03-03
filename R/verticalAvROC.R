@@ -1,22 +1,21 @@
 verticalAvROCInterpolated <- function(nSamplesToDraw, ROCs, filterBy = NULL){
-  
+  # remove empty ROC curves
   idxRm <- which(sapply(ROCs, is.null))
   if(length(idxRm) > 0) ROCs <- ROCs[-idxRm] 
   
+  # if filter is applied
   if(!is.null(filterBy)){
+    # get unique combination of filter
     uniqueComb <- unique(sapply(filterBy, 
                                 function(f) 
                                   lapply(ROCs, function(roc) unique(roc[,f]))))
-    
-    # dfTmp <- NULL
-    # for(comb in 1:nrow(uniqueComb)){
-      
-      dfTmpList <- lapply(1:nrow(uniqueComb), function(comb){
-      
+    # for each unique combination
+    dfTmpList <- lapply(1:nrow(uniqueComb), function(comb){
+      # filter ROCs list by chosen combination
       settings <- uniqueComb[comb,,drop=FALSE]
       rownames(settings) <- NULL
       
-      # filter ROCs according to comb
+      # filter ROCs according to comb; then average these curves
       ROCsFiltIdx <- which(sapply(ROCs, 
                                   function(l) 
                                     all(l[,filterBy,drop=FALSE] == settings)))
@@ -25,7 +24,7 @@ verticalAvROCInterpolated <- function(nSamplesToDraw, ROCs, filterBy = NULL){
       
       if(nROCCurves > 0){
         runsWithNAs <- sum(sapply(ROCsFilt, function(r) any(is.na(r$TPR))))
-        merged.data.frame = Reduce(function(...) merge(..., all=T), ROCsFilt)
+        merged.data.frame <- as.data.frame(data.table::rbindlist(ROCsFilt))
         
         # now ROCs is a list of data.frames all containing nSteps rows; average same values of FPR
         tmp <- lapply(filterBy, function(f)  merged.data.frame[,is.element(colnames(merged.data.frame), f)])
@@ -41,19 +40,14 @@ verticalAvROCInterpolated <- function(nSamplesToDraw, ROCs, filterBy = NULL){
                                tpr = meanROC$x, 
                                tmp,
                                nRuns = length(ROCsFilt) - runsWithNAs)
-        
-        # dfTmp <- rbind(dfTmp, toReturnTmp)
       }
       toReturnTmp
-      })
-    # }
-    
-    toReturn <- Reduce(function(...) merge(..., all=T), dfTmpList)
+    })
+    toReturn <- as.data.frame(data.table::rbindlist(dfTmpList))
   }else{
     nROCCurves <- length(ROCs)
     runsWithNAs <- sum(sapply(ROCs, function(r) any(is.na(r$TPR))))
-    merged.data.frame = Reduce(function(...) merge(..., all=T), ROCs)
-    
+    merged.data.frame <- as.data.frame(data.table::rbindlist(ROCs))
     # now ROCs is a list of data.frames all containing nSteps rows; average same values of FPR
     meanROC <- aggregate(merged.data.frame$TPR, 
                          by = list(FPR = merged.data.frame$FPR), 
@@ -96,7 +90,6 @@ verticalAvROC <- function(nSamplesToDraw, ROCs, filterBy = NULL){
           nROCCurvesCorr <- nROCCurves
 
           for(c in 1:nROCCurves){
-            # if(is.null(ROCsFilt[[c]])) next
             increment <- tprForFpr(s, ROCsFilt[[c]])
             if(is.na(increment)){
               nROCCurvesCorr <- nROCCurvesCorr-1
@@ -124,7 +117,6 @@ verticalAvROC <- function(nSamplesToDraw, ROCs, filterBy = NULL){
       tprsum <- 0
       nROCCurvesCorr <- nROCCurves
       for(c in 1:nROCCurves){
-        # if(is.null(ROCs[[c]])) next
         increment <- tprForFpr(s, ROCs[[c]])
         if(is.na(increment)){
             nROCCurvesCorr <- nROCCurvesCorr-1
@@ -185,9 +177,9 @@ ROCdfAllMethods <- function(evalList, queries, nSamplesToDraw,
   names(queriesList) <- queries
   
   for(q in queries){
-    dfTmp <- NULL
-    for(m in methods){
-      
+    # dfTmp <- NULL
+    # for(m in methods){
+    dfTmp <- lapply(methods, function(m){  
       runList <- lapply(evalList, function(l){
         tmp <- l$evaluation[[m]]
         if(!is.null(tmp)){
@@ -195,7 +187,9 @@ ROCdfAllMethods <- function(evalList, queries, nSamplesToDraw,
           toRet <- lapply(tmp, function(t){
             
             if(is.null(nrow(t[[q]]))){
-              if(!is.null(t$error)) if(t$error) print(t$errMsg)
+              if(!is.null(t$error)) if(t$error){
+                cat(paste("\nMethod:", m, "with error", t$errorMsg, "run", l$hashConfigs))
+              }
               return(NULL)
             } 
             
@@ -247,11 +241,12 @@ ROCdfAllMethods <- function(evalList, queries, nSamplesToDraw,
       }
       
       
-      dfTmpM <- data.frame(method = m, TPRAv)
+      data.frame(method = m, TPRAv)
       
-      dfTmp <- rbind(dfTmp, dfTmpM)
-    }
-    queriesList[[q]] <- dfTmp
+      # dfTmp <- rbind(dfTmp, dfTmpM)
+    })
+
+    queriesList[[q]] <- as.data.frame(data.table::rbindlist(dfTmp))
     
   }
   queriesList

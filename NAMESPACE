@@ -1,4 +1,5 @@
 import(Matrix)
+importFrom("data.table", "rbindlist")
 importFrom("expm", "%^%")
 importFrom("mvtnorm", "rmvnorm")
 importFrom("methods", "as", "new")
