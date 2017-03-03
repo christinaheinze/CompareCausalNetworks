@@ -11,7 +11,8 @@ Imports:
     methods,
     Matrix,
     expm,
-    mvtnorm
+    mvtnorm,
+    data.table
 Maintainer: Christina Heinze-Deml <heinzedeml@stat.math.ethz.ch>
 Description: Unified interface for the estimation of causal networks, including
     the methods 'backShift' (from package 'backShift'), 'bivariateANM' (bivariate

@@ -176,7 +176,7 @@ getRanking <- function(X, environment, interventions=NULL,
     colnamesX <- if(is.null(colnames(X))) as.character(1:ncol(X)) else colnames(X)
     
     # run getParents with this subsample
-    res <- (getParents(X[useSamples,permuteCols], 
+    res <- try(getParents(X[useSamples,permuteCols], 
                       environment= environment[useSamples], 
                       interventions=interventions[useSamples],
                       parentsOf=1:p, 
@@ -188,12 +188,23 @@ getRanking <- function(X, environment, interventions=NULL,
                       returnAsList=FALSE, pointConf=FALSE, 
                       setOptions = setOptions, verbose = verbose, ...))
     
-    # if(inherits(res, "try-error")){
-    #   cat(paste("Error in method", method,
-    #             ". Skipping subsampling iteration. getParents() returned the following error:", 
-    #             geterrmessage()))
-    #   next
-    # }
+    if(inherits(res, "try-error")){
+      errorMsg <- geterrmessage()
+      
+      cat(paste("Error in method", method,
+                            ". getParents() returned the following error:",
+                errorMsg))
+      
+      # system is computationally singular
+      if(length(grep("system is computationally singular", errorMsg)) > 0){
+        res <- matrix(0, nrow = p, ncol = p)
+      }else{
+        stop(paste("Error in method", method,
+                   ". getParents() returned the following error:",
+                   errorMsg))
+      }
+      
+    }
     
     # redo permutation of columns
     res <- res[order(permuteCols),order(permuteCols)]
@@ -214,8 +225,18 @@ getRanking <- function(X, environment, interventions=NULL,
     resmat
   })
   
-  ranking <- lapply(resList, function(r){
-    arrayInd(order(r, getVecTobreakTies(r, resList), decreasing = T), .dim = dim(r))
+  resListForRanking <- resList
+  
+  if(is.element("isMaybeParent", queries) & is.element("isParent", queries)){
+    resListForRanking$isMaybeParent <- resListForRanking$isMaybeParent + resListForRanking$isParent
+  }
+  
+  if(is.element("isMaybeAncestor", queries) & is.element("isAncestor", queries)){
+    resListForRanking$isMaybeAncestor <- resListForRanking$isMaybeAncestor + resListForRanking$isAncestor
+  }
+  
+  ranking <- lapply(resListForRanking, function(r){
+    arrayInd(order(r, getVecTobreakTies(r, resListForRanking), decreasing = T), .dim = dim(r))
   })
   
   list(ranking = ranking,
@@ -240,7 +261,11 @@ getVecTobreakTies <- function(m, histList){
     stop("Query not supported.")
   }
   
-  if(sum(vec) == 0) vec <- rnorm(ncol(m)^2)
+  if(!is.null(vec)){
+    if(sum(vec) == 0) vec <- rnorm(ncol(m)^2)
+  }else{
+    vec <- rnorm(ncol(m)^2)
+  }
   
   vec
 }

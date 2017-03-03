@@ -1,17 +1,20 @@
-#' Simulate data of a causal cyclic model under shift interventions.
+#' Simulate data of a causal (possibly cyclic model) under interventions.
 #' 
-#' @description Simulate data of a causal cyclic model under shift interventions.
+#' @description Simulate data of a causal (possibly cyclic model) under interventions.
 #' 
 #' @param n Number of observations.
 #' @param p Number of variables.
-#' @param df
-#' @param rhoNoise
-#' @param snrPar
-#' @param sparse
-#' @param numberInt 
+#' @param df Degrees of freedom in t-distribution of noise. 
+#' @param rhoNoise Correlation between noise terms. Set to 0 for independent noise.
+#' @param snrPar SNR parameter: steers what proportion of the variance stems from 
+#' the signal resp.\ from the noise ($\text{SNR} = (1-\texttt{snrPar})/\texttt{snrPar}$)
+#' @param sparse Probability that an entry i,j in adjacency matrix is 1.
+#' @param doInterv Set to TRUE if interventions should be do-interventions; otherwise
+#' noise interventions are generated.
+#' @param numberInt Number of interventions. 
 #' @param strengthInt Regulates the strength of the interventions.
-#' @param cyclic
-#' @param strengthCycle 
+#' @param cyclic Set to TRUE is resulting graph should contain a cycle.
+#' @param strengthCycle Steers strength of feedback.
 #' @param seed Random seed.
 #' @return A list with the following elements: 
 #' \itemize{
@@ -118,7 +121,7 @@ simulateInterventions <- function(n, p, df, rhoNoise, snrPar,
   # apply t-distribution for noise
   noise <- apply(noise, 2, function(x) qt(pnorm(x), df = df))
   
-  if(doInterv){
+  if(doInterv & strengthInt > 0){
     X <- matrix(0, nrow = n, ncol = p)
     # for do interventions cycle through environments and adjust A 
     # as well as noise + Perturb accordingly
@@ -134,7 +137,8 @@ simulateInterventions <- function(n, p, df, rhoNoise, snrPar,
       noiseMat <- noise[inds,,drop = FALSE]
       noiseMat[,whereInt[[env]]] <- Perturb[inds,whereInt[[env]], drop = FALSE]
       X[inds,] <- noiseMat%*%inv
-    }     
+    }
+    # noise <- noiseMat
   }else{
     inv <- solve(diag(p) - A)
     X <- (noise + Perturb)%*%inv
