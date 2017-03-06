@@ -11,7 +11,6 @@ Imports:
     methods,
     Matrix,
     expm,
-    mvtnorm,
     data.table
 Maintainer: Christina Heinze-Deml <heinzedeml@stat.math.ethz.ch>
 Description: Unified interface for the estimation of causal networks, including

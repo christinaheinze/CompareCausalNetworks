@@ -1,7 +1,6 @@
 import(Matrix)
 importFrom("data.table", "rbindlist")
 importFrom("expm", "%^%")
-importFrom("mvtnorm", "rmvnorm")
 importFrom("methods", "as", "new")
 importFrom("stats", "coef", "cor", "dist", "formula", "median",
              "pgamma", "qgamma", "rnorm", "runif", "var")

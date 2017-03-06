@@ -8,7 +8,7 @@ runNonparanormalGES <- function(X, parentsOf, variableSelMat, setOptions, direct
   sqrt.given.cov.mat <- e$vectors%*%sqrt(diag(e$values))
   
   ## generate from N(0,I)
-  dat <- rmvnorm(n,mean=rep(0,p),sigma=diag(p))
+  dat <- matrix(rnorm(p*n), ncol = p, nrow = n)
   
   ## transform data so that cov(dat) = given.cov.mat
   samp.cov.mat <- 2*sin(cor(dat,method="spearman")*pi/6)

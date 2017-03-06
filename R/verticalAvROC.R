@@ -34,10 +34,15 @@ verticalAvROCInterpolated <- function(nSamplesToDraw, ROCs, filterBy = NULL){
                              by = tmp, 
                              FUN = mean, na.rm = TRUE)
         
+        sdROC <- aggregate(merged.data.frame$TPR, 
+                             by = tmp, 
+                             FUN = sd, na.rm = TRUE)
+        
         tmp <- meanROC[,is.element(colnames(meanROC), filterBy),drop = FALSE]
         colnames(tmp) <- filterBy
         toReturnTmp <- data.frame(fpr = meanROC$FPR, 
                                tpr = meanROC$x, 
+                               sdTpr = sdROC$x,
                                tmp,
                                nRuns = length(ROCsFilt) - runsWithNAs)
       }
@@ -53,8 +58,13 @@ verticalAvROCInterpolated <- function(nSamplesToDraw, ROCs, filterBy = NULL){
                          by = list(FPR = merged.data.frame$FPR), 
                          FUN = mean, na.rm = TRUE)
     
+    sdROC <- aggregate(merged.data.frame$TPR, 
+                         by = list(FPR = merged.data.frame$FPR), 
+                         FUN = sd, na.rm = TRUE)
+    
     toReturn <- data.frame(fpr = meanROC$FPR, 
                            tpr = meanROC$x, 
+                           sdTpr = sdROC$x,
                            nRuns = length(ROCs) - runsWithNAs)
   }
   toReturn
