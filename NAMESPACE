@@ -7,4 +7,5 @@ importFrom("stats", "coef", "cor", "dist", "formula", "median",
 importFrom("utils", "packageVersion")
 export(getParents, getParentsStable, simulateInterventions, 
        getRanking, convertForRanking, redoEval,
-       evaluateRanking, ROCdfAllMethods)
+       evaluateRanking, ROCdfAllMethods, fprForTpr, tprForFpr,
+       tprForFprVec)

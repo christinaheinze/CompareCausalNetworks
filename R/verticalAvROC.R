@@ -166,15 +166,54 @@ tprForFpr <- function(fprSamp, ROC){
   res
 }
 
-getCutoffTprFpr <- function(ROC){
-  fpr_seq <- seq(0, 1, length = 100)
-  tpr <- sapply(fpr_seq, function(s) tprForFpr(s, ROC))
-  err <- (fpr_seq + tpr - 1)
-  if(any(err == 0)){
+
+
+fprForTpr <- function(tprSamp, ROC){
+  idx <- which(ROC$TPR >= tprSamp)
+  if(length(idx) == nrow(ROC)){
+    res <- ROC[1, "FPR"]
+  }else if(length(idx) == 0){
+    res <- ROC[nrow(ROC), "FPR"]
+  }else if(ROC[min(idx),"TPR"] == tprSamp){
+    res <- ROC[min(idx), "FPR"]
+  }else{
+    idxMax <- min(idx)
+    idxMaxP1 <- idxMax - 1
+    slope <- (ROC[idxMaxP1, "FPR"] - ROC[idxMax, "FPR"])/
+      (ROC[idxMaxP1, "TPR"] - ROC[idxMax, "TPR"])
+    res <- ROC[idxMax, "FPR"] + slope*(tprSamp - ROC[idxMax, "TPR"])
+  }
+  res
+}
+
+tprForFprVec <- function(fprSamp, ROC){
+  sapply(fprSamp, function(s) tprForFpr(s, ROC))
+}
+
+
+
+cutoff <- function(roc){
+  if(any(is.na(roc$TPR))){
+    dfTRet <- data.frame("FPRcut" = NA, "TPRcut" = NA)
+  }else{
+    dfTRet <- roc[which.min(abs(roc$FPR - (1 - roc$TPR))),c("FPR", "TPR")]
+    colnames(dfTRet) <- c("FPRcut", "TPRcut")
     
   }
-  which(err > 0)
-  which(err < 0)
+  dfTRet
+}
+
+computeAUC <- function(roc){
+  if(any(is.na(roc$TPR))){
+    return(NA)
+  }else{
+    # auc <- try(integrate(tprForFprVec, 0,1,roc, rel.tol = 0.01)$value)
+    # if(inherits(auc, "try-error")){
+    #   auc <- try(integrate(tprForFprVec, 0,1,roc, rel.tol = 0.1)$value)
+    # }
+    # auc
+    mean(roc$TPR)
+  }
 }
 
 ROCdfAllMethods <- function(evalList, queries, nSamplesToDraw, 
@@ -196,7 +235,7 @@ ROCdfAllMethods <- function(evalList, queries, nSamplesToDraw,
           if(!is.null(filterBy)) givenConfig <- l$configs[filterBy]
           toRet <- lapply(tmp, function(t){
             
-            if(is.null(nrow(t[[q]]))){
+            if(is.null(nrow(t$ROCs[[q]]))){
               if(!is.null(t$error)) if(t$error){
                 cat(paste("\nMethod:", m, "with error", t$errorMsg, "run", l$hashConfigs))
               }
@@ -204,18 +243,18 @@ ROCdfAllMethods <- function(evalList, queries, nSamplesToDraw,
             } 
             
             givenOptions <- t$options
-            if(!is.null(filterBy)) dfConf1 <- sapply(givenConfig, function(o) rep(o, times = nrow(t[[q]])))
+            if(!is.null(filterBy)) dfConf1 <- sapply(givenConfig, function(o) rep(o, times = nrow(t$ROCs[[q]])))
             dfConf2 <- sapply(givenOptions, function(o){
-              optRep <- try(rep(o, times = nrow(t[[q]])), silent = TRUE)
+              optRep <- try(rep(o, times = nrow(t$ROCs[[q]])), silent = TRUE)
               if(inherits(optRep, "try-error")){
-                nrowEvalDf <- nrow(t[[q]])
+                nrowEvalDf <- nrow(t$ROCs[[q]])
                 optRep <- rep(paste(as.character(o), collapse = ""), 
                               times = nrowEvalDf)
               }
               optRep
             })
             
-            df <- data.frame(t[[q]], dfConf2)
+            df <- data.frame(t$ROCs[[q]], dfConf2)
             
             df <- if(!is.null(filterBy)) data.frame(df, dfConf1) else df
             

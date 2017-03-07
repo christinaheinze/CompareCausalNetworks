@@ -15,7 +15,17 @@ evaluateRanking <- function(trueDAG, estimatedRanking, queries,
   res <- lapply(queries, function(q) evaluateQuery(q, trueDAGAdj, estimatedRanking, 
                                                    interpolate = interpolate, nSteps = nSteps))
   names(res) <- queries
-  res
+  
+  metrics <- lapply(queries, function(q){
+    re <- res[[q]]
+    cut <- cutoff(re)
+    auc <- computeAUC(re)
+    tprFpr0 <- tprForFpr(0, re)
+    fprTpr1 <- fprForTpr(1, re)
+    data.frame(cut, auc, tprFpr0, fprTpr1)
+  }) 
+  
+  list(ROCs = res, metrics = metrics)
 }
 
 evaluateQuery <- function(query, trueDAGAdj, estimatedRanking, 
