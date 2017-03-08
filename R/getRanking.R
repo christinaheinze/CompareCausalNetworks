@@ -236,7 +236,10 @@ getRanking <- function(X, environment, interventions=NULL,
   }
   
   ranking <- lapply(resListForRanking, function(r){
-    arrayInd(order(r, getVecTobreakTies(r, resListForRanking), decreasing = T), .dim = dim(r))
+    arrayInd(order(r, 
+                   getVecTobreakTies(r, resListForRanking), # break ties with results for other queries
+                   rnorm(ncol(r)^2), # if still ties, break randomly
+                   decreasing = T), .dim = dim(r))
   })
   
   list(ranking = ranking,

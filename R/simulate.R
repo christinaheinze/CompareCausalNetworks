@@ -96,11 +96,17 @@ simulateInterventions <- function(n, p, df, rhoNoise, snrPar,
   if(cyclic){
     cont <- TRUE
     Atmp <- A
+  
     while(cont){
       # add cycle to A
       # sample uniformly at random one connection backwards
       backConnect <- sample(1:p, 2, replace = FALSE)
       Atmp[max(backConnect), min(backConnect)] <- 1
+      
+      if(sum(A) == 0){
+        Atmp[min(backConnect), max(backConnect)] <- A[min(backConnect), max(backConnect)] <- runif(1,-1,1)
+      }
+      
       # find cyclic path from max(backConnect) back to max(backConnect)
       # and get largest coefficient path can have (if it exists)
       cpmat <- getLargestWeightForCycle(Atmp)$cpMat
