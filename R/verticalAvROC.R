@@ -147,43 +147,53 @@ verticalAvROC <- function(nSamplesToDraw, ROCs, filterBy = NULL){
 
 
 tprForFpr <- function(fprSamp, ROC){
-  idx <- which(ROC$FPR <= fprSamp)
-  if(length(idx) == 0){
-    res <- ROC[1, "TPR"]
-  }else if(ROC[max(idx),"FPR"] == fprSamp){
-    res <- ROC[max(idx), "TPR"]
+  
+  if(any(is.na(ROC$TPR))  | any(is.na(ROC$FPR))){
+    return(NA)
   }else{
-    if(max(idx) != nrow(ROC)){  # interpolate
-      idxMax <- max(idx)
-      idxMaxP1 <- idxMax + 1
-      slope <- (ROC[idxMaxP1, "TPR"] - ROC[idxMax, "TPR"])/
-        (ROC[idxMaxP1, "FPR"] - ROC[idxMax, "FPR"])
-      res <- ROC[idxMax, "TPR"] + slope*(fprSamp - ROC[idxMax, "FPR"])
-    }else{
+  
+    idx <- which(ROC$FPR <= fprSamp)
+    if(length(idx) == 0){
+      res <- ROC[1, "TPR"]
+    }else if(ROC[max(idx),"FPR"] == fprSamp){
       res <- ROC[max(idx), "TPR"]
+    }else{
+      if(max(idx) != nrow(ROC)){  # interpolate
+        idxMax <- max(idx)
+        idxMaxP1 <- idxMax + 1
+        slope <- (ROC[idxMaxP1, "TPR"] - ROC[idxMax, "TPR"])/
+          (ROC[idxMaxP1, "FPR"] - ROC[idxMax, "FPR"])
+        res <- ROC[idxMax, "TPR"] + slope*(fprSamp - ROC[idxMax, "FPR"])
+      }else{
+        res <- ROC[max(idx), "TPR"]
+      }
     }
+    res
   }
-  res
 }
 
 
-
 fprForTpr <- function(tprSamp, ROC){
-  idx <- which(ROC$TPR >= tprSamp)
-  if(length(idx) == nrow(ROC)){
-    res <- ROC[1, "FPR"]
-  }else if(length(idx) == 0){
-    res <- ROC[nrow(ROC), "FPR"]
-  }else if(ROC[min(idx),"TPR"] == tprSamp){
-    res <- ROC[min(idx), "FPR"]
+  
+  if(any(is.na(ROC$TPR))  | any(is.na(ROC$FPR))){
+    return(NA)
   }else{
-    idxMax <- min(idx)
-    idxMaxP1 <- idxMax - 1
-    slope <- (ROC[idxMaxP1, "FPR"] - ROC[idxMax, "FPR"])/
-      (ROC[idxMaxP1, "TPR"] - ROC[idxMax, "TPR"])
-    res <- ROC[idxMax, "FPR"] + slope*(tprSamp - ROC[idxMax, "TPR"])
+    idx <- which(ROC$TPR >= tprSamp)
+    if(length(idx) == nrow(ROC)){
+      res <- ROC[1, "FPR"]
+    }else if(length(idx) == 0){
+      res <- ROC[nrow(ROC), "FPR"]
+    }else if(ROC[min(idx),"TPR"] == tprSamp){
+      res <- ROC[min(idx), "FPR"]
+    }else{
+      idxMax <- min(idx)
+      idxMaxP1 <- idxMax - 1
+      slope <- (ROC[idxMaxP1, "FPR"] - ROC[idxMax, "FPR"])/
+        (ROC[idxMaxP1, "TPR"] - ROC[idxMax, "TPR"])
+      res <- ROC[idxMax, "FPR"] + slope*(tprSamp - ROC[idxMax, "TPR"])
+    }
+    res
   }
-  res
 }
 
 tprForFprVec <- function(fprSamp, ROC){
@@ -193,18 +203,17 @@ tprForFprVec <- function(fprSamp, ROC){
 
 
 cutoff <- function(roc){
-  if(any(is.na(roc$TPR))){
+  if(any(is.na(roc$TPR)) | any(is.na(roc$FPR))){
     dfTRet <- data.frame("FPRcut" = NA, "TPRcut" = NA)
   }else{
     dfTRet <- roc[which.min(abs(roc$FPR - (1 - roc$TPR))),c("FPR", "TPR")]
     colnames(dfTRet) <- c("FPRcut", "TPRcut")
-    
   }
   dfTRet
 }
 
 computeAUC <- function(roc){
-  if(any(is.na(roc$TPR))){
+  if(any(is.na(roc$TPR))  | any(is.na(roc$FPR))){
     return(NA)
   }else{
     # auc <- try(integrate(tprForFprVec, 0,1,roc, rel.tol = 0.01)$value)
