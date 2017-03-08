@@ -47,11 +47,15 @@ simulateInterventions <- function(n, p, df, rhoNoise, snrPar,
   
   # generate A
   ## skeleton
-  AS <- 0*diag(p)
-  for (k in 1:p){
-    for (k2 in 1:p){
-      if(k2>k) AS[k,k2] <- rbinom(1,1,sparse)
+  cont <- TRUE
+  while(cont){
+    AS <- 0*diag(p)
+    for (k in 1:p){
+      for (k2 in 1:p){
+        if(k2>k) AS[k,k2] <- rbinom(1,1,sparse)
+      }
     }
+    if(sum(AS)!=0) cont <- FALSE
   }
     
   A <- AS * matrix( runif(p^2,-1,1),nrow=p)
