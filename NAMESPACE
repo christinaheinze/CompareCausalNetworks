@@ -8,4 +8,4 @@ importFrom("utils", "packageVersion")
 export(getParents, getParentsStable, simulateInterventions, 
        getRanking, convertForRanking, redoEval,
        evaluateRanking, ROCdfAllMethods, fprForTpr, tprForFpr,
-       tprForFprVec)
+       computeAUC, cutoff)

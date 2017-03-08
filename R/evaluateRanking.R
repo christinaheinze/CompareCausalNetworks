@@ -25,6 +25,8 @@ evaluateRanking <- function(trueDAG, estimatedRanking, queries,
     data.frame(cut, auc, tprFpr0, fprTpr1)
   }) 
   
+  names(metrics) <- queries
+  
   list(ROCs = res, metrics = metrics)
 }
 

@@ -271,7 +271,7 @@ ROCdfAllMethods <- function(evalList, queries, nSamplesToDraw,
       })
       runList <- unlist(runList, recursive = FALSE)  
       
-      if(is.null(runList)) next
+      if(is.null(runList)) return(NULL)
       
       uniqueOpts <- unique(unlist(lapply(evalList, 
                                          function(l) lapply( l$evaluation[[m]], 
