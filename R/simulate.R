@@ -33,6 +33,7 @@ simulateInterventions <- function(n, p, df, rhoNoise, snrPar,
                                   sparse, doInterv,
                                   numberInt, strengthInt,
                                   cyclic, strengthCycle,
+                                  modelMis = FALSE, modelMisPar = 1,
                                   seed =1){
   ###### set seed
   set.seed(seed)
@@ -154,6 +155,12 @@ simulateInterventions <- function(n, p, df, rhoNoise, snrPar,
     X <- (noise + Perturb)%*%inv
   }
   
+  
+  if(modelMis){
+    X <- apply(X,2,function(x) tanh(modelMisPar*x)/modelMisPar)
+  }
+  
+  
   config.options <- list(trueA = A, 
                          n = n, 
                          p = p,
@@ -166,6 +173,8 @@ simulateInterventions <- function(n, p, df, rhoNoise, snrPar,
                          strengthInt = strengthInt,
                          cyclic = cyclic, 
                          strengthCycle = strengthCycle,
+                         modelMis = modelMis,
+                         modelMisPar = modelMisPar,
                          seed = seed)
                          
 
