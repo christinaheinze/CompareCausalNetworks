@@ -7,15 +7,15 @@
 getParents(X, environment = NULL, interventions = NULL,
   parentsOf = 1:ncol(X), method = c("arges", "backShift", "bivariateANM",
   "bivariateCAM", "CAM", "fci", "fciplus", "ges", "gies", "hiddenICP", "ICP",
-  "LINGAM", "mmhc", "rankArges", "rankGes", "rankGies", "rankPc", "rfci", "pc",
-  "regression")[12], alpha = 0.1, mode = c("raw", "parental",
+  "LINGAM", "mmhc", "rankArges", "rankFci", "rankGes", "rankGies", "rankPc",
+  "rfci", "pc", "regression")[12], alpha = 0.1, mode = c("raw", "parental",
   "ancestral")[1], variableSelMat = NULL, excludeTargetInterventions = TRUE,
   onlyObservationalData = FALSE, indexObservationalData = 1,
-  returnAsList = FALSE, pointConf = FALSE, setOptions = list(),
-  directed = FALSE, verbose = FALSE, ...)
+  returnAsList = FALSE, sparse = TRUE, pointConf = FALSE,
+  setOptions = list(), directed = FALSE, verbose = FALSE, ...)
 }
 \arguments{
-\item{X}{A  \eqn{(n} x \eqn{p)}-data matrix with n observations of  \eqn{p} variables.}
+\item{X}{A \eqn{(n} x \eqn{p)}-data matrix with n observations of  \eqn{p} variables.}
 
 \item{environment}{An optional vector of length \eqn{n}, where the entry for 
 observation \eqn{i} is an index for the environment in which observation \eqn{i} took 
@@ -46,7 +46,7 @@ search),  \code{fci} (Fast causal inference), \code{fciplus}
 and \code{rfci} (Really fast causal inference) are imported from the 
 package "pcalg" and are documented there in more detail, including the 
 additional options that can be supplied via \code{setOptions}. 
-The "rank versions" of arges, ges, gies and pc are based on [1]. The method 
+The "rank versions" of arges, fci, ges, gies and pc are based on [1]. The method 
 \code{CAM} (Causal additive models) is documented in the package "CAM" and 
 the methods \code{ICP} (Invariant causal prediction), \code{hiddenICP} 
 (Invariant causal prediction with hidden variables) are from the package 
@@ -61,10 +61,13 @@ intervals for \code{ICP} and \code{hiddenICP} and is used internally for
 \code{pc}, \code{rankPc}, \code{mmhc}, \code{fci}, \code{rankFci}, \code{fciplus}
  and \code{rfci}. For all other methods \code{alpha} is not used.}
 
-\item{mode}{Output type - can be "raw", "parental" or "ancestral". If "raw"
-output is the output of the underlying method, without modifications. If "parental"
-output described parental relations; if "ancestral" output is casted to ancestral 
-relations. #TODO explain further}
+\item{mode}{Determines output type - can be "raw", or one of "isParent", "
+isMaybeParent", "isNoParent", "isAncestor","isMaybeAncestor", "isNoAncestor".
+If "raw", \code{getParents} returns the connectivity matrix computed by the
+specified method in sparse matrix format if \code{sparse} is set to \code{TRUE}; 
+else in dense matrix format. The option \code{directed} will be ignored for 
+all modes except for "raw".
+#TODO explain further}
 
 \item{variableSelMat}{An optional logical matrix of dimension  \eqn{(p} x \eqn{p)}. An 
 entry \code{TRUE} for entry \eqn{(i,j)} says that variable \eqn{i} should be considered 
@@ -89,6 +92,9 @@ observational data. Default is \code{1}.}
 \eqn{k} is a list containing the estimated parents of variable \eqn{k}. The option 
 \code{directed} will be ignored if set to \code{TRUE}. Default is 
 \code{FALSE}.}
+
+\item{sparse}{If set to \code{TRUE} and \code{returnAsList} is \code{FALSE},
+output matrix will be in sparse matrix format.}
 
 \item{pointConf}{If \code{TRUE}, numerical estimates will be returned if 
 possible. For methods \code{ICP} and \code{hiddenICP}, these are the values 
@@ -125,7 +131,7 @@ estimated parents of node \code{k}.
 Estimates the connectivity matrix of a directed causal graph, 
 using various possible methods. Supported methods at the moment are ARGES,
 backShift, bivariateANM, bivariateCAM, CAM, FCI, FCI+, GES, GIES, hiddenICP, 
-ICP, LINGAM, MMHC, rankARGES, rankGES, rankGIES, rankPC, 
+ICP, LINGAM, MMHC, rankARGES, rankFci, rankGES, rankGIES, rankPC, 
 regression, RFCI and PC.
 }
 \examples{
@@ -223,7 +229,7 @@ Graphical Models. J. Mach. Learn. Res. 14(1) 2013.
 estimation of the causal graph.
 }
 \author{
-Christina Heinze-Denk \email{heinzedeml@stat.math.ethz.ch}, 
+Christina Heinze-Deml \email{heinzedeml@stat.math.ethz.ch}, 
  Nicolai Meinshausen \email{meinshausen@stat.math.ethz.ch}
 }
 \keyword{Causality,}

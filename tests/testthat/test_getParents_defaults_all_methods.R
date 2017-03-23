@@ -6,7 +6,7 @@ data("simData")
 X <- simData$X
 environment <- simData$environment
 interventions <- simData$interventions
-mode <- "isParent"
+mode <- "isAncestor"
 methods <- c("arges", "backShift", "bivariateANM", 
              "bivariateCAM", "CAM", 
              "fci", "fciplus", "ges", "gies", "hiddenICP",
@@ -28,8 +28,8 @@ for(method in methods){
       Ahat <- getParents(X, environment, interventions, method=method, alpha=0.1, mode = mode, sparse = FALSE)
       , "matrix")
     
-    # cat(paste("\nMethod:", method, "\n"))
-    # print(Ahat)
+    cat(paste("\nMethod:", method, "\n"))
+    print(Ahat)
     
     expect_is(
       Ahat <- getParents(X, environment,interventions, method=method, alpha=0.1, mode = mode, returnAsList = TRUE)

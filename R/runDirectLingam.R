@@ -1,5 +1,5 @@
-runDirectLINGAM <- function(X, parentsOf, pointEst, variableSelMat, setOptions, directed, verbose, 
-                      ...){
+runDirectLINGAM <- function(X, parentsOf, pointEst, variableSelMat, setOptions, 
+                            verbose, ...){
   
   dots <- list(...)
   matlab <- dots$matlab

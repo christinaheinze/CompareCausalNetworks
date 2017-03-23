@@ -3,10 +3,10 @@
 #' @description Estimates the connectivity matrix of a directed causal graph, 
 #' using various possible methods. Supported methods at the moment are ARGES,
 #' backShift, bivariateANM, bivariateCAM, CAM, FCI, FCI+, GES, GIES, hiddenICP, 
-#' ICP, LINGAM, MMHC, rankARGES, "rankFci", rankGES, rankGIES, rankPC, 
+#' ICP, LINGAM, MMHC, rankARGES, rankFci, rankGES, rankGIES, rankPC, 
 #' regression, RFCI and PC.
 #' 
-#' @param X A  \eqn{(n} x \eqn{p)}-data matrix with n observations of  \eqn{p} variables.
+#' @param X A \eqn{(n} x \eqn{p)}-data matrix with n observations of  \eqn{p} variables.
 #' @param environment An optional vector of length \eqn{n}, where the entry for 
 #' observation \eqn{i} is an index for the environment in which observation \eqn{i} took 
 #' place (Simplest case: entries \code{1} for observational data and entries
@@ -33,7 +33,7 @@
 #' and \code{rfci} (Really fast causal inference) are imported from the 
 #' package "pcalg" and are documented there in more detail, including the 
 #' additional options that can be supplied via \code{setOptions}. 
-#' The "rank versions" of arges, ges, gies and pc are based on [1]. The method 
+#' The "rank versions" of arges, fci, ges, gies and pc are based on [1]. The method 
 #' \code{CAM} (Causal additive models) is documented in the package "CAM" and 
 #' the methods \code{ICP} (Invariant causal prediction), \code{hiddenICP} 
 #' (Invariant causal prediction with hidden variables) are from the package 
@@ -46,12 +46,13 @@
 #' intervals for \code{ICP} and \code{hiddenICP} and is used internally for 
 #' \code{pc}, \code{rankPc}, \code{mmhc}, \code{fci}, \code{rankFci}, \code{fciplus}
 #'  and \code{rfci}. For all other methods \code{alpha} is not used.
-#' @param mode Determines output type - can be "raw", or one of "isParent", "
-#' isMaybeParent", "isNoParent", "isAncestor","isMaybeAncestor", "isNoAncestor".
-#' If "raw" output is the output of the underlying method in sparse matrix format if 
-#' \code{sparse} is set to \code{TRUE}; else in dense matrix format. The option 
-#' \code{directed} will be ignored for all modes except for "raw".
-#' #TODO explain further
+#' @param mode Determines output type - can be "raw" or one of "isParent", 
+#' "isMaybeParent", "isNoParent", "isAncestor","isMaybeAncestor", "isNoAncestor".
+#' If "raw", \code{getParents()} returns the connectivity matrix computed by the
+#' specified method in sparse matrix format if \code{sparse} is set to \code{TRUE}; 
+#' else in dense matrix format. The option \code{directed} will be ignored for 
+#' all modes except for "raw" if set to \code{TRUE}. The different mode types
+#' are explained in the package vignette. #TODO add link
 #' @param variableSelMat An optional logical matrix of dimension  \eqn{(p} x \eqn{p)}. An 
 #' entry \code{TRUE} for entry \eqn{(i,j)} says that variable \eqn{i} should be considered 
 #' as a potential parent for variable \eqn{j} and vice versa for \code{FALSE}. If the 
@@ -60,7 +61,8 @@
 #' \code{gies}, \code{rfci} and \code{CAM}.
 #' @param excludeTargetInterventions When looking for parents of variable \eqn{k} 
 #' in \eqn{1,...,p}, set to \code{TRUE} if observations where an intervention on 
-#' variable \eqn{k} occured should be excluded. Default is \code{TRUE}.
+#' variable \eqn{k} occured should be excluded. Default is \code{TRUE}. Used
+#' in  \code{ICP} and \code{hiddenICP}.
 #' @param onlyObservationalData If set to \code{TRUE}, only observational data 
 #' is used. It will take the index in \code{environment} specified by 
 #' \code{indexObservationalData}. If \code{environment} is \code{NULL}, all 
@@ -260,8 +262,14 @@ getParents <- function(X, environment = NULL, interventions = NULL,
           stop("'variableSelMat' needs to have as many rows as there 
                are variables (columns of 'X')")
     }
-    if(directed & method %in% c("hiddenICP", "ICP", "regression")){
-      stop("Option 'directed' is not implemented for ICP, hiddenICP and regression.")
+    if(directed & method %in% c("hiddenICP", "ICP", "regression", "LINGAM",
+                                "mmhc", "CAM", "backShift")){
+      stop("Option 'directed' is not implemented for ICP, hiddenICP,
+           LINGAM, mmhc, CAM, backShift and regression.")
+    }
+    if(directed & mode != "raw"){
+      directed <- FALSE
+      warning("Setting directed to FALSE. Only supported when mode is 'raw'.")
     }
    
     # eval options
@@ -399,19 +407,19 @@ getParents <- function(X, environment = NULL, interventions = NULL,
            
            "directLINGAM" = {
              result <- runDirectLINGAM(X, parentsOf, pointConf, variableSelMat, 
-                                 setOptions, directed, 
+                                 setOptions,  
                                  verbose, ...)
            },
            
             "LINGAM" = {
               result <- runLINGAM(X, parentsOf, pointConf, variableSelMat, 
-                                  setOptions, directed, 
+                                  setOptions,  
                                   verbose, ...)
             },
            
            "CAM" = {
               result <- runCAM(X, interventions, parentsOf, variableSelMat, 
-                               setOptions, directed, verbose, ...)
+                               setOptions, verbose, ...)
             },
            
             "bivariateCAM" = {
@@ -426,7 +434,7 @@ getParents <- function(X, environment = NULL, interventions = NULL,
            
            "mmhc" = {
               result <- runMMHC(X, parentsOf, alpha, variableSelMat, 
-                                setOptions, directed, verbose, 
+                                setOptions, verbose, 
                                 ...)
            },
            

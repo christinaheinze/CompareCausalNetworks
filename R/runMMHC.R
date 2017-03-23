@@ -1,5 +1,5 @@
 runMMHC <- function(X, parentsOf, alpha, variableSelMat,
-                    setOptions, directed, verbose, ...){
+                    setOptions, verbose, ...){
   
   # additional options for MMHC
   optionsList <- list(whitelist = NULL, blacklist = NULL, test = NULL, score = NULL, 
