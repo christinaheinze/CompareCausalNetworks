@@ -1,5 +1,5 @@
 runARGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose, 
-                   result, ...){
+                   ...){
   
   
   package <- setOptions$package
@@ -46,5 +46,5 @@ runARGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose
   }
   
   runGES(X, parentsOf, variableSelMat, setOptions, directed, verbose, 
-         result, ...)
+         ...)
 }

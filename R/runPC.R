@@ -35,8 +35,13 @@ runPC <- function(X, suffStat, parentsOf, alpha, variableSelMat, setOptions, dir
     warning("Removing undirected edges from estimated adjacency matrix.")
     pcmat <- pcmat * (t(pcmat)==0)
   }
-  # for (k in 1:length(parentsOf)){
-  #   result[[k]] <- which(as.logical(pcmat[, parentsOf[k]]))
-  # }
-  pcmat
+  
+  result <- vector("list", length = length(parentsOf))
+  
+  for (k in 1:length(parentsOf)){
+    result[[k]] <- which(as.logical(pcmat[, parentsOf[k]]))
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
+  }
+  
+  list(resList = result, resMat = pcmat)
 }

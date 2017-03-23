@@ -1,5 +1,5 @@
 runCAM<- function(X, interventions, parentsOf, variableSelMat, setOptions, 
-                  directed, verbose, result, ...){
+                  directed, verbose, ...){
   
   # additional options for CAM
   optionsList <- list("scoreName"="SEMGAM", "numCores"=1,
@@ -39,9 +39,12 @@ runCAM<- function(X, interventions, parentsOf, variableSelMat, setOptions,
   }
   if(directed) cammat <- cammat * (t(cammat)==0)
   
+  result <- vector("list", length = length(parentsOf))
+  
   for (k in 1:length(parentsOf)){
     result[[k]] <- which(cammat[, parentsOf[k]]>0)
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
   }
   
-  result
+  list(resList = result, resMat = cammat)
 }

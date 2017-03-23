@@ -1,5 +1,5 @@
 runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions, 
-                    directed, verbose, result, ...){
+                    directed, verbose, ...){
 
     # check validity of input arguments for GIES
   if(is.null(interventions)) 
@@ -30,23 +30,12 @@ runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions,
                target.index = target.index,
                lambda = optionsList$lambda)
   
-  # tryNewVersion <- try(
-    # {
-      tmp <- pcalg::gies(
-        score, 
-        fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
-        turning=optionsList$turning, maxDegree=optionsList$maxDegree,
-        verbose=verbose, ...)
-    # },
-    # silent=TRUE)
-  
-  # if(class(tryNewVersion)=="try-error"){
-  #   tmp <- pcalg::gies(
-  #     ncol(X), targets, score, 
-  #     fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat),
-  #     turning=optionsList$turning, maxDegree=optionsList$maxDegree,
-  #     verbose=verbose)
-  # }
+
+  tmp <- pcalg::gies(score, 
+                     fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
+                     turning=optionsList$turning, maxDegree=optionsList$maxDegree,
+                     verbose=verbose, ...)
+   
   giesmat <- as(tmp$essgraph, "matrix")
   giesmat[giesmat] <- 1
   giesmat[!giesmat] <- 0
@@ -56,9 +45,12 @@ runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions,
     giesmat <- giesmat * (t(giesmat)==0)
   }
   
-  # for (k in 1:length(parentsOf)){
-  #   result[[k]] <- which(giesmat[, parentsOf[k]] == 1) 
-  # }
+  result <- vector("list", length = length(parentsOf))
   
-  giesmat
+  for (k in 1:length(parentsOf)){
+    result[[k]] <- which(giesmat[, parentsOf[k]] == 1)
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
+  }
+  
+  list(resList = result, resMat = giesmat)
 }

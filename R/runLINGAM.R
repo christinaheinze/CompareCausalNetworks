@@ -1,5 +1,5 @@
 runLINGAM <- function(X, parentsOf, pointEst, variableSelMat, setOptions, directed, verbose, 
-                    result, ...){
+                    ...){
   
   dots <- list(...)
   if(length(dots) > 0){
@@ -19,11 +19,16 @@ runLINGAM <- function(X, parentsOf, pointEst, variableSelMat, setOptions, direct
   B[B != 0] <- 1
   lingammat <- t(B)
 
-  # for (k in 1:length(parentsOf)){
-  #   result[[k]] <- (wh <- which(lingammat[, parentsOf[k]] == 1)) 
-  #   if(pointEst) 
-  #     attr(result[[k]],"coefficients") <- t(res$Bpruned)[ wh,parentsOf[k]]
-  # }
+  result <- vector("list", length = length(parentsOf))
   
-  lingammat
+  for (k in 1:length(parentsOf)){
+    result[[k]] <- (wh <- which(lingammat[, parentsOf[k]] == 1))
+    
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
+    
+    if(pointEst)
+      attr(result[[k]],"coefficients") <- t(res$Bpruned)[ wh,parentsOf[k]]
+  }
+  
+  list(resList = result, resMat = lingammat)
 }

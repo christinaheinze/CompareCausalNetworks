@@ -4,8 +4,11 @@ redoEval <- function(simList,
                      method,
                      redoConversion = FALSE){
   
+  p <- ncol(simList[[1]])
+  colnamesX <- if(is.null(colnames(resList[[1]]))) as.character(1:p) else colnames(resList[[1]])
   
   if(redoConversion){
+    
     if(exists("resList")) rm(resList)
     resList <- vector("list", length = length(queries))
     names(resList) <- queries

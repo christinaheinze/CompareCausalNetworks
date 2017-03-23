@@ -1,5 +1,5 @@
 runDirectLINGAM <- function(X, parentsOf, pointEst, variableSelMat, setOptions, directed, verbose, 
-                      result, ...){
+                      ...){
   
   dots <- list(...)
   matlab <- dots$matlab
@@ -36,11 +36,14 @@ runDirectLINGAM <- function(X, parentsOf, pointEst, variableSelMat, setOptions, 
   R.matlab::evaluate(matlab,"Best=Dlingam(data);")
   lingammat <- t(R.matlab::getVariable(matlab,"Best")$Best)
   
-  # for (k in 1:length(parentsOf)){
-  #   result[[k]] <- (wh <- which(lingammat[, parentsOf[k]] == 1)) 
-  #   if(pointEst) 
-  #     attr(result[[k]],"coefficients") <- t(res$Bpruned)[ wh,parentsOf[k]]
-  # }
+  result <- vector("list", length = length(parentsOf))
   
-  lingammat
+  for (k in 1:length(parentsOf)){
+    result[[k]] <- (wh <- which(lingammat[, parentsOf[k]] == 1))
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
+    if(pointEst)
+      attr(result[[k]],"coefficients") <- t(res$Bpruned)[ wh,parentsOf[k]]
+  }
+  
+  list(resList = result, resMat = lingammat)
 }

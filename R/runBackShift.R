@@ -1,5 +1,5 @@
 runBackShift <- function(X, environment, parentsOf, variableSelMat, pointEst, 
-                         setOptions, verbose, result, ...){
+                         setOptions, verbose, ...){
   
   # additional options for backShift
   optionsList <- list("covariance"=TRUE, "ev"=0, "threshold"=0.75, "nsim"=100, 
@@ -43,15 +43,17 @@ runBackShift <- function(X, environment, parentsOf, variableSelMat, pointEst,
                varianceEnv = matrix(0, nrow = length(unique(environment)), 
                                     ncol = p))
   }
+  result <- vector("list", length = length(parentsOf))
+  for (k in 1:length(parentsOf)){
+    if(optionsList$ev == 0)
+      result[[k]] <- (wh <- which(res$Ahat[, k]!=0))
+    else
+      result[[k]] <- (wh <- which(res$AhatAdjacency[, k]!=0))
+
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
+    if(pointEst) attr(result[[k]],"coefficients") <- res$Ahat[ wh,k ]
+  }
   
-  # for (k in 1:length(parentsOf)){
-  #   if(optionsList$ev == 0)
-  #     result[[k]] <- (wh <- which(res$Ahat[, k]!=0))
-  #   else
-  #     result[[k]] <- (wh <- which(res$AhatAdjacency[, k]!=0))
-  #   
-  #   if(pointEst) attr(result[[k]],"coefficients") <- res$Ahat[ wh,k ]
-  # }
-  
-  if(optionsList$ev == 0) res$Ahat else res$AhatAdjacency
+  resMat <- if(optionsList$ev == 0) res$Ahat else res$AhatAdjacency
+  list(resList = result, resMat = resMat)
 }

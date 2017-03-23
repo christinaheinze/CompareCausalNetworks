@@ -22,15 +22,8 @@
 #'  vector \code{environment} is preferable). Is also used for \code{ICP} and 
 #'  \code{hiddenICP} to exclude interventions on the target variable of 
 #'  interest.
-#' @param EV A bound on the expected number of falsely selected edges.
-#' @param nodewise If \code{FALSE}, stability selection retains for each 
-#'  subsample the largest overall entries in the connectivity matrix. 
-#'  If \code{TRUE}, values are ordered row- and node-wise first and then the 
-#'  largest entries in each row and column are retained. Error control is 
-#'  valid (under exchangeability assumption) in both cases. The latter setting 
-#'  \code{TRUE} is perhaps more robust and is the default. 
-#' @param threshold The empirical selection frequency in (0.5,1) under 
-#'  subsampling that needs to be surpassed for an edge to be selected.
+#' @param queries One (or more of) "isParent", "isMaybeParent", "isNoParent",
+#' "isAncestor","isMaybeAncestor", "isNoAncestor"
 #' @param nsim The number of resamples for stability selection.
 #' @param sampleSettings The fraction of different environments to resample 
 #'  in each resampling (at least two different environments will be selected so 
@@ -38,8 +31,6 @@
 #'  in total).
 #' @param sampleObservations The fraction of samples to resample in each 
 #'  environment.
-#' @param parentsOf The variables for which we would like to estimate the 
-#' parents. Default are all variables.
 #' @param method A string that specfies the method to use. The methods 
 #' \code{pc} (PC-algorithm), \code{LINGAM} (LINGAM), \code{arges} (Adaptively 
 #' restricted greedy equivalence search), \code{ges} 
@@ -79,6 +70,7 @@
 #' individual documentations of the methods for more options and their 
 #' possible values.
 #' @param verbose If \code{TRUE}, detailed output is provided.
+#' @param ... Parameters to be passed to underlying method's function.
 #' 
 #' @return A sparse matrix, where a 0 entry in (j,k) corresponds to an estimate 
 #' of 'no edge' \code{j} -> \code{parentsOf[k]}. Entries between 0 and 100 
@@ -181,6 +173,7 @@ getRanking <- function(X, environment, interventions=NULL,
                       interventions=interventions[useSamples],
                       parentsOf=1:p, 
                       method= method,  alpha= alpha, 
+                      mode = "raw",
                       variableSelMat=variableSelMat,  
                       excludeTargetInterventions= excludeTargetInterventions, 
                       onlyObservationalData=onlyObservationalData, 

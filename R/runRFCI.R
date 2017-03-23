@@ -1,5 +1,5 @@
 runRFCI <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, verbose, 
-                    result, ...){
+                    ...){
   
   dots <- list(...)
   if(length(dots) > 0){
@@ -30,12 +30,17 @@ runRFCI <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, v
   
   if(directed){ 
     stop("directed currently not implemented for fci.")
+    warning("Removing undirected edges from estimated connectivity matrix.")
+    
     # fcimat <- fcimat * (t(fcimat)==0) #TODO: fix
   }
   
-  # for (k in 1:length(parentsOf)){
-  #   result[[k]] <- which(as.logical(rfcimat[, parentsOf[k]]))
-  # }
+  result <- vector("list", length = length(parentsOf))
+  
+  for (k in 1:length(parentsOf)){
+    result[[k]] <- which(as.logical(rfcimat[, parentsOf[k]]))
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
+  }
 
-  rfcimat
+  list(resList = result, resMat = rfcimat)
 }

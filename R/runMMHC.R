@@ -1,10 +1,10 @@
 runMMHC <- function(X, parentsOf, alpha, variableSelMat,
-                    setOptions, directed, verbose, result, ...){
+                    setOptions, directed, verbose, ...){
   
   # additional options for MMHC
   optionsList <- list(whitelist = NULL, blacklist = NULL, test = NULL, score = NULL, 
                       k = log(nrow(X))/2,
-                      alpha = alpha, B = NULL, restart = 0, perturb = 1, max.iter = Inf,
+                      B = NULL, restart = 0, perturb = 1, max.iter = Inf,
                       optimized = TRUE, strict = FALSE, debug = verbose)
   
   # adjust according to setOptions if necessary
@@ -23,7 +23,7 @@ runMMHC <- function(X, parentsOf, alpha, variableSelMat,
                        blacklist = optionsList$blacklist, 
                        test = optionsList$test, 
                        score = optionsList$score,
-                       alpha = optionsList$alpha, 
+                       alpha = alpha, 
                        B = optionsList$B, 
                        restart = optionsList$restart, 
                        perturb = optionsList$perturb, 
@@ -44,9 +44,12 @@ runMMHC <- function(X, parentsOf, alpha, variableSelMat,
     matrixRow
   })
   
-  # for (k in 1:length(parentsOf)){
-  #   result[[k]] <- (wh <- which(mmhcmat[, parentsOf[k]] == 1))
-  # }
-  # 
-  mmhcmat
+  result <- vector("list", length = length(parentsOf))
+  
+  for (k in 1:length(parentsOf)){
+    result[[k]] <- (wh <- which(mmhcmat[, parentsOf[k]] == 1))
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
+  }
+   
+  list(resList = result, resMat = mmhcmat)
 }

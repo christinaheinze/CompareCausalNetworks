@@ -2,10 +2,8 @@ import(Matrix)
 importFrom("data.table", "rbindlist")
 importFrom("expm", "%^%")
 importFrom("methods", "as", "new")
-importFrom("stats", "coef", "cor", "dist", "formula", "median",
-             "pgamma", "qgamma", "rnorm", "runif", "var")
-importFrom("utils", "packageVersion")
+importFrom("stats", "coef", "cov", "cor", "dist", "formula", "median",
+            "pgamma", "qgamma", "rnorm", "runif", "var", 
+            "rbinom", "qt", "rt", "pnorm", "aggregate", "sd")
 export(getParents, getParentsStable, simulateInterventions, 
-       getRanking, convertForRanking, redoEval,
-       evaluateRanking, ROCdfAllMethods, fprForTpr, tprForFpr,
-       computeAUC, cutoff)
+       getRanking, convertForRanking, evaluateRanking)

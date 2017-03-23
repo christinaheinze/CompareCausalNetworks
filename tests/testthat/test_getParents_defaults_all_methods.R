@@ -1,14 +1,18 @@
 library(CompareCausalNetworks)
 context("All supported methods")
 
-data("simData_unknownShiftInterventions")
+data("simData")
 
-X <- simData_unknownShiftInterventions$X
-environment <- simData_unknownShiftInterventions$environment
-
-methods <- c("ICP", "hiddenICP", "backShift", "pc", "LINGAM",
-             "arges", "ges", "CAM", "fci", "rfci", "fciplus", "regression",
-             "bivariateANM", "bivariateCAM", "mmhc")
+X <- simData$X
+environment <- simData$environment
+interventions <- simData$interventions
+mode <- "isParent"
+methods <- c("arges", "backShift", "bivariateANM", 
+             "bivariateCAM", "CAM", 
+             "fci", "fciplus", "ges", "gies", "hiddenICP",
+             "ICP", "LINGAM", "mmhc", "rankArges", "rankFci",
+             "rankGes", "rankGies", "rankPc", "rfci", "pc",
+             "regression")
 
 
 # TODO: change all method names to spelling in original package?
@@ -17,18 +21,20 @@ for(method in methods){
   test_that(paste("Checks output type for", method), {
     
     expect_is(
-      Ahat <- getParents(X, environment, method=method, alpha=0.1)
+      Ahat <- getParents(X, environment, interventions, method=method, alpha=0.1, mode = mode)
       , "Matrix")
     
+    expect_is(
+      Ahat <- getParents(X, environment, interventions, method=method, alpha=0.1, mode = mode, sparse = FALSE)
+      , "matrix")
     
-    if(method %in% c("ICP", "hiddenICP")){
-      expect_warning(
-        Ahat <- getParents(X, environment, method=method, alpha=0.1)
-      )
-    }
+    # cat(paste("\nMethod:", method, "\n"))
+    # print(Ahat)
     
+    expect_is(
+      Ahat <- getParents(X, environment,interventions, method=method, alpha=0.1, mode = mode, returnAsList = TRUE)
+      , "list")
     
   }
   )
 }
-# gies

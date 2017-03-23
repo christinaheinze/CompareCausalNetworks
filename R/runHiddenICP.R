@@ -1,11 +1,13 @@
 runHiddenICP <- function(X, environment, interventions, parentsOf, alpha, 
                    variableSelMat, excludeTargetInterventions, confBound, 
-                   setOptions, verbose, result, ...){
+                   setOptions, verbose, ...){
   
   dots <- list(...)
   if(length(dots) > 0){
     warning("options provided via '...' not taken")
   }
+  
+  result <- vector("list", length = length(parentsOf))
   
   # additional options for hiddenICP
   optionsList <- list("mode"="asymptotic", "selfselect"=NULL)
@@ -85,10 +87,12 @@ runHiddenICP <- function(X, environment, interventions, parentsOf, alpha,
     
     parents <- possibleVar[wh <- which(res$maximinCoefficients !=0)]
     result[[k]] <- parents
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
+    
     if(confBound) 
       attr(result[[k]],"coefficients") <- res$maximinCoefficients[ wh ]
   }
   
-  result
+  list(resList = result, resMat = NULL)
 }
   

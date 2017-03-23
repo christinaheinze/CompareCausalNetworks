@@ -1,5 +1,5 @@
 runGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose, 
-                   result, ...){
+                   ...){
   
   # additional options for GES
   optionsList <- list("phases"= c("forward", "backward"),
@@ -31,9 +31,12 @@ runGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose,
     gesmat <- gesmat * (t(gesmat)==0)
   }
   
-  # for (k in 1:length(parentsOf)){
-  #   result[[k]] <- which(gesmat[, parentsOf[k]] == 1) 
-  # }
+  result <- vector("list", length = length(parentsOf))
   
-  gesmat
+  for (k in 1:length(parentsOf)){
+    result[[k]] <- which(gesmat[, parentsOf[k]] == 1)
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
+  }
+
+  list(resList = result, resMat = gesmat)
 }

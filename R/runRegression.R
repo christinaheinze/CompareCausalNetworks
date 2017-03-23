@@ -6,6 +6,8 @@ runRegression <- function(X, parentsOf, variableSelMat, pointEst, setOptions,
     warning("options provided via '...' not taken")
   }
   
+  result <- vector("list", length = length(parentsOf))
+  
   # additional options for regression
   optionsList <- list("selfselect"=NULL)
   
@@ -54,10 +56,12 @@ runRegression <- function(X, parentsOf, variableSelMat, pointEst, setOptions,
       beta <- 0
     }
     result[[k]] <- parents
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
+    
     if(pointEst) 
       attr(result[[k]],"coefficients") <- beta[beta!=0]
     
   }
   
-  result
+  list(resList = result, resMat = NULL)
 }

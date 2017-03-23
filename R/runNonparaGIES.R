@@ -1,5 +1,5 @@
 runNonparanormalGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions, directed, verbose, 
-                                result, ...){
+                                ...){
   
   given.cov.mat <- cov(X)
   p <- ncol(X)
@@ -20,5 +20,5 @@ runNonparanormalGIES <- function(X, interventions, parentsOf, variableSelMat, se
   X <- t(sqrt.given.cov.mat%*%solve(sqrt.samp.cov.mat,t(dat)))
   
   runGIES(X, interventions, parentsOf, variableSelMat, setOptions, directed, verbose, 
-         result, ...)
+         ...)
 }

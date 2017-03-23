@@ -7,7 +7,7 @@
 #' @param df Degrees of freedom in t-distribution of noise. 
 #' @param rhoNoise Correlation between noise terms. Set to 0 for independent noise.
 #' @param snrPar SNR parameter: steers what proportion of the variance stems from 
-#' the signal resp.\ from the noise ($\text{SNR} = (1-\texttt{snrPar})/\texttt{snrPar}$)
+#' the signal resp.\ from the noise ($SNR = (1-\code{snrPar})/\code{snrPar}$)
 #' @param sparse Probability that an entry i,j in adjacency matrix is 1.
 #' @param doInterv Set to TRUE if interventions should be do-interventions; otherwise
 #' noise interventions are generated.
@@ -15,6 +15,9 @@
 #' @param strengthInt Regulates the strength of the interventions.
 #' @param cyclic Set to TRUE is resulting graph should contain a cycle.
 #' @param strengthCycle Steers strength of feedback.
+#' @param modelMis Add a model misspecification that applies \code{tanh(modelMisPar*x)/modelMisPar)}
+#' morginally to each variable after having generated X from the causal DAG.
+#' @param modelMisPar Parameter steering the strength of the model misspecification. 
 #' @param seed Random seed.
 #' @return A list with the following elements: 
 #' \itemize{
@@ -42,8 +45,12 @@ simulateInterventions <- function(n, p, df, rhoNoise, snrPar,
     stop("snrPar needs to be larger than 0 and smaller or equal to 1.")
   }
   
-  if(strengthCycle >= 1){
+  if(cyclic & strengthCycle >= 1){
     stop("strengthCycle needs to be smaller than 1.")
+  }
+  
+  if(numberInt <= 0){
+    stop("numberInt needs to be at least 1.")
   }
   
   # generate A
@@ -66,18 +73,25 @@ simulateInterventions <- function(n, p, df, rhoNoise, snrPar,
   Perturb <- matrix(0,nrow=n,ncol=p)
 
   ### simulate environments
-  environment_var <- sample(1:numberInt, p, replace=TRUE)
-  
   whereInt <- list()
-  for(nic in 1:numberInt){
-    whereInt[[nic]] <- which(environment_var == nic)  
+  if(numberInt == 1){
+    whereInt[[1]] <- integer(0)
+    environment <- rep(1, n)
+    interventions <- lapply(1:n, function(i) integer(0))
+  }else{
+    environment_var <- sample(1:numberInt, p, replace=TRUE)
+    
+    for(nic in 1:numberInt){
+      whereInt[[nic]] <- which(environment_var == nic)  
+    }
+    
+    environment <- sample(1:numberInt, n, replace=TRUE)
+    interventions <- list()
+    for (i in 1:n){
+      interventions[[i]] <- whereInt[[environment[i]]]
+    }
   }
-
-  environment <- sample(1:numberInt, n, replace=TRUE)
-  interventions <- list()
-  for (i in 1:n){
-    interventions[[i]] <- whereInt[[environment[i]]]
-  }
+  
   
   ###### simulate shift interventions 
   for(intervEnv in 1:numberInt){

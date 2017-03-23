@@ -1,5 +1,5 @@
 runBivariateCAM<- function(X, parentsOf, variableSelMat, pointEst, verbose, 
-                           result, ...){
+                           ...){
   
   dots <- list(...)
   if(length(dots) > 0){
@@ -10,11 +10,19 @@ runBivariateCAM<- function(X, parentsOf, variableSelMat, pointEst, verbose,
                             variableSelMat=variableSelMat, 
                             silent = !verbose)
   
+  result <- vector("list", length = length(parentsOf))
+  
   for (k in 1:length(parentsOf)){
     result[[k]] <- (wh <- which(bivcammat$causalParents[, parentsOf[k]]>0))
+    
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
+    
     if(pointEst)
       attr(result[[k]],"coefficients") <- bivcammat$scoreMat[ wh,parentsOf[k] ]
   }
   
-  result
+  resMat <- bivcammat$causalParents
+  resMat[resMat == TRUE] <- bivcammat$scoreMat[resMat == TRUE]
+  
+  list(resList = result, resMat = resMat)
 }

@@ -1,5 +1,5 @@
 runBivariateANM<- function(X, parentsOf, variableSelMat, pointEst, verbose, 
-                           result, ...){
+                           ...){
   
   dots <- list(...)
   if(length(dots) > 0){
@@ -10,11 +10,18 @@ runBivariateANM<- function(X, parentsOf, variableSelMat, pointEst, verbose,
                             variableSelMat = variableSelMat, 
                             silent = !verbose)
   
+  result <- vector("list", length = length(parentsOf))
   for (k in 1:length(parentsOf)){
     result[[k]] <- (wh <- which(bivanmmat$causalParents[, parentsOf[k]]>0))
+    
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
+    
     if(pointEst) 
       attr(result[[k]],"coefficients") <- bivanmmat$scoreMat[ wh,parentsOf[k] ]
   }
   
-  result
+  resMat <- bivanmmat$causalParents
+  resMat[resMat == TRUE] <- bivanmmat$scoreMat[resMat == TRUE]
+  
+  list(resList = result, resMat = resMat)
 }

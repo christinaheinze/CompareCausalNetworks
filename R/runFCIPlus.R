@@ -1,5 +1,5 @@
 runFCIPlus <- function(X, parentsOf, alpha, variableSelMat, setOptions, 
-                       directed, verbose, result, ...){
+                       directed, verbose, ...){
   
   dots <- list(...)
   if(length(dots) > 0){
@@ -23,13 +23,18 @@ runFCIPlus <- function(X, parentsOf, alpha, variableSelMat, setOptions,
   fcimat <- fci.fit@amat
   
   if(directed){ 
-    stop("directed currently not implemented for fci.")
+    stop("directed currently not implemented for fciplus.")
+    warning("Removing undirected edges from estimated connectivity matrix.")
+    
     # fcimat <- fcimat * (t(fcimat)==0) #TODO: fix
   }
   
-  # for (k in 1:length(parentsOf)){
-  #   result[[k]] <- which(as.logical(fcimat[, parentsOf[k]]))
-  # }
+  result <- vector("list", length = length(parentsOf))
   
-  fcimat
+  for (k in 1:length(parentsOf)){
+    result[[k]] <- which(as.logical(fcimat[, parentsOf[k]]))
+    attr(result[[k]],"parentsOf") <- parentsOf[k]
+  }
+  
+  list(resList = result, resMat = fcimat)
 }

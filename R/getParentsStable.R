@@ -60,6 +60,10 @@
 #' @param alpha The level at which tests are done. This leads to confidence 
 #' intervals for \code{ICP} and \code{hiddenICP} and is used internally for 
 #' \code{pc} and \code{rfci}.
+#' @param mode Output type - can be "raw", "parental" or "ancestral". If "raw"
+#' output is the output of the underlying method, without modifications. If "parental"
+#' output described parental relations; if "ancestral" output is casted to ancestral 
+#' relations. #TODO explain further
 #' @param variableSelMat An optional logical matrix of dimension (pxp). An 
 #' entry \code{TRUE} for entry (i,j) says that variable i should be considered 
 #' as a potential parent for variable j and vice versa for \code{FALSE}. If the 
@@ -79,6 +83,7 @@
 #' individual documentations of the methods for more options and their 
 #' possible values.
 #' @param verbose If \code{TRUE}, detailed output is provided.
+#' @param ... Parameters to be passed to underlying method's function.
 #' 
 #' @return A sparse matrix, where a 0 entry in (j,k) corresponds to an estimate 
 #' of 'no edge' \code{j} -> \code{parentsOf[k]}. Entries between 0 and 100 
@@ -108,12 +113,13 @@ getParentsStable <- function(X, environment, interventions=NULL,
                                        "regression", "bivariateANM", 
                                        "bivariateCAM"
                                        )[1],  
-                             alpha=0.1, variableSelMat=NULL, 
+                             alpha=0.1, 
+                             mode = c("raw", "parental", "ancestral")[1],
+                             variableSelMat=NULL, 
                              excludeTargetInterventions=TRUE, 
                              onlyObservationalData=FALSE, 
                              indexObservationalData=NULL, 
                              setOptions=list(), 
-                             noThreshold = FALSE,
                              verbose=FALSE){
     # number of variables
     p <- ncol(X)
@@ -135,36 +141,36 @@ getParentsStable <- function(X, environment, interventions=NULL,
     subs <- sampleSettings* length(uniqueSettings)
     
     # 'backShift' is doing internal subsampling already, so treat differently
-    # if(method=="backShift"){ 
-    #   
-    #   # additional options for backShift
-    #   optionsList <- list("covariance"=TRUE, 
-    #                       "tolerance"=10^(-4), 
-    #                       "baseSettingEnv"=1)      
-    #   
-    #   # adjust according to setOptions if necessary
-    #   optionsList <- adjustOptions(availableOptions = optionsList, 
-    #                                optionsToSet = setOptions)
-    #   
-    #   # run backShift and return adjacency matrix
-    #   resmat <- try(backShift::backShift(
-    #     X, environment, covariance=optionsList$covariance, ev=EV, 
-    #     threshold=threshold, nsim=nsim,
-    #     sampleSettings=sampleSettings, 
-    #     sampleObservations=sampleObservations, 
-    #     nodewise=nodewise, 
-    #     tolerance=optionsList$tolerance, 
-    #     baseSettingEnv=optionsList$baseSettingEnv, 
-    #     verbose = verbose)$AhatAdjacency, 
-    #     silent = FALSE)
-    #   
-    #   # catch error
-    #   if(inherits(resmat, "try-error")){
-    #     warning("backShift -- no stable model found. 
-    #             Possible model mispecification. Returning the empty graph.\n")
-    #     resmat <- 0*diag(p)
-    #   }
-    # }else{
+    if(method=="backShift"){
+
+      # additional options for backShift
+      optionsList <- list("covariance"=TRUE,
+                          "tolerance"=10^(-4),
+                          "baseSettingEnv"=1)
+
+      # adjust according to setOptions if necessary
+      optionsList <- adjustOptions(availableOptions = optionsList,
+                                   optionsToSet = setOptions)
+
+      # run backShift and return adjacency matrix
+      resmat <- try(backShift::backShift(
+        X, environment, covariance=optionsList$covariance, ev=EV,
+        threshold=threshold, nsim=nsim,
+        sampleSettings=sampleSettings,
+        sampleObservations=sampleObservations,
+        nodewise=nodewise,
+        tolerance=optionsList$tolerance,
+        baseSettingEnv=optionsList$baseSettingEnv,
+        verbose = verbose)$AhatAdjacency,
+        silent = FALSE)
+
+      # catch error
+      if(inherits(resmat, "try-error")){
+        warning("backShift -- no stable model found.
+                Possible model mispecification. Returning the empty graph.\n")
+        resmat <- 0*diag(p)
+      }
+    }else{
         for (sim in 1:nsim){
             # find observations to use in this round
             # only use observational data?
@@ -206,7 +212,7 @@ getParentsStable <- function(X, environment, interventions=NULL,
             res <- getParents(X[useSamples,], 
                               environment= environment[useSamples], 
                               interventions=interventions[useSamples],
-                              mode = c("raw"),
+                              mode = mode,
                               parentsOf=1:ncol(X), 
                               method=method, alpha= alpha, 
                               variableSelMat=variableSelMat,  
@@ -221,8 +227,8 @@ getParentsStable <- function(X, environment, interventions=NULL,
             reskeep <- 0*as(res,"matrix")
             quse <- drawE(q)
          
-            # order, break ties by maybe category if exsists (at the end)
-            selected <- sort(abs(res), decreasing =  TRUE)[1:quse]
+            # order
+            selected <- sort(abs(res), decreasing = TRUE)[1:quse]
             indicesSelected <- which(abs(res) >= min(selected), arr.ind=TRUE)
             reskeep[indicesSelected] <- 1
             
@@ -231,12 +237,10 @@ getParentsStable <- function(X, environment, interventions=NULL,
         }
       
         # determine edges to keep
-        if(!noThreshold){
-          rem <- which(resmat < threshold)
-          if(length(rem)>0) resmat[rem] <- 0
-        }
+        rem <- which(resmat < threshold)
+        if(length(rem)>0) resmat[rem] <- 0
         resmat <- round(100*resmat)
-    # }
+    }
     
     # add row and column names to result matrix
     rownames(resmat) <- 

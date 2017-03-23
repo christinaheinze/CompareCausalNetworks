@@ -1,5 +1,5 @@
 runNonparanormalGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose, 
-                                  result, ...){
+                                  ...){
   
   given.cov.mat <- cov(X)
   p <- ncol(X)
@@ -20,5 +20,5 @@ runNonparanormalGES <- function(X, parentsOf, variableSelMat, setOptions, direct
   X <- t(sqrt.given.cov.mat%*%solve(sqrt.samp.cov.mat,t(dat)))
   
   runGES(X, parentsOf, variableSelMat, setOptions, directed, verbose, 
-         result, ...)
+         ...)
 }
