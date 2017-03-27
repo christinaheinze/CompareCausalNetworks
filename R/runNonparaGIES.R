@@ -1,5 +1,5 @@
-runNonparanormalGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions, directed, verbose, 
-                                ...){
+runNonparanormalGIES <- function(X, interventions, parentsOf, variableSelMat, 
+                                 setOptions, directed, verbose, ...){
   
   given.cov.mat <- cov(X)
   p <- ncol(X)

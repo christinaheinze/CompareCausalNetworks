@@ -43,5 +43,9 @@ runPC <- function(X, suffStat, parentsOf, alpha, variableSelMat, setOptions, dir
     attr(result[[k]],"parentsOf") <- parentsOf[k]
   }
   
+  if(length(parentsOf) < ncol(X)){
+    pcmat <- pcmat[,parentsOf]
+  }
+  
   list(resList = result, resMat = pcmat)
 }

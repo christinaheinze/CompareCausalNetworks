@@ -1,4 +1,4 @@
-runCAM<- function(X, interventions, parentsOf, variableSelMat, setOptions, 
+runCAM<- function(X, interventions, parentsOf, setOptions, 
                   verbose, ...){
   
   # additional options for CAM
@@ -10,10 +10,6 @@ runCAM<- function(X, interventions, parentsOf, variableSelMat, setOptions,
   if(length(dots) > 0){
     warning("options provided via '...' not taken")
   }
-  
-  if(!is.null(variableSelMat)) 
-    warning("option 'variableSelMat' not implemented for 
-            'LINGAM' -- using all variables")                          
   
   
   # adjust according to setOptions if necessary
@@ -43,6 +39,10 @@ runCAM<- function(X, interventions, parentsOf, variableSelMat, setOptions,
   for (k in 1:length(parentsOf)){
     result[[k]] <- which(cammat[, parentsOf[k]]>0)
     attr(result[[k]],"parentsOf") <- parentsOf[k]
+  }
+  
+  if(length(parentsOf) < ncol(X)){
+    cammat <- cammat[,parentsOf]
   }
   
   list(resList = result, resMat = cammat)

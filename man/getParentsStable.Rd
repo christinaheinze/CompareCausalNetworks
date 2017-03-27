@@ -17,7 +17,7 @@ getParentsStable(X, environment, interventions = NULL, EV = 1,
 \arguments{
 \item{X}{A (nxp)-data matrix with n observations of p variables.}
 
-\item{environment}{An optional vector of length n, where the entry for 
+\item{environment}{A vector of length n, where the entry for 
 observation i is an index for the environment in which observation i took 
 place (simplest case entries \code{1} for observational data and entries
  \code{2} for interventional data of unspecified type). Is required for 
@@ -122,9 +122,10 @@ edges.
 }
 \description{
 Estimates the connectivity matrix of a directed causal graph, 
- using various possible methods. Supported methods at the moment are backShift, 
- bivariateANM, bivariateCAM, CAM, hiddenICP, ICP, GES, GIES, LINGAM, 
- PC, regression and RFCI.
+ using various possible methods. Supported methods at the moment are  ARGES,
+backShift, bivariateANM, bivariateCAM, CAM, FCI, FCI+, GES, GIES, hiddenICP, 
+ICP, LINGAM, MMHC, rankARGES, rankFci, rankGES, rankGIES, rankPC, 
+regression, RFCI and PC.
  Uses stability selection to select an appropriate sparseness.
 }
 \references{
@@ -137,7 +138,7 @@ the causal graph.
 }
 \author{
 Nicolai Meinshausen \email{meinshausen@stat.math.ethz.ch}, Christina
- Heinze \email{heinze@stat.math.ethz.ch}
+ Heinze-Deml \email{heinzedeml@stat.math.ethz.ch}
 }
 \keyword{Causality,}
 \keyword{Graph}

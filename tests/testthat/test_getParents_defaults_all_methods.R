@@ -1,11 +1,11 @@
 library(CompareCausalNetworks)
 context("All supported methods")
 
-data("simData")
+data("simDataInv")
 
-X <- simData$X
-environment <- simData$environment
-interventions <- simData$interventions
+X <- simDataInv$X
+environment <- simDataInv$environment
+interventions <- simDataInv$interventions
 mode <- "isAncestor"
 methods <- c("arges", "backShift", "bivariateANM", 
              "bivariateCAM", "CAM", 
@@ -21,7 +21,7 @@ for(method in methods){
   test_that(paste("Checks output type for", method), {
     
     expect_is(
-      Ahat <- getParents(X, environment, interventions, method=method, alpha=0.1, mode = mode)
+      Ahat <- getParents(X, environment, interventions, method=method, alpha=0.1, mode = mode, sparse = TRUE)
       , "Matrix")
     
     expect_is(

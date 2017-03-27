@@ -52,5 +52,9 @@ runFCI <- function(X, suffStat, parentsOf, alpha, variableSelMat, setOptions, di
     attr(result[[k]],"parentsOf") <- parentsOf[k]
   }
   
+  if(length(parentsOf) < ncol(X)){
+    fcimat <- fcimat[,parentsOf]
+  }
+  
   list(resList = result, resMat = fcimat)
 }

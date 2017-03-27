@@ -22,7 +22,8 @@ runBivariateCAM<- function(X, parentsOf, variableSelMat, pointEst, verbose,
   }
   
   resMat <- bivcammat$causalParents
-  resMat[resMat == TRUE] <- bivcammat$scoreMat[resMat == TRUE]
+  if(pointEst)
+    resMat[resMat == TRUE] <- bivcammat$scoreMat[resMat == TRUE]
   
   list(resList = result, resMat = resMat)
 }

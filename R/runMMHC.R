@@ -11,9 +11,10 @@ runMMHC <- function(X, parentsOf, alpha, variableSelMat,
   optionsList <- adjustOptions(availableOptions = optionsList, 
                                optionsToSet = setOptions)
   
-  if(!is.null(variableSelMat)) 
-    warning("option 'variableSelMat' not implemented for 
-            'mmhc' -- using all variables")
+  if(!is.null(variableSelMat)){
+    blacklist <- as.data.frame(which(!variableSelMat, arr.ind = TRUE))
+    colnames(blacklist) <- c("from", "to")
+  }
          
   X <- as.data.frame(X)
   colnames(X) <- paste("V", 1:ncol(X), sep = "")
@@ -49,6 +50,10 @@ runMMHC <- function(X, parentsOf, alpha, variableSelMat,
   for (k in 1:length(parentsOf)){
     result[[k]] <- (wh <- which(mmhcmat[, parentsOf[k]] == 1))
     attr(result[[k]],"parentsOf") <- parentsOf[k]
+  }
+  
+  if(length(parentsOf) < ncol(X)){
+    mmhcmat <- mmhcmat[,parentsOf]
   }
    
   list(resList = result, resMat = mmhcmat)

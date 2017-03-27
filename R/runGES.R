@@ -38,5 +38,9 @@ runGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose,
     attr(result[[k]],"parentsOf") <- parentsOf[k]
   }
 
+  if(length(parentsOf) < ncol(X)){
+    gesmat <- gesmat[,parentsOf]
+  }
+  
   list(resList = result, resMat = gesmat)
 }

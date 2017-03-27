@@ -52,5 +52,9 @@ runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions,
     attr(result[[k]],"parentsOf") <- parentsOf[k]
   }
   
+  if(length(parentsOf) < ncol(X)){
+    giesmat <- giesmat[,parentsOf]
+  }
+  
   list(resList = result, resMat = giesmat)
 }

@@ -11,8 +11,9 @@ getParents(X, environment = NULL, interventions = NULL,
   "rfci", "pc", "regression")[12], alpha = 0.1, mode = c("raw", "parental",
   "ancestral")[1], variableSelMat = NULL, excludeTargetInterventions = TRUE,
   onlyObservationalData = FALSE, indexObservationalData = 1,
-  returnAsList = FALSE, sparse = TRUE, pointConf = FALSE,
-  setOptions = list(), directed = FALSE, verbose = FALSE, ...)
+  returnAsList = FALSE, sparse = FALSE, directed = FALSE,
+  pointConf = FALSE, setOptions = list(), assumeNoSelectionVars = TRUE,
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{X}{A \eqn{(n} x \eqn{p)}-data matrix with n observations of  \eqn{p} variables.}
@@ -28,7 +29,7 @@ place (Simplest case: entries \code{1} for observational data and entries
 \eqn{i} is a numeric vector that specifies the variables on which interventions 
 happened for observation \eqn{i} (a scalar if an intervention happened on just 
 one variable and \code{integer(0)} if no intervention occured for this 
-observation). Is used for methods \code{gies} and \code{CAM} and will 
+observation). Is used for methods \code{gies}, \code{rankGies} and \code{CAM} and will 
 generate the vector \code{environment} if the latter is set to \code{NULL}.
 (However, this might generate too many different environments for some data 
 sets, so a hand-picked vector \code{environment} is preferable). Is also used 
@@ -36,7 +37,12 @@ for \code{ICP} and \code{hiddenICP} to exclude interventions on the target
 variable of interest.}
 
 \item{parentsOf}{The variables for which we would like to estimate the 
-parents. Default are all variables.}
+parents. Default are all variables. Currently only used with \code{mode = "raw"}. 
+Speeds up computation for methods \code{bivariateANM},
+\code{bivariateCAM}, \code{ICP}, \code{hiddenICP} and \code{regression}; 
+for other methods only affects output. Also see \code{variableSelMat} for possibly
+speeding up computational time by restricting the set of potential parents
+for a variable.}
 
 \item{method}{A string that specfies the method to use. The methods 
 \code{pc} (PC-algorithm), \code{LINGAM} (LINGAM), \code{arges} (Adaptively 
@@ -61,24 +67,27 @@ intervals for \code{ICP} and \code{hiddenICP} and is used internally for
 \code{pc}, \code{rankPc}, \code{mmhc}, \code{fci}, \code{rankFci}, \code{fciplus}
  and \code{rfci}. For all other methods \code{alpha} is not used.}
 
-\item{mode}{Determines output type - can be "raw", or one of "isParent", "
-isMaybeParent", "isNoParent", "isAncestor","isMaybeAncestor", "isNoAncestor".
-If "raw", \code{getParents} returns the connectivity matrix computed by the
+\item{mode}{Determines output type - can be "raw" or one of the queries "isParent", 
+"isMaybeParent", "isNoParent", "isAncestor","isMaybeAncestor", "isNoAncestor".
+If "raw", \code{getParents()} returns the connectivity matrix computed by the
 specified method in sparse matrix format if \code{sparse} is set to \code{TRUE}; 
-else in dense matrix format. The option \code{directed} will be ignored for 
-all modes except for "raw".
-#TODO explain further}
+else in dense matrix format (or as list if \code{returnAsList = TRUE}). 
+The option \code{directed} will be ignored for 
+all modes except for "raw" if set to \code{TRUE}. The different mode types
+are explained in the help for \code{\link{getRanking()}}.}
 
 \item{variableSelMat}{An optional logical matrix of dimension  \eqn{(p} x \eqn{p)}. An 
 entry \code{TRUE} for entry \eqn{(i,j)} says that variable \eqn{i} should be considered 
 as a potential parent for variable \eqn{j} and vice versa for \code{FALSE}. If the 
 default value of \code{NULL} is used, all variables will be considered, but 
 this can be very slow, especially for methods \code{pc}, \code{ges}, 
-\code{gies}, \code{rfci} and \code{CAM}.}
+\code{gies}, \code{rfci} and \code{CAM}. Ignored for methods \code{backShift}, 
+\code{fciplus}, \code{LINGAM} and \code{CAM}.}
 
 \item{excludeTargetInterventions}{When looking for parents of variable \eqn{k} 
 in \eqn{1,...,p}, set to \code{TRUE} if observations where an intervention on 
-variable \eqn{k} occured should be excluded. Default is \code{TRUE}.}
+variable \eqn{k} occured should be excluded. Default is \code{TRUE}. Used
+in  \code{ICP} and \code{hiddenICP}.}
 
 \item{onlyObservationalData}{If set to \code{TRUE}, only observational data 
 is used. It will take the index in \code{environment} specified by 
@@ -89,12 +98,18 @@ observations are used. Default is \code{FALSE}.}
 observational data. Default is \code{1}.}
 
 \item{returnAsList}{If set to \code{TRUE}, will return a list, where entry 
-\eqn{k} is a list containing the estimated parents of variable \eqn{k}. The option 
-\code{directed} will be ignored if set to \code{TRUE}. Default is 
-\code{FALSE}.}
+\eqn{k} is a list containing the estimated parents of variable \eqn{k}. 
+Default is \code{FALSE}.}
 
 \item{sparse}{If set to \code{TRUE} and \code{returnAsList} is \code{FALSE},
 output matrix will be in sparse matrix format.}
+
+\item{directed}{If \code{TRUE}, an edge will be returned if and only if an 
+edge has been detected to be directed. I.e. entry will be set to 0 for entry 
+\eqn{(j,k)} if both \eqn{j -> k} and \eqn{k -> j} are estimated 
+(\code{ICP}, \code{hiddenICP}, \code{regression}), if \eqn{j -- k} is undirected 
+(in case of CPDAGs) or if the edge type is not of type \eqn{i --> j}. If 
+\code{assumeNoSelectionVars = TRUE} the edge type \eqn{i --o j} is also allowed (in case of PAGs).}
 
 \item{pointConf}{If \code{TRUE}, numerical estimates will be returned if 
 possible. For methods \code{ICP} and \code{hiddenICP}, these are the values 
@@ -107,10 +122,7 @@ binary 0/1 (no-edge/edge). Default is \code{FALSE}.}
 individual documentations of the methods for more options and their 
 possible values.}
 
-\item{directed}{If \code{TRUE}, an edge will be returned if and only if an 
-edge has been detected to be directed (i.e. entry will be set to 0 for entry 
-\eqn{(j,k)} if both \eqn{j -> k} and \eqn{k -> j} are estimated). 
-Ignored if not the whole graph is estimated or if \code{returnAsList} is \code{TRUE}.}
+\item{assumeNoSelectionVars}{}
 
 \item{verbose}{If \code{TRUE}, detailed output is provided.}
 

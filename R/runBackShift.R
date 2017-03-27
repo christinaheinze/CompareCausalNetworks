@@ -1,4 +1,4 @@
-runBackShift <- function(X, environment, parentsOf, variableSelMat, pointEst, 
+runBackShift <- function(X, environment, parentsOf, pointEst, 
                          setOptions, verbose, ...){
   
   # additional options for backShift
@@ -15,9 +15,7 @@ runBackShift <- function(X, environment, parentsOf, variableSelMat, pointEst,
   if(nrow(X) < p) 
     stop("backShift not suitable if there are more variables 
          than observations")
-  if(!is.null(variableSelMat)) 
-    warning("option 'variableSelMat' not implemented for 
-            'backShift' -- using all variables")
+  
   dots <- list(...)
   if(length(dots) > 0){
     warning("options provided via '...' not taken")
@@ -55,5 +53,14 @@ runBackShift <- function(X, environment, parentsOf, variableSelMat, pointEst,
   }
   
   resMat <- if(optionsList$ev == 0) res$Ahat else res$AhatAdjacency
+  
+  if(pointEst & optionsList$ev > 0){
+    resMat[resMat != 0] <- res$Ahat[resMat != 0]
+  }
+  
+  if(length(parentsOf) < p){
+    resMat <- resMat[,parentsOf]
+  }
+  
   list(resList = result, resMat = resMat)
 }

@@ -42,5 +42,9 @@ runRFCI <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, v
     attr(result[[k]],"parentsOf") <- parentsOf[k]
   }
 
+  if(length(parentsOf) < ncol(X)){
+    rfcimat <- rfcimat[,parentsOf]
+  }
+  
   list(resList = result, resMat = rfcimat)
 }

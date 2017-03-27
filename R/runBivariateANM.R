@@ -21,7 +21,8 @@ runBivariateANM<- function(X, parentsOf, variableSelMat, pointEst, verbose,
   }
   
   resMat <- bivanmmat$causalParents
-  resMat[resMat == TRUE] <- bivanmmat$scoreMat[resMat == TRUE]
-  
+  if(pointEst)
+    resMat[resMat == TRUE] <- bivanmmat$scoreMat[resMat == TRUE]
+ 
   list(resList = result, resMat = resMat)
 }

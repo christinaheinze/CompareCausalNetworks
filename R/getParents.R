@@ -17,14 +17,19 @@
 #'  \eqn{i} is a numeric vector that specifies the variables on which interventions 
 #'  happened for observation \eqn{i} (a scalar if an intervention happened on just 
 #'  one variable and \code{integer(0)} if no intervention occured for this 
-#'  observation). Is used for methods \code{gies} and \code{CAM} and will 
+#'  observation). Is used for methods \code{gies}, \code{rankGies} and \code{CAM} and will 
 #'  generate the vector \code{environment} if the latter is set to \code{NULL}.
 #'  (However, this might generate too many different environments for some data 
 #'  sets, so a hand-picked vector \code{environment} is preferable). Is also used 
 #'  for \code{ICP} and \code{hiddenICP} to exclude interventions on the target 
 #'  variable of interest.
 #' @param parentsOf The variables for which we would like to estimate the 
-#' parents. Default are all variables.
+#' parents. Default are all variables. Currently only used with \code{mode = "raw"}. 
+#' Speeds up computation for methods \code{bivariateANM},
+#' \code{bivariateCAM}, \code{ICP}, \code{hiddenICP} and \code{regression}; 
+#' for other methods only affects output. Also see \code{variableSelMat} for possibly
+#' speeding up computational time by restricting the set of potential parents
+#' for a variable. 
 #' @param method A string that specfies the method to use. The methods 
 #' \code{pc} (PC-algorithm), \code{LINGAM} (LINGAM), \code{arges} (Adaptively 
 #' restricted greedy equivalence search), \code{ges} 
@@ -46,19 +51,21 @@
 #' intervals for \code{ICP} and \code{hiddenICP} and is used internally for 
 #' \code{pc}, \code{rankPc}, \code{mmhc}, \code{fci}, \code{rankFci}, \code{fciplus}
 #'  and \code{rfci}. For all other methods \code{alpha} is not used.
-#' @param mode Determines output type - can be "raw" or one of "isParent", 
+#' @param mode Determines output type - can be "raw" or one of the queries "isParent", 
 #' "isMaybeParent", "isNoParent", "isAncestor","isMaybeAncestor", "isNoAncestor".
 #' If "raw", \code{getParents()} returns the connectivity matrix computed by the
 #' specified method in sparse matrix format if \code{sparse} is set to \code{TRUE}; 
-#' else in dense matrix format. The option \code{directed} will be ignored for 
+#' else in dense matrix format (or as list if \code{returnAsList = TRUE}). 
+#' The options \code{directed} and  \code{pointConf} will be ignored for 
 #' all modes except for "raw" if set to \code{TRUE}. The different mode types
-#' are explained in the package vignette. #TODO add link
+#' are explained in the help for \code{\link{getRanking()}}.
 #' @param variableSelMat An optional logical matrix of dimension  \eqn{(p} x \eqn{p)}. An 
 #' entry \code{TRUE} for entry \eqn{(i,j)} says that variable \eqn{i} should be considered 
 #' as a potential parent for variable \eqn{j} and vice versa for \code{FALSE}. If the 
 #' default value of \code{NULL} is used, all variables will be considered, but 
 #' this can be very slow, especially for methods \code{pc}, \code{ges}, 
-#' \code{gies}, \code{rfci} and \code{CAM}.
+#' \code{gies}, \code{rfci} and \code{CAM}. Ignored for methods \code{backShift}, 
+#' \code{fciplus}, \code{LINGAM} and \code{CAM}.
 #' @param excludeTargetInterventions When looking for parents of variable \eqn{k} 
 #' in \eqn{1,...,p}, set to \code{TRUE} if observations where an intervention on 
 #' variable \eqn{k} occured should be excluded. Default is \code{TRUE}. Used
@@ -70,9 +77,8 @@
 #' @param indexObservationalData Index in \code{environment} that encodes 
 #' observational data. Default is \code{1}.
 #' @param returnAsList If set to \code{TRUE}, will return a list, where entry 
-#' \eqn{k} is a list containing the estimated parents of variable \eqn{k}. The option 
-#' \code{directed} will be ignored if set to \code{TRUE}. Default is 
-#' \code{FALSE}.
+#' \eqn{k} is a list containing the estimated parents of variable \eqn{k}. 
+#' Default is \code{FALSE}.
 #' @param sparse If set to \code{TRUE} and \code{returnAsList} is \code{FALSE},
 #' output matrix will be in sparse matrix format.
 #' @param pointConf If \code{TRUE}, numerical estimates will be returned if 
@@ -80,14 +86,19 @@
 #' in the individual confidence intervals (at chosen level \code{alpha}) that 
 #' are closest to 0; for other methods these are point estimates. Some methods 
 #' do not return numerical point estimates; for these the output will remain 
-#' binary 0/1 (no-edge/edge). Default is \code{FALSE}.
+#' binary 0/1 (no-edge/edge). Default is \code{FALSE}. Only supported in mode "raw".
 #' @param setOptions A list that can take method-specific options; see the 
 #' individual documentations of the methods for more options and their 
 #' possible values.
 #' @param directed If \code{TRUE}, an edge will be returned if and only if an 
-#' edge has been detected to be directed (i.e. entry will be set to 0 for entry 
-#' \eqn{(j,k)} if both \eqn{j -> k} and \eqn{k -> j} are estimated). 
-#' Ignored if not the whole graph is estimated or if \code{returnAsList} is \code{TRUE}.
+#' edge has been detected to be directed. I.e. entry will be set to 0 for entry 
+#' \eqn{(j,k)} if both \eqn{j -> k} and \eqn{k -> j} are estimated 
+#' (\code{ICP}, \code{hiddenICP}, \code{regression}), if \eqn{j -- k} is undirected 
+#' (in case of CPDAGs) or if the edge type is not of type \eqn{i --> j} in case of 
+#' PAGs. If \code{assumeNoSelectionVars = TRUE} the edge type \eqn{i --o j} is also 
+#' considered 'directed' for methods returning PAGs.  Default is \code{FALSE}. 
+#' Only supported in mode "raw".
+#' @param assumeNoSelectionVars 
 #' @param verbose If \code{TRUE}, detailed output is provided.
 #' @param ... Parameters to be passed to underlying method's function.
 #'
@@ -213,15 +224,18 @@ getParents <- function(X, environment = NULL, interventions = NULL,
                        onlyObservationalData = FALSE, 
                        indexObservationalData = 1,
                        returnAsList=FALSE, 
-                       sparse = TRUE,
+                       sparse = FALSE,
+                       directed=FALSE, 
                        pointConf = FALSE, 
-                       setOptions = list(), directed=FALSE, verbose = FALSE, ...){
+                       setOptions = list(), 
+                       assumeNoSelectionVars = TRUE,
+                       verbose = FALSE, ...){
 
     # check whether method is supported and dependencies are installed
     checkDependencies(method)
   
-    # check whether mode is compatible with the method
-    # checkMode(mode, method)
+    # check whether mode is supported by method
+    checkMode(mode, method)
     
     # check validity of other input arguments
     if(is.data.frame(X)) X <- as.matrix(X)
@@ -262,14 +276,24 @@ getParents <- function(X, environment = NULL, interventions = NULL,
           stop("'variableSelMat' needs to have as many rows as there 
                are variables (columns of 'X')")
     }
+    if(!is.null(variableSelMat) & method %in% c("backShift", "fciplus",
+                                                "directLINGAM", "LINGAM", "CAM")) 
+      warning(paste("option 'variableSelMat' not implemented for method",
+            method, " -- using all variables"))
     if(directed & method %in% c("hiddenICP", "ICP", "regression", "LINGAM",
                                 "mmhc", "CAM", "backShift")){
-      stop("Option 'directed' is not implemented for ICP, hiddenICP,
+      warning("Option 'directed' is ignored for ICP, hiddenICP,
            LINGAM, mmhc, CAM, backShift and regression.")
     }
+    
     if(directed & mode != "raw"){
       directed <- FALSE
       warning("Setting directed to FALSE. Only supported when mode is 'raw'.")
+    }
+    
+    if(pointConf & mode != "raw"){
+      pointConf <- FALSE
+      warning("Setting pointConf to FALSE. Only supported when mode is 'raw'.")
     }
    
     # eval options
@@ -307,37 +331,30 @@ getParents <- function(X, environment = NULL, interventions = NULL,
       environment <- environment[sel]
       interventions <- interventions[sel]
     }
-    
-    ## gather estimated parents of each "parentsOf" node in an element of a list
-    # result <- list()
-    # for (k in 1:length(parentsOf)){
-    #     result[[k]] <- numeric(0)
-    #     attr(result[[k]],"parentsOf") <- parentsOf[k]
-    # }
-    
+   
     # run method
     switch(method,
            "ICP" = {
              result <- runICP(X, environment, interventions, parentsOf, alpha, 
                               variableSelMat, excludeTargetInterventions, 
-                              pointConf, setOptions, verbose, ...)
+                              pointConf, setOptions, directed, verbose, ...)
            },
            
            "hiddenICP" = {
              result <- runHiddenICP(X, environment, interventions, parentsOf, 
                                     alpha, variableSelMat, 
                                     excludeTargetInterventions, pointConf, 
-                                    setOptions, verbose, ...)
+                                    setOptions, directed, verbose, ...)
             },
            
             "backShift" = {
-              result <- runBackShift(X, environment, parentsOf, variableSelMat, 
+              result <- runBackShift(X, environment, parentsOf, 
                                      pointConf, setOptions, verbose, ...)
             },
            
             "regression" = {
               result <- runRegression(X, parentsOf, variableSelMat, pointConf, 
-                                      setOptions, verbose, ...)
+                                      setOptions, directed, verbose, ...)
             },
            
             "gies" = {
@@ -401,25 +418,24 @@ getParents <- function(X, environment = NULL, interventions = NULL,
             },
            
             "fciplus" = {
-              result <- runFCIPlus(X, parentsOf, alpha, variableSelMat, setOptions, 
+              result <- runFCIPlus(X, parentsOf, alpha, setOptions, 
                                directed, verbose, ...)
             },
            
            "directLINGAM" = {
-             result <- runDirectLINGAM(X, parentsOf, pointConf, variableSelMat, 
+             result <- runDirectLINGAM(X, parentsOf, pointConf, 
                                  setOptions,  
                                  verbose, ...)
            },
            
             "LINGAM" = {
-              result <- runLINGAM(X, parentsOf, pointConf, variableSelMat, 
-                                  setOptions,  
+              result <- runLINGAM(X, parentsOf, pointConf, setOptions,  
                                   verbose, ...)
             },
            
            "CAM" = {
-              result <- runCAM(X, interventions, parentsOf, variableSelMat, 
-                               setOptions, verbose, ...)
+              result <- runCAM(X, interventions, parentsOf, setOptions, 
+                               verbose, ...)
             },
            
             "bivariateCAM" = {

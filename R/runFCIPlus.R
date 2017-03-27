@@ -1,4 +1,4 @@
-runFCIPlus <- function(X, parentsOf, alpha, variableSelMat, setOptions, 
+runFCIPlus <- function(X, parentsOf, alpha, setOptions, 
                        directed, verbose, ...){
   
   dots <- list(...)
@@ -34,6 +34,10 @@ runFCIPlus <- function(X, parentsOf, alpha, variableSelMat, setOptions,
   for (k in 1:length(parentsOf)){
     result[[k]] <- which(as.logical(fcimat[, parentsOf[k]]))
     attr(result[[k]],"parentsOf") <- parentsOf[k]
+  }
+  
+  if(length(parentsOf) < ncol(X)){
+    fcimat <- fcimat[,parentsOf]
   }
   
   list(resList = result, resMat = fcimat)

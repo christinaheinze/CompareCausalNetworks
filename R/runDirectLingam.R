@@ -16,25 +16,16 @@ runDirectLINGAM <- function(X, parentsOf, pointEst, variableSelMat, setOptions,
     stop("Need to provide directory with matlab files.")
   }
   
-  # dots <- list(...)
-  # if(length(dots) > 0){
-  #   warning("options provided via '...' not taken")
-  # }
-  
-  if(!is.null(variableSelMat)) 
-    warning("option 'variableSelMat' not implemented for 
-            'LINGAM' -- using all variables")                          
-  
   if(nrow(X)<=ncol(X)) 
     stop("LINGAM not suitable for high-dimensional data; 
          need nrow(X) > ncol(X)")
-  
-  
-  
+ 
   R.matlab::evaluate(matlab,paste("addpath(genpath('", matlabFilesDir,"'))", sep = ""))
   R.matlab::setVariable(matlab,data=t(X))
   R.matlab::evaluate(matlab,"Best=Dlingam(data);")
-  lingammat <- t(R.matlab::getVariable(matlab,"Best")$Best)
+  lingammatCoef <- t(R.matlab::getVariable(matlab,"Best")$Best)
+  lingammat <- lingammatCoef
+  lingammat[lingammat != 0] <- 1
   
   result <- vector("list", length = length(parentsOf))
   
@@ -42,8 +33,13 @@ runDirectLINGAM <- function(X, parentsOf, pointEst, variableSelMat, setOptions,
     result[[k]] <- (wh <- which(lingammat[, parentsOf[k]] == 1))
     attr(result[[k]],"parentsOf") <- parentsOf[k]
     if(pointEst)
-      attr(result[[k]],"coefficients") <- t(res$Bpruned)[ wh,parentsOf[k]]
+      attr(result[[k]],"coefficients") <- lingammatCoef[ wh,parentsOf[k]]
   }
   
-  list(resList = result, resMat = lingammat)
+  if(length(parentsOf) < ncol(X)){
+    lingammat <- lingammat[,parentsOf]
+    lingammatCoef <- lingammatCoef[,parentsOf]
+  }
+  
+  list(resList = result, resMat = if(pointEst) lingammatCoef else lingammat)
 }
