@@ -6,4 +6,4 @@ importFrom("stats", "coef", "cov", "cor", "dist", "formula", "median",
             "pgamma", "qgamma", "rnorm", "runif", "var", 
             "rbinom", "qt", "rt", "pnorm", "aggregate", "sd")
 export(getParents, getParentsStable, simulateInterventions, 
-       getRanking, evaluateRanking)
+       getRanking, evaluateRanking, redoEval)

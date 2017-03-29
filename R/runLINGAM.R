@@ -1,5 +1,4 @@
-runLINGAM <- function(X, parentsOf, pointEst, variableSelMat, setOptions, 
-                      verbose, ...){
+runLINGAM <- function(X, parentsOf, pointEst, setOptions, verbose, ...){
   
   dots <- list(...)
   if(length(dots) > 0){

@@ -3,13 +3,12 @@ checkMode <- function(mode, method){
   if(method %in% c("fci", "rankFci", "rfci", "fciplus")){
     if(grepl("Parent", mode)){
       emitWarningOrError <- TRUE
-      fct <- warning
       msg <- paste("The method", method, "cannot be used to estimate 
                    parental relations (only ancestral relations).")
     }
   }
   
-  fct(msg)
+  # warning(msg)
 }
  
 

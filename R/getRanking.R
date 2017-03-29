@@ -223,6 +223,7 @@ getRanking <- function(X, environment, interventions=NULL,
                        onlyObservationalData=FALSE, 
                        indexObservationalData=NULL, 
                        setOptions=list(), 
+                       assumeNoSelectionVars = TRUE,
                        nsim=100, 
                        sampleSettings=1/sqrt(2), 
                        sampleObservations=1/sqrt(2),
@@ -305,6 +306,7 @@ getRanking <- function(X, environment, interventions=NULL,
                       directed=FALSE, 
                       pointConf = FALSE, 
                       setOptions = setOptions, 
+                      assumeNoSelectionVars = assumeNoSelectionVars,
                       verbose = verbose, ...))
     
     if(inherits(res, "try-error")){
@@ -346,13 +348,13 @@ getRanking <- function(X, environment, interventions=NULL,
   
   resListForRanking <- resList
   
-  if(is.element("isMaybeParent", queries) & is.element("isParent", queries)){
-    resListForRanking$isMaybeParent <- resListForRanking$isMaybeParent + resListForRanking$isParent
-  }
+  # if(is.element("isMaybeParent", queries) & is.element("isParent", queries)){
+  #   resListForRanking$isMaybeParent <- resListForRanking$isMaybeParent + resListForRanking$isParent
+  # }
   
-  if(is.element("isMaybeAncestor", queries) & is.element("isAncestor", queries)){
-    resListForRanking$isMaybeAncestor <- resListForRanking$isMaybeAncestor + resListForRanking$isAncestor
-  }
+  # if(is.element("isMaybeAncestor", queries) & is.element("isAncestor", queries)){
+  #   resListForRanking$isMaybeAncestor <- resListForRanking$isMaybeAncestor + resListForRanking$isAncestor
+  # }
   
   ranking <- lapply(resListForRanking, function(r){
     arrayInd(order(r, 

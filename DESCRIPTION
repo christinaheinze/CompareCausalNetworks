@@ -1,4 +1,4 @@
-Package: CompareCausalNetworks
+Package: CompareCausalNetworksDev
 Type: Package
 Title: Interface to Diverse Estimation Methods of Causal Networks
 Version: 0.1.5.9004

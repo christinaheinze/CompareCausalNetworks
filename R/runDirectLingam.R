@@ -1,4 +1,4 @@
-runDirectLINGAM <- function(X, parentsOf, pointEst, variableSelMat, setOptions, 
+runDirectLINGAM <- function(X, parentsOf, pointEst, setOptions, 
                             verbose, ...){
   
   dots <- list(...)
