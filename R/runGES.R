@@ -2,7 +2,7 @@ runGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose,
                    ...){
   
   # additional options for GES
-  optionsList <- list("phases"= c("forward", "backward"),
+  optionsList <- list("phases"= c("turning"),
                       "iterate"=FALSE,
                       "adaptive" = "none", 
                       "maxDegree"=integer(0),

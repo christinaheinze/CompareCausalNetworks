@@ -66,6 +66,8 @@
 #' @param setOptions A list that can take method-specific options; see the 
 #' individual documentations of the methods for more options and their 
 #' possible values.
+#' @param assumeNoSelectionVars Set to \code{TRUE} is you want to assume the absence 
+#' of selection variables.
 #' @param nsim The number of resamples for stability selection.
 #' @param sampleSettings The fraction of different environments to resample 
 #'  in each resampling (at least two different environments will be selected so 
@@ -198,16 +200,21 @@
 #' data("simDataInv")
 #' X <- simDataInv$X
 #' set.seed(1)
-#' rank <- getRanking(X, 
-#'                    environment = simDataInv$environment,
-#'                    queries = c("isParent","isMaybeParent"), 
-#'                    method = c("LINGAM"),
-#'                    verbose = FALSE)
-#' # estimated ranking
-#' print(rank$ranking$isParent)
-#' 
-#' # true adjacency matrix
-#' print(simDataInv$configs$trueA)
+#' if(require(pcalg)){
+#'   rank <- getRanking(X,
+#'                 environment = simDataInv$environment,
+#'                 queries = c("isParent","isMaybeParent"),
+#'                 method = c("LINGAM"),
+#'                 verbose = FALSE)
+#'   # estimated ranking
+#'   print(rank$ranking$isParent)
+#'  
+#'   # true adjacency matrix
+#'   print(simDataInv$configs$trueA)
+#' }else{
+#'   cat("\nThe packages 'pcalg' is needed for the example to
+#' work. Please install it.")
+#' }
 #' 
 #' @keywords Causality, Graph estimations
 #'  

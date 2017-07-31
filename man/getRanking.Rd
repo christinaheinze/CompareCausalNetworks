@@ -11,9 +11,9 @@ getRanking(X, environment, interventions = NULL, queries = c("isParent",
   "ges", "gies", "CAM", "fci", "rfci", "regression", "bivariateANM",
   "bivariateCAM")[1], alpha = 0.1, variableSelMat = NULL,
   excludeTargetInterventions = TRUE, onlyObservationalData = FALSE,
-  indexObservationalData = NULL, setOptions = list(), nsim = 100,
-  sampleSettings = 1/sqrt(2), sampleObservations = 1/sqrt(2),
-  verbose = FALSE, ...)
+  indexObservationalData = NULL, setOptions = list(),
+  assumeNoSelectionVars = TRUE, nsim = 100, sampleSettings = 1/sqrt(2),
+  sampleObservations = 1/sqrt(2), verbose = FALSE, ...)
 }
 \arguments{
 \item{X}{A \eqn{(n x p)}-data matrix with \eqn{n} observations of \eqn{p} variables.}
@@ -82,6 +82,9 @@ observational data. Default is \code{1}.}
 \item{setOptions}{A list that can take method-specific options; see the 
 individual documentations of the methods for more options and their 
 possible values.}
+
+\item{assumeNoSelectionVars}{Set to \code{TRUE} is you want to assume the absence 
+of selection variables.}
 
 \item{nsim}{The number of resamples for stability selection.}
 
@@ -226,16 +229,21 @@ described above, ties are broken randomly.
 data("simDataInv")
 X <- simDataInv$X
 set.seed(1)
-rank <- getRanking(X, 
-                   environment = simDataInv$environment,
-                   queries = c("isParent","isMaybeParent"), 
-                   method = c("LINGAM"),
-                   verbose = FALSE)
-# estimated ranking
-print(rank$ranking$isParent)
-
-# true adjacency matrix
-print(simDataInv$configs$trueA)
+if(require(pcalg)){
+  rank <- getRanking(X,
+                environment = simDataInv$environment,
+                queries = c("isParent","isMaybeParent"),
+                method = c("LINGAM"),
+                verbose = FALSE)
+  # estimated ranking
+  print(rank$ranking$isParent)
+ 
+  # true adjacency matrix
+  print(simDataInv$configs$trueA)
+}else{
+  cat("\\nThe packages 'pcalg' is needed for the example to
+work. Please install it.")
+}
 
 }
 \seealso{

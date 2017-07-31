@@ -1,4 +1,6 @@
-library(testthat)
-library(CompareCausalNetworks)
+if(require(testthat)){
+  library(CompareCausalNetworks)
+  
+  test_check("CompareCausalNetworks")
+}
 
-test_check("CompareCausalNetworks")

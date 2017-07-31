@@ -1,0 +1,14 @@
+citHeader("To cite CompareCausalNetworks in publications please use:")
+
+citEntry(entry = "Article",
+  title        = "Causal Structure Learning",
+  author       = personList(as.person("Christina Heinze-Deml"),
+                   as.person("Marloes H. Maathius"), as.person("Nicolai Meinshausen")),
+  journal = "Annual Review of Statistics and Its Application",
+  volume = "8",
+  year = "2018",
+  textVersion  =
+  paste("C. Heinze-Deml, M. H. Maathius and N. Meinshausen.",
+        "Causal Structure Learning.",
+        "Annual Review of Statistics and Its Application, Vol. 5 2018")
+)

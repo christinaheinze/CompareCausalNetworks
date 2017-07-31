@@ -72,9 +72,9 @@ intervals for \code{ICP} and \code{hiddenICP} and is used internally for
 If "raw", \code{getParents()} returns the connectivity matrix computed by the
 specified method in sparse matrix format if \code{sparse} is set to \code{TRUE}; 
 else in dense matrix format (or as list if \code{returnAsList = TRUE}). 
-The option \code{directed} will be ignored for 
+The options \code{directed} and  \code{pointConf} will be ignored for 
 all modes except for "raw" if set to \code{TRUE}. The different mode types
-are explained in the help for \code{\link{getRanking()}}.}
+are explained in the help for \code{\link{getRanking}}.}
 
 \item{variableSelMat}{An optional logical matrix of dimension  \eqn{(p} x \eqn{p)}. An 
 entry \code{TRUE} for entry \eqn{(i,j)} says that variable \eqn{i} should be considered 
@@ -108,21 +108,24 @@ output matrix will be in sparse matrix format.}
 edge has been detected to be directed. I.e. entry will be set to 0 for entry 
 \eqn{(j,k)} if both \eqn{j -> k} and \eqn{k -> j} are estimated 
 (\code{ICP}, \code{hiddenICP}, \code{regression}), if \eqn{j -- k} is undirected 
-(in case of CPDAGs) or if the edge type is not of type \eqn{i --> j}. If 
-\code{assumeNoSelectionVars = TRUE} the edge type \eqn{i --o j} is also allowed (in case of PAGs).}
+(in case of CPDAGs) or if the edge type is not of type \eqn{i --> j} in case of 
+PAGs. If \code{assumeNoSelectionVars = TRUE} the edge type \eqn{i --o j} is also 
+considered 'directed' for methods returning PAGs.  Default is \code{FALSE}. 
+Only supported in mode "raw".}
 
 \item{pointConf}{If \code{TRUE}, numerical estimates will be returned if 
 possible. For methods \code{ICP} and \code{hiddenICP}, these are the values 
 in the individual confidence intervals (at chosen level \code{alpha}) that 
 are closest to 0; for other methods these are point estimates. Some methods 
 do not return numerical point estimates; for these the output will remain 
-binary 0/1 (no-edge/edge). Default is \code{FALSE}.}
+binary 0/1 (no-edge/edge). Default is \code{FALSE}. Only supported in mode "raw".}
 
 \item{setOptions}{A list that can take method-specific options; see the 
 individual documentations of the methods for more options and their 
 possible values.}
 
-\item{assumeNoSelectionVars}{}
+\item{assumeNoSelectionVars}{Set to \code{TRUE} is you want to assume the absence 
+of selection variables.}
 
 \item{verbose}{If \code{TRUE}, detailed output is provided.}
 
@@ -148,86 +151,87 @@ regression, RFCI and PC.
 }
 \examples{
 ## load the backShift package for data generation and plotting functionality
-if(!requireNamespace("backShift", quietly = TRUE))
- stop("The package 'backShift' is needed for the examples to 
- work. Please install it.", call. = FALSE)
-
-require(backShift)
-
-# Simulate data with connectivity matrix A with assumptions 
-# 1) hidden variables present
-# 2) precise location of interventions is assumed unknown
-# 3) different environments can be distinguished
-
-## simulate data
-myseed <- 1
-
-# sample size n
-n <- 10000
-
-# p=3 predictor variables and connectivity matrix A
-p <- 3
-labels <- c("1", "2", "3")
-A <- diag(p)*0
-A[1,2] <- 0.8
-A[2,3] <- 0.8
-A[3,1] <- -0.4  
-
-# divide data in 10 different environments
-G <- 10
-
-# simulate
-simResult <- simulateInterventions(n, p, A, G, intervMultiplier = 3, 
-             noiseMult = 1, nonGauss = TRUE, hiddenVars = TRUE, 
-             knownInterventions = FALSE, fracVarInt = NULL, simulateObs = TRUE, 
-             seed = myseed)
-X <- simResult$X
-environment <- simResult$environment
-
-## apply all  methods given in vector 'methods'
-## (using all data pooled for pc/LINGAM/rfci/ges -- can be changed with option 
-## 'onlyObservationalData=TRUE')
-
-methods <- c("backShift", "LINGAM") #c("pc", "rfci", "ges") 
-
-# select whether you want to run stability selection
-stability <- FALSE
-
-# arrange graphical output into a rectangular grid
-sq <- ceiling(sqrt(length(methods)+1))
-par(mfrow=c(ceiling((length(methods)+1)/sq),sq))
-
-## plot and print true graph
-cat("\\n true graph is  ------  \\n" )
-print(A)
-plotGraphEdgeAttr(A, plotStabSelec = FALSE, labels = labels, thres.point = 0, 
- main = "TRUE GRAPH")
-
-## loop over all methods and compute and print/plot estimate
-for (method in methods){
-  cat("\\n result for method", method,"  ------  \\n" )
+if(require(backShift) & require(pcalg)){
+  # Simulate data with connectivity matrix A with assumptions
+  # 1) hidden variables present
+  # 2) precise location of interventions is assumed unknown
+  # 3) different environments can be distinguished
+  
+  ## simulate data
+  myseed <- 1
+  
+  # sample size n
+  n <- 10000
+  
+  # p=3 predictor variables and connectivity matrix A
+  p <- 3
+  labels <- c("1", "2", "3")
+  A <- diag(p)*0
+  A[1,2] <- 0.8
+  A[2,3] <- 0.8
+  A[3,1] <- -0.4
+  
+  # divide data in 10 different environments
+  G <- 10
+  
+  # simulate
+  simResult <- simulateInterventions(n, p, A, G, intervMultiplier = 3,
+               noiseMult = 1, nonGauss = TRUE, hiddenVars = TRUE,
+               knownInterventions = FALSE, fracVarInt = NULL, simulateObs = TRUE,
+               seed = myseed)
+  X <- simResult$X
+  environment <- simResult$environment
+  
+  ## apply all  methods given in vector 'methods'
+  ## (using all data pooled for pc/LINGAM/rfci/ges -- can be changed with option
+  ## 'onlyObservationalData=TRUE')
+  
+  methods <- c("backShift", "LINGAM") #c("pc", "rfci", "ges")
+  
+  # select whether you want to run stability selection
+  stability <- FALSE
+  
+  # arrange graphical output into a rectangular grid
+  sq <- ceiling(sqrt(length(methods)+1))
+  par(mfrow=c(ceiling((length(methods)+1)/sq),sq))
+  
+  ## plot and print true graph
+  cat("\\n true graph is  ------  \\n" )
+  print(A)
+  plotGraphEdgeAttr(A, plotStabSelec = FALSE, labels = labels, thres.point = 0,
+   main = "TRUE GRAPH")
+  
+  ## loop over all methods and compute and print/plot estimate
+  for (method in methods){
+    cat("\\n result for method", method,"  ------  \\n" )
+  
+    if(!stability){
+      # Option 1): use this estimator as a point estimate
+      Ahat <- getParents(X, environment, method=method, alpha=0.1, pointConf = TRUE)
+    }else{
+      # Option 2): use a stability selection based estimator
+      # with expected number of false positives bounded by EV=2
+      Ahat <- getParentsStable(X, environment, EV=2, method=method, alpha=0.1)
+    }
+  
+   # print and plot estimate (point estimate thresholded if numerical estimates
+   # are returned)
+    print(Ahat)
+    if(!stability)
+      plotGraphEdgeAttr(Ahat, plotStabSelec = FALSE, labels = labels,
+       thres.point = 0.05,
+       main=paste("POINT ESTIMATE FOR METHOD\\n", toupper(method)))
+    else
+      plotGraphEdgeAttr(Ahat, plotStabSelec = TRUE, labels = labels,
+       thres.point = 0, main = paste("STABILITY SELECTION
+       ESTIMATE\\n FOR METHOD", toupper(method)))
+   }
+}else{
+    cat("\\nThe packages 'backShift' and 'pcalg' are needed for the examples to
+work. Please install them.")
+}
  
-  if(!stability){
-    # Option 1): use this estimator as a point estimate
-    Ahat <- getParents(X, environment, method=method, alpha=0.1, pointConf = TRUE)
-  }else{
-    # Option 2): use a stability selection based estimator
-    # with expected number of false positives bounded by EV=2
-    Ahat <- getParentsStable(X, environment, EV=2, method=method, alpha=0.1)
-  }
- 
-  # print and plot estimate (point estimate thresholded if numerical estimates
-  # are returned)
-  print(Ahat)
-  if(!stability)
-    plotGraphEdgeAttr(Ahat, plotStabSelec = FALSE, labels = labels,
-     thres.point = 0.05,
-     main=paste("POINT ESTIMATE FOR METHOD\\n", toupper(method)))
-  else
-    plotGraphEdgeAttr(Ahat, plotStabSelec = TRUE, labels = labels, 
-     thres.point = 0, main = paste("STABILITY SELECTION 
-     ESTIMATE\\n FOR METHOD", toupper(method)))
- }
+
  
 }
 \references{

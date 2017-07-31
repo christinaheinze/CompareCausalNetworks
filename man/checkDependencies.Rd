@@ -5,7 +5,7 @@
 \title{Checks whether the method is implemented and whether all dependencies are
 installed}
 \usage{
-checkDependencies(method)
+checkDependencies(method, fct = missingDependenciesMessage)
 }
 \arguments{
 \item{method}{Method to use.}

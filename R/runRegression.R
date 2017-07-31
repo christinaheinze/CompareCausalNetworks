@@ -67,7 +67,7 @@ runRegression <- function(X, parentsOf, variableSelMat, pointEst, setOptions,
     for (k in 1:length(parentsOf)){
       parentsVar <- result[[k]]
       
-      if(confBound)
+      if(pointEst)
         coefsParentsVar <-  as.numeric(attr(result[[k]],"coefficients"))
       
       childVar <- as.numeric(attr(result[[k]],"parentsOf"))
@@ -83,13 +83,13 @@ runRegression <- function(X, parentsOf, variableSelMat, pointEst, setOptions,
         
         parentsOfParentP <- result[[idxParentsOfParent]]
         
-        if(confBound)
+        if(pointEst)
           coefsParentsOfParentP <- as.numeric(attr(result[[idxParentsOfParent]],"coefficients"))
         
         
         if(is.element(childVar, parentsOfParentP)){
           
-          if(confBound){
+          if(pointEst){
             coefsParentsVar <-  coefsParentsVar[parentsVar != parentsVar[p]]
             coefsParentsOfParentP <- coefsParentsOfParentP[parentsOfParentP != childVar]
           }
@@ -103,7 +103,7 @@ runRegression <- function(X, parentsOf, variableSelMat, pointEst, setOptions,
           result[[idxParentsOfParent]] <- parentsOfParentP
           attr(result[[idxParentsOfParent]],"parentsOf") <- parentsVarOrig[p]
           
-          if(confBound){
+          if(pointEst){
             attr(result[[k]],"coefficients") <- coefsParentsVar
             attr(result[[idxParentsOfParent]],"coefficients") <- coefsParentsOfParentP
           }

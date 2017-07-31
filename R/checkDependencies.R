@@ -3,32 +3,33 @@
 #'
 #' @param method Method to use.
 #'
-checkDependencies <- function(method){
+checkDependencies <- function(method, fct = missingDependenciesMessage){
   if(method %in% c("ICP", "hiddenICP")){
-    missingDependenciesMessage("InvariantCausalPrediction", method)
+    fct("InvariantCausalPrediction", method)
   }else if(method %in% c("rankPc", "pc", "LINGAM", "rankArges",
                          "arges", "rankGes", "ges", "gies", "rankGies",
                          "rankFci", "fci", "rfci", "fciplus")){
-    missingDependenciesMessage("pcalg", method)
+    fct("pcalg", method)
   }else if(method %in% c("rankArges", "arges")){
-    missingDependenciesMessage("huge", method)
-    missingDependenciesMessage("flare", method)
+    fct("huge", method)
+    fct("flare", method)
   }else if(method == "CAM"){
-    missingDependenciesMessage("CAM", method)
+    fct("CAM", method)
   }else if(method == "regression"){
-    missingDependenciesMessage("glmnet", method)
+    fct("glmnet", method)
   }else if(method == "bivariateCAM"){
-    missingDependenciesMessage("mgcv", method)
+    fct("mgcv", method)
   }else if(method == "bivariateANM"){
-    missingDependenciesMessage("kernlab", method)
-    missingDependenciesMessage("mgcv", method)
+    fct("kernlab", method)
+    fct("mgcv", method)
   }else if(method == "mmhc"){
-    missingDependenciesMessage("bnlearn", method)
+    fct("bnlearn", method)
   }else if(method == "directLINGAM"){
-    missingDependenciesMessage("R.matlab", method)
+    fct("R.matlab", method)
+  }else if(method == "backShift"){
+    fct("backShift", method)
   }else{
-    if(method != "backShift")
-      stop(paste("Method", method, "not (yet?) implemented."))
+    stop(paste("Method", method, "not (yet?) implemented."))
   }
 }
 
@@ -38,5 +39,13 @@ missingDependenciesMessage <- function(package, method){
     stop(paste("The package '", package, "' is needed for ", method," to 
 work. Please install it.", sep=""),
          call. = FALSE)
+  }
+}
+
+checkRequireNamespace <- function(package, method){
+  if(requireNamespace(package, quietly = TRUE)){
+    TRUE
+  }else{
+    FALSE
   }
 }

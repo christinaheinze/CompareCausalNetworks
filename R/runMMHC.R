@@ -1,11 +1,17 @@
 runMMHC <- function(X, parentsOf, alpha, variableSelMat,
                     setOptions, verbose, ...){
   
+  
+  dots <- list(...)
+  if(length(dots) > 0){
+    warning("options provided via '...' not taken")
+  }
+  
   # additional options for MMHC
-  optionsList <- list(whitelist = NULL, blacklist = NULL, test = NULL, score = NULL, 
-                      k = log(nrow(X))/2,
-                      B = NULL, restart = 0, perturb = 1, max.iter = Inf,
-                      optimized = TRUE, strict = FALSE, debug = verbose)
+  optionsList <- list(whitelist = NULL, blacklist = NULL, 
+                      restrict.args = list(), 
+                      maximize.args = list(),
+                      debug = verbose)
   
   # adjust according to setOptions if necessary
   optionsList <- adjustOptions(availableOptions = optionsList, 
@@ -19,21 +25,12 @@ runMMHC <- function(X, parentsOf, alpha, variableSelMat,
   X <- as.data.frame(X)
   colnames(X) <- paste("V", 1:ncol(X), sep = "")
   
-  res <- bnlearn::mmhc(X,
+  res <- bnlearn::mmhc(x = X,
                        whitelist = optionsList$whitelist, 
                        blacklist = optionsList$blacklist, 
-                       test = optionsList$test, 
-                       score = optionsList$score,
-                       alpha = alpha, 
-                       B = optionsList$B, 
-                       restart = optionsList$restart, 
-                       perturb = optionsList$perturb, 
-                       max.iter = optionsList$max.iter,
-                       optimized = optionsList$optimized, 
-                       strict = optionsList$strict, 
-                       debug = optionsList$debug,
-                       k = optionsList$k,
-                       ...
+                       restrict.args = optionsList$restrict.args, 
+                       maximize.args = optionsList$maximize.args,
+                       debug = optionsList$debug
                        )
   
   # transform res to adjacency matrix
