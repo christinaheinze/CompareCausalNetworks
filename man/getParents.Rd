@@ -175,7 +175,7 @@ if(require(backShift) & require(pcalg)){
   G <- 10
   
   # simulate
-  simResult <- simulateInterventions(n, p, A, G, intervMultiplier = 3,
+  simResult <- backShift::simulateInterventions(n, p, A, G, intervMultiplier = 3,
                noiseMult = 1, nonGauss = TRUE, hiddenVars = TRUE,
                knownInterventions = FALSE, fracVarInt = NULL, simulateObs = TRUE,
                seed = myseed)

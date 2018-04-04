@@ -151,7 +151,7 @@
 #'   G <- 10
 #'   
 #'   # simulate
-#'   simResult <- simulateInterventions(n, p, A, G, intervMultiplier = 3,
+#'   simResult <- backShift::simulateInterventions(n, p, A, G, intervMultiplier = 3,
 #'                noiseMult = 1, nonGauss = TRUE, hiddenVars = TRUE,
 #'                knownInterventions = FALSE, fracVarInt = NULL, simulateObs = TRUE,
 #'                seed = myseed)
@@ -244,8 +244,10 @@ getParents <- function(X, environment = NULL, interventions = NULL,
     if(!is.matrix(X)) stop("'X' needs to be a matrix")
     if(!all(as.numeric(parentsOf) %in% (1:ncol(X)))) 
       stop("'parentsOf' needs to be a subset of 1:ncol(X)")
-    if(length(setdiff( 1:ncol(X), parentsOf)) > 0 & mode != "raw") 
+    if(length(setdiff(1:ncol(X), parentsOf)) > 0 & mode != "raw") 
       stop("Combination of parentsOf and mode other than raw currently not implemented.")
+    if(length(setdiff(1:ncol(X), parentsOf)) > 0 & !returnAsList) 
+      stop("Combination of parentsOf and returnAsList=FALSE is currently not implemented.")
     if(!is.list(interventions) & !is.null(interventions)) 
       stop("'interventions' needs to be a list or NULL")
     if(length(interventions)!=nrow(X) & !is.null(interventions)) 
@@ -391,7 +393,7 @@ getParents <- function(X, environment = NULL, interventions = NULL,
             },
             
             "pc" = {
-              result <- runPC(X, suffStat = NULL, parentsOf, alpha, 
+              result <- runPC(X, parentsOf, alpha, 
                               variableSelMat, setOptions, 
                               directed, verbose, ...)
             },
@@ -468,7 +470,6 @@ getParents <- function(X, environment = NULL, interventions = NULL,
     if(returnAsList){
         out <- result$resList 
     }else{
-      
         out <- result$resMat 
       
         if(is.null(out)){

@@ -1,4 +1,4 @@
-runPC <- function(X, suffStat, parentsOf, alpha, variableSelMat, setOptions, directed, verbose, 
+runPC <- function(X, parentsOf, alpha, variableSelMat, setOptions, directed, verbose, 
                    result, ...){
   
   dots <- list(...)
@@ -15,12 +15,15 @@ runPC <- function(X, suffStat, parentsOf, alpha, variableSelMat, setOptions, dir
   # adjust according to setOptions if necessary
   optionsList <- adjustOptions(availableOptions = optionsList, 
                                optionsToSet = setOptions)
-  
-  if(is.null(suffStat)){
+
+  if(is.null(optionsList$suffStat)){
     suffStat <- list(C = cor(X), n = nrow(X))
+  }else{
+    suffStat <- optionsList$suffStat
   }
   
-  pc.fit <- pcalg::pc(suffStat, indepTest = optionsList$indepTest, p=ncol(X), 
+  pc.fit <- pcalg::pc(suffStat = suffStat, 
+                      indepTest = optionsList$indepTest, p=ncol(X), 
                alpha = alpha, 
                fixedGaps= if(is.null(variableSelMat)) NULL else (!variableSelMat), 
                fixedEdges = optionsList$fixedEdges, 
