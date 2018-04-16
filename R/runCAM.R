@@ -31,7 +31,13 @@ runCAM<- function(X, interventions, parentsOf, setOptions,
                          pruning = optionsList$pruning, 
                          pruneMethod=optionsList$pruneMethod)$Adj,"matrix")
   }else{
-    cammat <- as(CAM::CAM(X)$Adj,"matrix")
+    cammat <- as(CAM::CAM(X, scoreName=optionsList$scoreName, 
+                          numCores=optionsList$numCores, 
+                          output= verbose, 
+                          variableSel=optionsList$variableSel, 
+                          variableSelMethod= optionsList$variableSelMethod, 
+                          pruning = optionsList$pruning, 
+                          pruneMethod=optionsList$pruneMethod)$Adj,"matrix")
   }
 
   result <- vector("list", length = length(parentsOf))
