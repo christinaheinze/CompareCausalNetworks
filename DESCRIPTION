@@ -2,7 +2,7 @@ Package: CompareCausalNetworks
 Type: Package
 Title: Interface to Diverse Estimation Methods of Causal Networks
 Version: 0.2.0
-Date: 2019-04-04
+Date: 2019-04-16
 Author: Christina Heinze-Deml <heinzedeml@stat.math.ethz.ch>,
     Nicolai Meinshausen <meinshausen@stat.math.ethz.ch>
 Depends:
