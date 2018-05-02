@@ -1,4 +1,5 @@
 library(CompareCausalNetworks)
+library(testthat)
 context("All supported methods")
 
 data("simDataInv")
@@ -7,12 +8,12 @@ X <- simDataInv$X
 environment <- simDataInv$environment
 interventions <- simDataInv$interventions
 mode <- "isAncestor"
-methods <- c("arges", "backShift", "bivariateANM", 
-             "bivariateCAM", "CAM",
-             "fci", "fciplus", "ges", "gies", "hiddenICP",
-             "ICP", "LINGAM", "mmhc", "rankArges", "rankFci",
-             "rankGes", "rankGies", "rankPc", "rfci", "pc",
-             "regression")
+methods <- c(
+             "arges", "backShift", "bivariateANM", "bivariateCAM", "CAM",
+             "fci", "fciplus", "ges", "gies", "hiddenICP", "ICP", "LINGAM",
+             "mmhc", "rankArges", "rankFci", "rankGes", "rankGies", "rankPc",
+             "rfci", "pc", "regression",
+             "RESIT")
 
 
 for(method in methods){

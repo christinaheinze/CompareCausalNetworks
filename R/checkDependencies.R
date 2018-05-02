@@ -28,6 +28,10 @@ checkDependencies <- function(method, fct = missingDependenciesMessage){
     fct("R.matlab", method)
   }else if(method == "backShift"){
     fct("backShift", method)
+  }else if(method == "RESIT"){
+    fct("mgcv", method)
+    fct("glmnet", method)
+    fct("mboost", method)
   }else{
     stop(paste("Method", method, "not (yet?) implemented."))
   }

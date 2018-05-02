@@ -19,7 +19,7 @@ getGraphMode <- function(method){
                          "rankGes", "gies", "rankGies")){
     return("CPDAG")
   }else if(method %in%  c("directLINGAM", "LINGAM", "mmhc", "ICP", "hiddenICP", "backShift",
-                          "bivariateANM", "bivariateCAM", "CAM", "regression")){
+                          "bivariateANM", "bivariateCAM", "CAM", "regression", "RESIT")){
     return("DAG")
   }else if(method %in% c("backShift")){
     return("CG")

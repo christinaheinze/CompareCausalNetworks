@@ -458,6 +458,11 @@ getParents <- function(X, environment = NULL, interventions = NULL,
                                 ...)
            },
            
+           "RESIT" = {
+             result <- runRESIT(X, parentsOf, alpha, setOptions, verbose, 
+                               ...)
+           },
+           
            {
                warning(paste("method ", method," not implemented"))
            }
