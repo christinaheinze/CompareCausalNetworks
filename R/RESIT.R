@@ -1,4 +1,4 @@
-# Copyright (c) 2010 - 2012  Jonas Peters  [jonas.peters@tuebingen.mpg.de]
+# Copyright (c) 2010 - 2012  Jonas Peters  [jonas.peters@math.ku.dk]
 # All rights reserved.  See the file COPYING for license terms. 
 #
 # Explanation:
@@ -10,34 +10,29 @@
 # confounder_check (only for DAG mode): if TRUE, partial causal discovery method is applied.
 # check_ind_of_res: if TRUE, the method additionally checks the independence of residuals. 
 
-fit_and_test_independence <- function(x,y,z,alpha,model,parsModel = list(),indtest, parsIndtest)
+
+
+fit_and_test_independence <- function(x,y,z,alpha,model,parsModel = list(),indtest, parsIndtest){
   # fits x using y and tests against z
-{
   y <- as.matrix(y)
   z <- as.matrix(z)
-  
   ####
   # fit x using y
   ####
   mod_fit <- train_model(model,y,x,parsModel)
   r2 <- mod_fit$resid
-  
   Tquan <- indtestAll(indtest,z,r2,alpha,parsIndtest)
   return(Tquan)
 }
 
 
-list_subsets <- function(n,k)
-{
+list_subsets <- function(n,k){
   a<-matrix(0,n^k,k)
-  for(i in 1:k)
-  {
+  for(i in 1:k){
     a[,i] <- rep(1:n,each=n^(k-i),times=n^(i-1))
   }
-  for(i in 1:(n^k))
-  {
-    if(length(unique(a[i,])) < k)
-    {
+  for(i in 1:(n^k)){
+    if(length(unique(a[i,])) < k){
       a <- a[-c(i),]
     }
   }
@@ -46,8 +41,7 @@ list_subsets <- function(n,k)
 
 
 
-RESIT <- function(M, alpha = 0.05, model = train_linear, parsModel = list(), indtest = indtestHsic, parsIndtest = list(), force_answer = TRUE, output = FALSE)
-{
+RESIT <- function(M, alpha = 0.05, model = train_gam, parsModel = list(), indtest = indtestHsic, parsIndtest = list(), force_answer = TRUE, output = TRUE){
   #M contains the data (each col one component)
   #confounder_check indicates subsets of which size the method tries to omit if it doesn't find any possible sink node
   stopping <- 1
@@ -60,93 +54,172 @@ RESIT <- function(M, alpha = 0.05, model = train_linear, parsModel = list(), ind
   variable <- rep(0,p-1)
   indtest_at_end <- rep(0,p-1)
   d <- 0
-  while(length(S)>1)
-  {
-    #show(variable)
+  while(length(S)>1){
     d <- d+1
     # check is a vector. the k-th entry < 0 says that making the k-th variable to a sink node leads to independent residuals. 
     check <- rep(0,length(S))
-    #show(S)
-    for(k in 1:length(S))
-    {
+    for(k in 1:length(S)){
       i <- S[k]
       S_new <- S
       S_new <- S_new[-c(k)]
-      if(output)
-      {
+      if(output){
         print(paste("fit",i,"with the help of", paste(S_new, collapse=" "),"..."))  
       }
       Fc <- fit_and_test_independence(M[,i],M[,S_new],M[,S_new],alpha,model,parsModel,indtest, parsIndtest)
       #check[k] <- Fc$statistic - Fc$crit.value
       check[k] <- -Fc$p.value
-      if(output)
-      {
-        if(check[k]>-alpha)
-        {
+      if(output){
+        if(check[k]>-alpha){
           #    print(paste("Independence rejected: test statistic - critical value =",check[k]))
           print(paste("Independence rejected: p-value =",-check[k]))
         }
-        else
-        {
+        else{
           #    print(paste("Independence not rejected: test statistic - critical value =",check[k]))
           print(paste("Independence not rejected: p-value =",-check[k]))
         }
       }
     }
-    
+    #         if(1==0) 
+    #             #        if(sum(check<0)==0) #no possible sink node found
+    #         {
+    #             if(confounder_check>0 && length(S)>2)
+    #             {
+    #                 show("Since no possible sink node was found, the algorithm tries to omit dimensions...")
+    #                 for(sizesubset in 1:confounder_check)
+    #                 {
+    #                     print(paste("tries to omit", sizesubset, "dimension(s) of the time series..."))
+    #                     a <- list_subsets(length(S),sizesubset)
+    #                     pp <- dim(a)		
+    #                     check2 <- matrix(0,pp[1],length(S)-pp[2])
+    #                     show("Does omitting variables help?")
+    #                     for(k in 1:pp[1])
+    #                     {
+    #                         #S[a[k,]] werden entfernt
+    #                         S_new <- S
+    #                         S_new <- S_new[-a[k,]]
+    #                         for(kk in 1:length(S_new))
+    #                         {
+    #                             #Is i possible sink?
+    #                             i <- S_new[kk]	                
+    #                             S2_new <- S_new
+    #                             S2_new <- S2_new[-c(kk)]
+    #                             Fc <- fit_and_test_independence(M[,i],M[,S2_new],M[,S2_new],alpha,model,parsModel,indtest,parsIndtest)
+    #                             check2[k,kk] <- Fc[1]-Fc[2]
+    #                             print(paste("omitting: ", paste(S[a[k,]],collapse=" "), "Sink ", i, " leads to ", Fc[1]-Fc[2], " (<0 independence)."))
+    #                         }
+    #                     }
+    #                     if(sum(sum(check2<0))>0)
+    #                     {
+    #                         #found something!
+    #                         stopping <- 0
+    #                         pp <- dim(check2)
+    #                         k1 <- which.min(check2)
+    #                         k2 <- (k1-1)%/%pp[1]+1
+    #                         k1 <- k1%%pp[1]
+    #                         if(k1==0)
+    #                         {
+    #                             k1 <- pp[1]
+    #                         }
+    #                         S_new <- S
+    #                         S_new <- S_new[-a[k1,]]
+    #                         variable[(d):(d+sizesubset-1)] <- S[a[k1,]]
+    #                         err[(d):(d+sizesubset-1)] <- rep(1,sizesubset)
+    #                         for(iii in 1:sizesubset)
+    #                         {
+    #                             for(jjj in 1:length(S))
+    #                             {
+    #                                 C[S[a[k1,iii]],S[jjj]] <- -1
+    #                                 C[S[jjj],S[a[k1,iii]]] <- -1
+    #                             }
+    #                         }
+    #                         
+    #                         variable[d+sizesubset] <- S_new[k2]
+    #                         S <- S_new[-k2]
+    #                         parlen[d+sizesubset] <- length(S)
+    #                         par[d+sizesubset,1:length(S)] <- S
+    #                         
+    #                         d<-d+sizesubset
+    #                         break
+    #                     }	    
+    #                 } # end for
+    #                 
+    #                 if(stopping==1)
+    #                 {
+    #                     show("Not even omitting variables helped. Stop the search.")
+    #                     err[d:(p-1)] <- rep(1,(p-d))
+    #                     for(i in 2:length(S))
+    #                     {
+    #                         for(j in 1:(i-1))
+    #                         {
+    #                             C[S[i],S[j]] <- -1
+    #                             C[S[j],S[i]] <- -1
+    #                         }
+    #                     }
+    #                     break
+    #                 }
+    #                 check2 <- rep(0,p-1)
+    #                 stopping <- 1
+    #             }
+    #             else # no possible sink node and confounder_check disabled
+    #             {
+    #                 show("No possible sink node found. Stop the search.")
+    #                 err[d:(p-1)] <- rep(1,(p-d))
+    #                 for(i in 2:length(S))
+    #                 {
+    #                     for(j in 1:(i-1))
+    #                     {
+    #                         C[S[i],S[j]]<-88
+    #                         C[S[j],S[i]]<-88
+    #                     }
+    #                 }
+    #                 break
+    #             }
+    #         }
+    #         else #possible sink node found
+    #         {
     bb <- which.min(check)
     variable[d] <- S[bb]
     S <- S[-c(bb)]
     parlen[d] <- length(S)
     par[d,1:length(S)] <- S
-    if(output)
-    {
+    if(output){
       print(paste("Possible sink node found:",variable[d]))
       print(paste("causal order (beginning at sink):",paste(variable,collapse=" ")))
     }	
-    #         }
     rm(check)
   }
-  # show(variable)
-  if(d<p)
-  {
+  if(d<p){
     variable[p]<-S[1]
   }
-  if(output)
-  {   
+  if(output){   
     print(paste("causal order (beginning at sink):",paste(variable,collapse=" ")))
     print(paste("removing unnecessary edges..."))
+    if(!force_answer){
+      print(paste("and performing final independence tests..."))
+    }
   }
   rm(S)
   #todo: here, we take the first possible parent away (not the best one). in theory it probably doesn't make a difference. experiments in paper done correctly. but maybe finding all dags is better.
-  for(d in 1:(p-1))
-  {
-    if(err[d] != 1)
-    {
+  for(d in 1:(p-1)){
+    if(err[d] != 1){
       S<-par[d,1:parlen[d]]
-      for(i in 1:length(S))
-      {
+      for(i in 1:length(S)){
         S_new<-S
         S_new<-S_new[-c(1)]
-        if(length(S)==1)
-        {
+        if(length(S)==1){
           tsx <- M[,variable[d]]
           # todo: test against par[d,1:parlen[d]] or S????
           Fc <- indtestAll(indtest,M[,par[d,1:parlen[d]]],tsx,alpha,parsIndtest)
-        }
-        else
-        {
+        } 
+        else{
           # todo: test against par[d,1:parlen[d]] or S????
           Fc <- fit_and_test_independence(M[,variable[d]],M[,S_new],M[,par[d,1:parlen[d]]],alpha,model,parsModel,indtest, parsIndtest)
         }
-        if(Fc$statistic < Fc$crit.value)
-        {
+        if(Fc$statistic < Fc$crit.value){
           S <- S_new
         }
-        else
-        {
-          if(length(S)>1)
-          {
+        else{
+          if(length(S)>1){
             tmp <- S[1]
             S[1:(length(S)-1)] <- S[2:length(S)]
             S[length(S)] <- tmp
@@ -154,39 +227,27 @@ RESIT <- function(M, alpha = 0.05, model = train_linear, parsModel = list(), ind
         }
       }
       
-      #todo: always hsic?
-      #todo: change code...
+      #here, we are using the original indtest again. also possible: always hsic
+      #todo: this test has been done before. by keeping track of the result, one could save computation time.
       if(!force_answer){
-        stop('not implemented yet')
-        print(paste("...and performing final independence test using HSIC..."))
-        if(length(S)>0)
-          #if(indtest != indtestts_hsic & length(S)>0)
-        {
-          print(paste("fitting ", variable[d], " with the help of ", paste(S,collapse=" "), " and testing independence against ", paste(par[d,1:parlen[d]],collapse=" ")))
-          Fc <- fit_and_test_independence(M[1:p[1],variable[d]],M[1:p[1],S],M[1:p[1],par[d,1:parlen[d]]],alpha/(p-1),max_lag,model,indtest,instant)
+        if(length(S) == 0){
+          tsx <- M[,variable[d]]
+          # todo: test against par[d,1:parlen[d]] or S????
+          Fc <- indtestAll(indtest,M[,par[d,1:parlen[d]]],tsx,alpha,parsIndtest)
         }
-        else
-        {
-          print(paste("fitting ", variable[d], " with the help of NOTHING and testing independence against ", paste(par[d,1:parlen[d]],collapse=" ")))
-          tsx <- M[1:p[1],variable[d]]
-          pars <- list(maxOrder = max_lag)
-          modx <- traints_model(model,tsx,list(),pars)
-          resx <- modx$residuals[(modx$model$order+1):length(tsx)]
-          Fc <- indtest_model(indtest,M[1:p[1],par[d,1:parlen[d]]],resx,alpha,max_lag,FALSE)
+        else{
+          Fc <- fit_and_test_independence(M[,variable[d]],M[,S],M[,par[d,1:parlen[d]]],alpha,model,parsModel,indtest, parsIndtest)
         }
-        show(sprintf("Test statistic: %.3f and critical value: %.3f and p-value %.2e", Fc[1],Fc[2],Fc[3]))        
-        indtest_at_end[d] <- sign(Fc[1]-Fc[2])
+        indtest_at_end[d] <- sign(Fc$statistic - Fc$crit.value)
       }
-      else
-      {
+      else{
         #-1: ind., +1 dep.
         indtest_at_end[d] <- -1
       }
       parlen[d] <- length(S)
       C[S,variable[d]] <- rep(1,length(S))
     }
-    else
-    {
+    else{
       #-1: ind., +1 dep.
       indtest_at_end[d] <- -1
     }
@@ -194,13 +255,16 @@ RESIT <- function(M, alpha = 0.05, model = train_linear, parsModel = list(), ind
   if(max(indtest_at_end)<0){
     if(output){
       if(!force_answer){
-        print(paste("all correct..."))
+        print(paste("all independence tests were fine..."))
+      }else{
+        print(paste("Because of force_answer, the output is always a graph, and no final ind. test is done to check the quality of the solution."))
       }
     }
     return(C)
   }
   else{
-    print(paste("final ind. test failed. No solution."))
+    print(paste("No solution. Given the proposed order, the final ind. test failed for the following variables:"))
+    show(variable[which(indtest_at_end == 1)])
     return(NULL)
   }
 }
