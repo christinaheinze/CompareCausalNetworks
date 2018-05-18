@@ -12,8 +12,8 @@ Provides a unified interface to various causal graph estimation methods.
 \tabular{ll}{
 Package: \tab CompareCausalNetworks\cr
 Type: \tab Package\cr
-Version: \tab 0.1.0\cr
-Date: \tab 2015-06-23\cr
+Version: \tab 0.2.2\cr
+Date: \tab 2018-05-18\cr
 License: \tab GPL\cr
 }
 The causal graphs can be estimated with function \code{\link{getParents}} 

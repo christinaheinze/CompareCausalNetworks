@@ -103,18 +103,9 @@ train_gam <- function(X,y,pars = list(numBasisFcts = 10))
 ####
 train_GAMboost <- function(X,y,pars = list()) #
 {
-    ## begin old version
-    # EXPLANATION: surprisingly, it turned out that this cannot be applied to large p (private discussion with T. Hothorn in Sep 2013)
-    # yy <- y
-    # dat <- data.frame(cbind(yy,X))
-    # gb <- gamboost(yy ~ .,data=dat, baselearner = "bbs")
-    ## end old version
-    
-    ## begin new version
     dat <- as.data.frame(X)
-    bl <- lapply(dat, bbs)
-    gb <- mboost_fit(bl, y)
-    ## end new version
+    bl <- lapply(dat, mboost::bbs)
+    gb <- mboost::mboost_fit(bl, y)
     
     result <- list()
     result$Yfit <- gb$fitted()
@@ -128,8 +119,8 @@ train_GAMboost <- function(X,y,pars = list()) #
 ####
 train_lasso <- function(X,y,pars = list())
 {
-    cvres <- cv.glmnet(X,y)
-    mod <- glmnet(X,y,lambda = cvres$lambda.1se)
+    cvres <- glmnet::cv.glmnet(X,y)
+    mod <- glmnet::glmnet(X,y,lambda = cvres$lambda.1se)
     result <- list()
     result$Yfit <- predict(mod,X)
     result$residuals <- y - result$Yfit
