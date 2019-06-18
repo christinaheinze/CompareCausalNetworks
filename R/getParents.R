@@ -209,7 +209,8 @@
 #'  
 #' 
 #'  
-#' @keywords Causality, Graph estimations
+#' @concept Causality
+#' @concept Graph estimation
 #'  
 getParents <- function(X, environment = NULL, interventions = NULL, 
                        parentsOf = 1:ncol(X),

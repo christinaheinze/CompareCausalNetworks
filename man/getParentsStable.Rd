@@ -7,12 +7,13 @@
 getParentsStable(X, environment, interventions = NULL, EV = 1,
   nodewise = TRUE, threshold = 0.75, nsim = 100,
   sampleSettings = 1/sqrt(2), sampleObservations = 1/sqrt(2),
-  parentsOf = 1:ncol(X), method = c("ICP", "hiddenICP", "backShift", "pc",
-  "LINGAM", "ges", "gies", "CAM", "fci", "rfci", "regression", "bivariateANM",
-  "bivariateCAM")[1], alpha = 0.1, mode = c("raw", "parental",
-  "ancestral")[1], variableSelMat = NULL, excludeTargetInterventions = TRUE,
-  onlyObservationalData = FALSE, indexObservationalData = NULL,
-  setOptions = list(), verbose = FALSE)
+  parentsOf = 1:ncol(X), method = c("ICP", "hiddenICP", "backShift",
+  "pc", "LINGAM", "ges", "gies", "CAM", "fci", "rfci", "regression",
+  "bivariateANM", "bivariateCAM")[1], alpha = 0.1, mode = c("raw",
+  "parental", "ancestral")[1], variableSelMat = NULL,
+  excludeTargetInterventions = TRUE, onlyObservationalData = FALSE,
+  indexObservationalData = NULL, setOptions = list(),
+  verbose = FALSE)
 }
 \arguments{
 \item{X}{A (nxp)-data matrix with n observations of p variables.}
@@ -140,6 +141,5 @@ the causal graph.
 Nicolai Meinshausen \email{meinshausen@stat.math.ethz.ch}, Christina
  Heinze-Deml \email{heinzedeml@stat.math.ethz.ch}
 }
-\keyword{Causality,}
-\keyword{Graph}
-\keyword{estimations}
+\concept{Causality}
+\concept{Graph estimation}

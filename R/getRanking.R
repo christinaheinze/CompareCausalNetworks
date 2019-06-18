@@ -216,7 +216,8 @@
 #' work. Please install it.")
 #' }
 #' 
-#' @keywords Causality, Graph estimations
+#' @concept Causality
+#' @concept Graph estimations
 #'  
 getRanking <- function(X, environment, interventions=NULL, 
                        queries = c("isParent", "isMaybeParent", "isNoParent",

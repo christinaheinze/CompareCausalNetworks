@@ -102,7 +102,8 @@
 #' @seealso \code{\link{getParents}} for the underlying point-estimate of 
 #' the causal graph.
 #'
-#' @keywords Causality, Graph estimations
+#' @concept Causality
+#' @concept Graph estimation
 #'  
 getParentsStable <- function(X, environment, interventions=NULL, 
                              EV=1, nodewise=TRUE, threshold=0.75, 

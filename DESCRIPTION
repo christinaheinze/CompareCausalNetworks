@@ -1,8 +1,8 @@
 Package: CompareCausalNetworks
 Type: Package
 Title: Interface to Diverse Estimation Methods of Causal Networks
-Version: 0.2.2
-Date: 2018-05-18
+Version: 0.2.4
+Date: 2019-06-18
 Author: Christina Heinze-Deml <heinzedeml@stat.math.ethz.ch>,
     Nicolai Meinshausen <meinshausen@stat.math.ethz.ch>
 Depends:
@@ -40,4 +40,4 @@ Suggests:
     flare
 URL: https://github.com/christinaheinze/CompareCausalNetworks
 BugReports: https://github.com/christinaheinze/CompareCausalNetworks/issues
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1

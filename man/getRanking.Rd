@@ -5,15 +5,16 @@
 \title{Estimate a ranking of edges for causal relations in the underlying graph structure
 using stability ranking.}
 \usage{
-getRanking(X, environment, interventions = NULL, queries = c("isParent",
-  "isMaybeParent", "isNoParent", "isAncestor", "isMaybeAncestor",
-  "isNoAncestor"), method = c("ICP", "hiddenICP", "backShift", "pc", "LINGAM",
-  "ges", "gies", "CAM", "fci", "rfci", "regression", "bivariateANM",
-  "bivariateCAM")[1], alpha = 0.1, variableSelMat = NULL,
-  excludeTargetInterventions = TRUE, onlyObservationalData = FALSE,
-  indexObservationalData = NULL, setOptions = list(),
-  assumeNoSelectionVars = TRUE, nsim = 100, sampleSettings = 1/sqrt(2),
-  sampleObservations = 1/sqrt(2), verbose = FALSE, ...)
+getRanking(X, environment, interventions = NULL,
+  queries = c("isParent", "isMaybeParent", "isNoParent", "isAncestor",
+  "isMaybeAncestor", "isNoAncestor"), method = c("ICP", "hiddenICP",
+  "backShift", "pc", "LINGAM", "ges", "gies", "CAM", "fci", "rfci",
+  "regression", "bivariateANM", "bivariateCAM")[1], alpha = 0.1,
+  variableSelMat = NULL, excludeTargetInterventions = TRUE,
+  onlyObservationalData = FALSE, indexObservationalData = NULL,
+  setOptions = list(), assumeNoSelectionVars = TRUE, nsim = 100,
+  sampleSettings = 1/sqrt(2), sampleObservations = 1/sqrt(2),
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{X}{A \eqn{(n x p)}-data matrix with \eqn{n} observations of \eqn{p} variables.}
@@ -253,6 +254,5 @@ the causal graph.
 \author{
 Christina Heinze-Deml \email{heinzedeml@stat.math.ethz.ch}
 }
-\keyword{Causality,}
-\keyword{Graph}
-\keyword{estimations}
+\concept{Causality}
+\concept{Graph estimations}

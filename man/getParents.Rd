@@ -5,15 +5,15 @@
 \title{Estimate the connectivity matrix of a causal graph}
 \usage{
 getParents(X, environment = NULL, interventions = NULL,
-  parentsOf = 1:ncol(X), method = c("arges", "backShift", "bivariateANM",
-  "bivariateCAM", "CAM", "fci", "fciplus", "ges", "gies", "hiddenICP", "ICP",
-  "LINGAM", "mmhc", "rankArges", "rankFci", "rankGes", "rankGies", "rankPc",
-  "rfci", "pc", "regression")[12], alpha = 0.1, mode = c("raw", "parental",
-  "ancestral")[1], variableSelMat = NULL, excludeTargetInterventions = TRUE,
-  onlyObservationalData = FALSE, indexObservationalData = 1,
-  returnAsList = FALSE, sparse = FALSE, directed = FALSE,
-  pointConf = FALSE, setOptions = list(), assumeNoSelectionVars = TRUE,
-  verbose = FALSE, ...)
+  parentsOf = 1:ncol(X), method = c("arges", "backShift",
+  "bivariateANM", "bivariateCAM", "CAM", "fci", "fciplus", "ges", "gies",
+  "hiddenICP", "ICP", "LINGAM", "mmhc", "rankArges", "rankFci", "rankGes",
+  "rankGies", "rankPc", "rfci", "pc", "regression")[12], alpha = 0.1,
+  mode = c("raw", "parental", "ancestral")[1], variableSelMat = NULL,
+  excludeTargetInterventions = TRUE, onlyObservationalData = FALSE,
+  indexObservationalData = 1, returnAsList = FALSE, sparse = FALSE,
+  directed = FALSE, pointConf = FALSE, setOptions = list(),
+  assumeNoSelectionVars = TRUE, verbose = FALSE, ...)
 }
 \arguments{
 \item{X}{A \eqn{(n} x \eqn{p)}-data matrix with n observations of  \eqn{p} variables.}
@@ -248,6 +248,5 @@ estimation of the causal graph.
 Christina Heinze-Deml \email{heinzedeml@stat.math.ethz.ch}, 
  Nicolai Meinshausen \email{meinshausen@stat.math.ethz.ch}
 }
-\keyword{Causality,}
-\keyword{Graph}
-\keyword{estimations}
+\concept{Causality}
+\concept{Graph estimation}
