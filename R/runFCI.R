@@ -7,10 +7,20 @@ runFCI <- function(X, suffStat, parentsOf, alpha, variableSelMat, setOptions, di
   }
   
   # additional options for FCI
-  optionsList <- list("indepTest"=pcalg::gaussCItest,
-                      "skel.method"="stable", "fixedEdges"=NULL,
-                      "NAdelete"=TRUE, "m.max"=Inf,"rules"=rep(TRUE,10),
-                      "conservative"=FALSE, "maj.rule"=FALSE)
+  optionsList <- list("indepTest"=pcalg::gaussCItest, 
+                      "labels"=as.character(1:ncol(X)),
+                      "skel.method"="stable", 
+                      "type"="normal",
+                      "fixedEdges"=NULL,
+                      "NAdelete"=TRUE, 
+                      "m.max"=Inf,
+                      "pdsep.max"=Inf,
+                      "rules"=rep(TRUE,10),
+                      "doPdsep"=TRUE,
+                      "biCC"=FALSE,
+                      "conservative"=FALSE, 
+                      "maj.rule"=FALSE, 
+                      "numCores"=1)
   
   # adjust according to setOptions if necessary
   optionsList <- adjustOptions(availableOptions = optionsList, 
@@ -21,16 +31,22 @@ runFCI <- function(X, suffStat, parentsOf, alpha, variableSelMat, setOptions, di
   fci.fit <- pcalg::fci(suffStat, 
                          indepTest = optionsList$indepTest, 
                          alpha = alpha,
+                         labels=optionsList$labels,
                          p=ncol(X), 
                          skel.method= optionsList$skel.method, 
+                         type=optionsList$type,
                          fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
                          fixedEdges=optionsList$fixedEdges, 
                          NAdelete=optionsList$NAdelete, 
                          m.max=optionsList$m.max, 
+                         pdsep.max=optionsList$pdsep.max, 
                          rules=optionsList$rules,
+                         doPdsep=optionsList$doPdsep,
+                         biCC=optionsList$biCC,
                          conservative= optionsList$conservative, 
                          maj.rule=optionsList$maj.rule,
-                         verbose= verbose )
+                         numCores=optionsList$numCores,
+                         verbose=verbose)
   fcimat <- fci.fit@amat
   
   if(is.logical(fcimat)){

@@ -84,7 +84,6 @@
 #' individual documentations of the methods for more options and their 
 #' possible values.
 #' @param verbose If \code{TRUE}, detailed output is provided.
-#' @param ... Parameters to be passed to underlying method's function.
 #' 
 #' @return A sparse matrix, where a 0 entry in (j,k) corresponds to an estimate 
 #' of 'no edge' \code{j} -> \code{parentsOf[k]}. Entries between 0 and 100 

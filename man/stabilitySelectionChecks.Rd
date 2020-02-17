@@ -4,8 +4,14 @@
 \alias{stabilitySelectionChecks}
 \title{Check the validity of the stability selection inputs.}
 \usage{
-stabilitySelectionChecks(p, q, nodewise, threshold, sampleSettings,
-  sampleObservations)
+stabilitySelectionChecks(
+  p,
+  q,
+  nodewise,
+  threshold,
+  sampleSettings,
+  sampleObservations
+)
 }
 \arguments{
 \item{p}{Number of variables}

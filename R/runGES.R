@@ -3,6 +3,7 @@ runGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose,
   
   # additional options for GES
   optionsList <- list("phase"= c("forward", "backward", "turning"),
+                      "iterate"=TRUE,
                       "adaptive" = "none", 
                       "maxDegree"=integer(0),
                       "lambda" = 0.5*log(nrow(X)))
@@ -18,6 +19,7 @@ runGES <- function(X, parentsOf, variableSelMat, setOptions, directed, verbose,
                fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
                adaptive = optionsList$adaptive,
                phase = optionsList$phase,
+               iterate = optionsList$iterate,
                maxDegree=optionsList$maxDegree, 
                verbose=verbose, ...)
   gesmat <- as(G$essgraph, "matrix")

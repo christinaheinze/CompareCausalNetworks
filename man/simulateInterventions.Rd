@@ -4,9 +4,22 @@
 \alias{simulateInterventions}
 \title{Simulate data of a causal (possibly cyclic model) under interventions.}
 \usage{
-simulateInterventions(n, p, df, rhoNoise, snrPar, sparse, doInterv,
-  numberInt, strengthInt, cyclic, strengthCycle, modelMis = FALSE,
-  modelMisPar = 1, seed = 1)
+simulateInterventions(
+  n,
+  p,
+  df,
+  rhoNoise,
+  snrPar,
+  sparse,
+  doInterv,
+  numberInt,
+  strengthInt,
+  cyclic,
+  strengthCycle,
+  modelMis = FALSE,
+  modelMisPar = 1,
+  seed = 1
+)
 }
 \arguments{
 \item{n}{Number of observations.}

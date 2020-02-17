@@ -8,7 +8,7 @@ runFCIPlus <- function(X, parentsOf, alpha, setOptions,
   
   # additional options for FCI
   optionsList <- list("indepTest"=pcalg::gaussCItest,
-                      "alpha"=alpha)
+                      "alpha"=alpha, "labels"=as.character(1:ncol(X)))
   
   # adjust according to setOptions if necessary
   optionsList <- adjustOptions(availableOptions = optionsList, 
@@ -18,6 +18,7 @@ runFCIPlus <- function(X, parentsOf, alpha, setOptions,
   fci.fit <- pcalg::fciPlus(suffStat, 
                          indepTest = optionsList$indepTest, 
                          alpha = alpha,
+                         labels=optionsList$labels,
                          p=ncol(X), 
                          verbose= verbose )
   fcimat <- fci.fit@amat

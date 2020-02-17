@@ -4,16 +4,28 @@
 \alias{getParentsStable}
 \title{Estimate the connectivity matrix of a causal graph using stability selection.}
 \usage{
-getParentsStable(X, environment, interventions = NULL, EV = 1,
-  nodewise = TRUE, threshold = 0.75, nsim = 100,
-  sampleSettings = 1/sqrt(2), sampleObservations = 1/sqrt(2),
-  parentsOf = 1:ncol(X), method = c("ICP", "hiddenICP", "backShift",
-  "pc", "LINGAM", "ges", "gies", "CAM", "fci", "rfci", "regression",
-  "bivariateANM", "bivariateCAM")[1], alpha = 0.1, mode = c("raw",
-  "parental", "ancestral")[1], variableSelMat = NULL,
-  excludeTargetInterventions = TRUE, onlyObservationalData = FALSE,
-  indexObservationalData = NULL, setOptions = list(),
-  verbose = FALSE)
+getParentsStable(
+  X,
+  environment,
+  interventions = NULL,
+  EV = 1,
+  nodewise = TRUE,
+  threshold = 0.75,
+  nsim = 100,
+  sampleSettings = 1/sqrt(2),
+  sampleObservations = 1/sqrt(2),
+  parentsOf = 1:ncol(X),
+  method = c("ICP", "hiddenICP", "backShift", "pc", "LINGAM", "ges", "gies", "CAM",
+    "fci", "rfci", "regression", "bivariateANM", "bivariateCAM")[1],
+  alpha = 0.1,
+  mode = c("raw", "parental", "ancestral")[1],
+  variableSelMat = NULL,
+  excludeTargetInterventions = TRUE,
+  onlyObservationalData = FALSE,
+  indexObservationalData = NULL,
+  setOptions = list(),
+  verbose = FALSE
+)
 }
 \arguments{
 \item{X}{A (nxp)-data matrix with n observations of p variables.}
@@ -111,8 +123,6 @@ individual documentations of the methods for more options and their
 possible values.}
 
 \item{verbose}{If \code{TRUE}, detailed output is provided.}
-
-\item{...}{Parameters to be passed to underlying method's function.}
 }
 \value{
 A sparse matrix, where a 0 entry in (j,k) corresponds to an estimate 

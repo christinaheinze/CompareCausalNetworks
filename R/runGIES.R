@@ -6,7 +6,9 @@ runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions,
     stop("'interventions' cannot be 'NULL' for method 'gies'")
   
   # additional optionsList for GIES
-  optionsList <- list("phase"=c("forward", "backward", "turning"), 
+  optionsList <- list("phase"=c("forward", "backward", "turning"),
+                      "iterate"=TRUE,
+                      "adaptive"="none",
                       "maxDegree"=integer(0), 
                       "lambda" = 0.5*log(nrow(X)))
   
@@ -34,7 +36,9 @@ runGIES <- function(X, interventions, parentsOf, variableSelMat, setOptions,
 
   tmp <- pcalg::gies(score, 
                      fixedGaps=if(is.null(variableSelMat)) NULL else (!variableSelMat), 
+                     adaptive = optionsList$adaptive,
                      phase=optionsList$phase, 
+                     iterate = optionsList$iterate,
                      maxDegree=optionsList$maxDegree,
                      verbose=verbose, ...)
    

@@ -4,16 +4,29 @@
 \alias{getParents}
 \title{Estimate the connectivity matrix of a causal graph}
 \usage{
-getParents(X, environment = NULL, interventions = NULL,
-  parentsOf = 1:ncol(X), method = c("arges", "backShift",
-  "bivariateANM", "bivariateCAM", "CAM", "fci", "fciplus", "ges", "gies",
-  "hiddenICP", "ICP", "LINGAM", "mmhc", "rankArges", "rankFci", "rankGes",
-  "rankGies", "rankPc", "rfci", "pc", "regression")[12], alpha = 0.1,
-  mode = c("raw", "parental", "ancestral")[1], variableSelMat = NULL,
-  excludeTargetInterventions = TRUE, onlyObservationalData = FALSE,
-  indexObservationalData = 1, returnAsList = FALSE, sparse = FALSE,
-  directed = FALSE, pointConf = FALSE, setOptions = list(),
-  assumeNoSelectionVars = TRUE, verbose = FALSE, ...)
+getParents(
+  X,
+  environment = NULL,
+  interventions = NULL,
+  parentsOf = 1:ncol(X),
+  method = c("arges", "backShift", "bivariateANM", "bivariateCAM", "CAM", "fci",
+    "fciplus", "ges", "gies", "hiddenICP", "ICP", "LINGAM", "mmhc", "rankArges",
+    "rankFci", "rankGes", "rankGies", "rankPc", "rfci", "pc", "regression")[12],
+  alpha = 0.1,
+  mode = c("raw", "parental", "ancestral")[1],
+  variableSelMat = NULL,
+  excludeTargetInterventions = TRUE,
+  onlyObservationalData = FALSE,
+  indexObservationalData = 1,
+  returnAsList = FALSE,
+  sparse = FALSE,
+  directed = FALSE,
+  pointConf = FALSE,
+  setOptions = list(),
+  assumeNoSelectionVars = TRUE,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{X}{A \eqn{(n} x \eqn{p)}-data matrix with n observations of  \eqn{p} variables.}
@@ -196,14 +209,14 @@ if(require(backShift) & require(pcalg)){
   par(mfrow=c(ceiling((length(methods)+1)/sq),sq))
   
   ## plot and print true graph
-  cat("\\n true graph is  ------  \\n" )
+  cat("\n true graph is  ------  \n" )
   print(A)
   plotGraphEdgeAttr(A, plotStabSelec = FALSE, labels = labels, thres.point = 0,
    main = "TRUE GRAPH")
   
   ## loop over all methods and compute and print/plot estimate
   for (method in methods){
-    cat("\\n result for method", method,"  ------  \\n" )
+    cat("\n result for method", method,"  ------  \n" )
   
     if(!stability){
       # Option 1): use this estimator as a point estimate
@@ -220,14 +233,14 @@ if(require(backShift) & require(pcalg)){
     if(!stability)
       plotGraphEdgeAttr(Ahat, plotStabSelec = FALSE, labels = labels,
        thres.point = 0.05,
-       main=paste("POINT ESTIMATE FOR METHOD\\n", toupper(method)))
+       main=paste("POINT ESTIMATE FOR METHOD\n", toupper(method)))
     else
       plotGraphEdgeAttr(Ahat, plotStabSelec = TRUE, labels = labels,
        thres.point = 0, main = paste("STABILITY SELECTION
-       ESTIMATE\\n FOR METHOD", toupper(method)))
+       ESTIMATE\n FOR METHOD", toupper(method)))
    }
 }else{
-    cat("\\nThe packages 'backShift' and 'pcalg' are needed for the examples to
+    cat("\nThe packages 'backShift' and 'pcalg' are needed for the examples to
 work. Please install them.")
 }
  
